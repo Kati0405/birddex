@@ -19,6 +19,7 @@ import behaviourFast from '@/components/icons/behaviour/fast.svg';
 import behaviourSecretive from '@/components/icons/behaviour/secretive.svg';
 import behaviourGhost from '@/components/icons/behaviour/ghost.svg';
 import behaviourFlock from '@/components/icons/behaviour/flock.svg';
+import behaviourFeeder from '@/components/icons/behaviour/feeder.svg';
 import type { Bird } from '@/lib/types';
 import { RARITY_COLOR } from '@/lib/rarity';
 import BirdImage from './BirdImage';
@@ -38,6 +39,7 @@ const BEHAVIOUR_ICON: Record<string, string> = {
   'fast flyer': behaviourFast,
   'berry lover': behaviourBerry,
   'forest ghost': behaviourGhost,
+  'feeder visitor': behaviourFeeder,
 };
 
 const PAPER_BG =

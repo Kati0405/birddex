@@ -36,9 +36,10 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  response.headers.set('x-pathname', pathname);
   return response;
 }
 
 export const config = {
-  matcher: ['/birds/:path*/edit', '/admin/:path*', '/login', '/signup'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
