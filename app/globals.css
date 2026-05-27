@@ -1,26 +1,70 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-lato);
+  --font-mono: var(--font-dm-mono);
+  --font-heading: var(--font-playfair);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-rarity-common: #eaecf7;
+  --color-rarity-uncommon: #198b58;
+  --color-rarity-rare: #306fd5;
+  --color-rarity-epic: #8d33ab;
+  --color-rarity-legendary: #f9a01f;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: #f5f0e8;
+  --foreground: #1c1810;
+  --card: #fdfaf4;
+  --card-foreground: #1c1810;
+  --popover: #fdfaf4;
+  --popover-foreground: #1c1810;
+  --primary: #5a7a3a;
+  --primary-foreground: #fdfaf4;
+  --secondary: #ede8dc;
+  --secondary-foreground: #1c1810;
+  --muted: #ede8dc;
+  --muted-foreground: #7a7060;
+  --accent: #ede8dc;
+  --accent-foreground: #1c1810;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #d8d0be;
+  --input: #d8d0be;
+  --ring: #5a7a3a;
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
