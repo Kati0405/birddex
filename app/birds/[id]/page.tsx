@@ -1,45 +1,16 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getBirdById } from '@/lib/birds';
-import { RARITY_COLOR } from '@/lib/rarity';
-import { getUser, getUserRole } from '@/lib/auth';
-import { checkIfCollected } from '@/lib/collection';
-import CollectButton from '@/components/CollectButton';
-import { biomeImage } from '@/lib/biome';
-import { foodImage } from '@/lib/food';
-import BirdImage from '@/components/BirdImage';
-import HexIcon from '@/components/HexIcon';
-import ObservationMonthsChart from '@/components/ObservationMonthsChart';
-import SoundButton from '@/components/SoundButton';
+import { getBirdById } from '@/features/birds/bird-queries';
+import { RARITY_COLOR, foodImage, biomeImage, behaviourImage } from '@/entities/bird-domain';
+import { getUser, getUserRole } from '@/features/auth/auth-helpers';
+import { checkIfCollected } from '@/features/collection/collection-queries';
+import CollectButton from '@/features/collection/components/CollectButton/CollectButton';
+import BirdImage from '@/features/birds/components/BirdImage/BirdImage';
+import HexIcon from '@/shared/ui/HexIcon/HexIcon';
+import ObservationMonthsChart from '@/shared/ui/ObservationMonthsChart/ObservationMonthsChart';
+import SoundButton from '@/shared/ui/SoundButton/SoundButton';
 import wingImg from '@/components/icons/ui/wing.png';
-import behaviourFish from '@/components/icons/behaviour/fish.svg';
-import behaviourSong from '@/components/icons/behaviour/song.svg';
-import behaviourMimic from '@/components/icons/behaviour/mimic.svg';
-import behaviourNocturnal from '@/components/icons/behaviour/nocturnal.svg';
-import behaviourBerry from '@/components/icons/behaviour/berry.svg';
-import behaviourPredator from '@/components/icons/behaviour/predator.svg';
-import behaviourUrban from '@/components/icons/behaviour/urban.svg';
-import behaviourTerritorial from '@/components/icons/behaviour/territorial.svg';
-import behaviourFast from '@/components/icons/behaviour/fast.svg';
-import behaviourSecretive from '@/components/icons/behaviour/secretive.svg';
-import behaviourGhost from '@/components/icons/behaviour/ghost.svg';
-import behaviourFlock from '@/components/icons/behaviour/flock.svg';
-
-const BEHAVIOUR_ICON: Record<string, string> = {
-  nocturnal: behaviourNocturnal,
-  predator: behaviourPredator,
-  songbird: behaviourSong,
-  mimic: behaviourMimic,
-  'flock bird': behaviourFlock,
-  'urban survivor': behaviourUrban,
-  'fish hunter': behaviourFish,
-  secretive: behaviourSecretive,
-  territorial: behaviourTerritorial,
-  'fast flyer': behaviourFast,
-  'berry lover': behaviourBerry,
-  'forest ghost': behaviourGhost,
-};
 
 const PAPER_BG = 'linear-gradient(170deg, #faf6ed 0%, #f0e6cc 45%, #e4d5b0 100%)';
 const PAPER_MID = '#eadfc6';
@@ -76,7 +47,6 @@ export default async function BirdPage({
           ← Back to catalog
         </Link>
 
-        {/* Card shell */}
         <div
           className="relative rounded-xl overflow-hidden flex flex-col"
           style={{
@@ -85,10 +55,8 @@ export default async function BirdPage({
             background: PAPER_BG,
           }}
         >
-          {/* Rarity colour band */}
           <div className="h-1.5 w-full shrink-0" style={{ background: frameColor }} />
 
-          {/* Name row */}
           <div className="px-5 pt-5 pb-2 flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h1 className="text-xl font-black leading-tight" style={{ color: INK }}>
@@ -113,7 +81,6 @@ export default async function BirdPage({
             </div>
           </div>
 
-          {/* Image */}
           <BirdImage
             imageUrl={bird.image_url}
             selectedImage={bird.selected_image}
@@ -122,7 +89,6 @@ export default async function BirdPage({
             style={{ height: 320 }}
           />
 
-          {/* Icon row: food left, biomes right */}
           <div className="px-3 pt-3 pb-1 flex items-center justify-between">
             <div className="flex gap-1">
               {bird.food.slice(0, 3).map((f) => (
@@ -136,10 +102,8 @@ export default async function BirdPage({
             </div>
           </div>
 
-          {/* Divider */}
           <div className="mx-4 my-2 h-px" style={{ background: DIVIDER }} />
 
-          {/* Field note */}
           <div className="px-4 pb-3">
             <div
               className="rounded-lg px-4 py-3"
@@ -156,7 +120,6 @@ export default async function BirdPage({
             </div>
           </div>
 
-          {/* Behaviour tags */}
           {bird.behaviour.length > 0 && (
             <div className="px-4 pb-3 flex flex-wrap gap-1.5">
               {bird.behaviour.map((b) => (
@@ -169,8 +132,8 @@ export default async function BirdPage({
                     color: INK_MED,
                   }}
                 >
-                  {BEHAVIOUR_ICON[b] && (
-                    <Image src={BEHAVIOUR_ICON[b]} alt="" width={12} height={12} className="opacity-70" />
+                  {behaviourImage[b] && (
+                    <Image src={behaviourImage[b]} alt="" width={12} height={12} className="opacity-70" />
                   )}
                   {b}
                 </span>
@@ -178,10 +141,8 @@ export default async function BirdPage({
             </div>
           )}
 
-          {/* Divider */}
           <div className="mx-4 my-1 h-px" style={{ background: DIVIDER }} />
 
-          {/* Best months chart */}
           <div className="px-4 py-3">
             <p className="text-[10px] uppercase tracking-widest font-semibold mb-2" style={{ color: INK_LIGHT }}>
               Best months to observe
@@ -189,7 +150,6 @@ export default async function BirdPage({
             <ObservationMonthsChart bestMonths={bird.best_months} />
           </div>
 
-          {/* Wingspan */}
           <div
             className="px-4 pt-2 pb-4 flex items-center gap-2 border-t"
             style={{ borderColor: DIVIDER }}
@@ -204,7 +164,6 @@ export default async function BirdPage({
             <Image src={wingImg} alt="" width={26} height={26} style={{ opacity: 0.55 }} className="scale-x-[-1]" />
           </div>
 
-          {/* Collect / Edit row */}
           <div
             className="px-4 pb-4 flex items-center justify-between border-t pt-3"
             style={{ borderColor: DIVIDER }}

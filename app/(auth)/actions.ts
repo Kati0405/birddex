@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 
 export async function signInWithGoogleAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();

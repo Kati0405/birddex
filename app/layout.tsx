@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Mono, Lato } from "next/font/google";
-import AppHeader from "@/components/AppHeader";
+import AppHeader from "@/features/auth/components/AppHeader/AppHeader";
 import "./globals.css";
 
 const playfair = Playfair_Display({

@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { getBirdById } from "@/lib/birds";
-import WikimediaImagePicker from "@/components/WikimediaImagePicker";
-import BirdMetadataEditor from "@/components/BirdMetadataEditor";
-import type { WikimediaImage } from "@/lib/types";
-import { requireAdmin } from "@/lib/auth";
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { getBirdById } from '@/features/birds/bird-queries';
+import WikimediaImagePicker from '@/features/birds/components/WikimediaImagePicker/WikimediaImagePicker';
+import BirdMetadataEditor from '@/features/birds/components/BirdMetadataEditor/BirdMetadataEditor';
+import type { WikimediaImage } from '@/entities/bird-domain';
+import { requireAdmin } from '@/features/auth/auth-helpers';
 
 interface WikimediaResult {
   title: string;
@@ -13,16 +13,16 @@ interface WikimediaResult {
 
 async function fetchWikimediaImages(query: string): Promise<WikimediaResult[]> {
   const params = new URLSearchParams({
-    action: "query",
-    generator: "search",
+    action: 'query',
+    generator: 'search',
     gsrsearch: `filetype:bitmap ${query}`,
-    gsrnamespace: "6",
-    gsrlimit: "20",
-    prop: "imageinfo",
-    iiprop: "url|user|extmetadata",
-    iiurlwidth: "400",
-    format: "json",
-    origin: "*",
+    gsrnamespace: '6',
+    gsrlimit: '20',
+    prop: 'imageinfo',
+    iiprop: 'url|user|extmetadata',
+    iiurlwidth: '400',
+    format: 'json',
+    origin: '*',
   });
 
   const res = await fetch(
@@ -53,10 +53,9 @@ async function fetchWikimediaImages(query: string): Promise<WikimediaResult[]> {
       const info = p.imageinfo?.[0];
       if (!info) return null;
 
-      const rawAuthor = info.extmetadata?.Artist?.value ?? info.user ?? "Unknown";
-      // Strip HTML tags from author field (Wikimedia often returns HTML here)
-      const author = rawAuthor.replace(/<[^>]+>/g, "").trim() || "Unknown";
-      const license = info.extmetadata?.LicenseShortName?.value ?? "Unknown";
+      const rawAuthor = info.extmetadata?.Artist?.value ?? info.user ?? 'Unknown';
+      const author = rawAuthor.replace(/<[^>]+>/g, '').trim() || 'Unknown';
+      const license = info.extmetadata?.LicenseShortName?.value ?? 'Unknown';
 
       return {
         title: p.title,
@@ -105,7 +104,6 @@ export default async function BirdEditPage({
           <p className="text-sm italic text-muted-foreground">{bird.name_latin}</p>
         </div>
 
-        {/* Search form — navigates to same page with ?q= */}
         <form method="get" className="flex gap-2">
           <input
             name="q"
