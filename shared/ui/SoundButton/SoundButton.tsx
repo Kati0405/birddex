@@ -26,7 +26,7 @@ export default function SoundButton({ soundUrl }: Props) {
         <span
           className="pointer-events-none absolute top-full mt-1.5 right-0
             opacity-0 group-hover:opacity-100 transition-opacity duration-150
-            bg-[#2a1808cc] text-[#faf6ed] text-[8px] tracking-wide uppercase
+            bg-foreground/80 text-background text-[8px] tracking-wide uppercase
             px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20"
         >
           No recording
@@ -69,7 +69,7 @@ export default function SoundButton({ soundUrl }: Props) {
       <span
         className="pointer-events-none absolute top-full mt-1.5 right-0
           opacity-0 group-hover:opacity-100 transition-opacity duration-150
-          bg-[#2a1808cc] text-[#faf6ed] text-[8px] tracking-wide uppercase
+          bg-foreground/80 text-background text-[8px] tracking-wide uppercase
           px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20"
       >
         {playing ? 'Stop' : 'Play call'}
