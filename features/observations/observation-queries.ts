@@ -1,13 +1,20 @@
 import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 import { requireAuth } from '@/features/auth/auth-helpers';
 
-export async function addObservation(birdId: number, observedAt: Date): Promise<void> {
+export async function addObservation(
+  birdId: number,
+  observedAt: Date,
+  lat: number | null,
+  lng: number | null,
+): Promise<void> {
   const user = await requireAuth();
   const supabase = await createSupabaseServerClient();
   await supabase.from('observations').insert({
     user_id: user.id,
     bird_id: birdId,
     observed_at: observedAt.toISOString(),
+    lat,
+    lng,
   });
 }
 

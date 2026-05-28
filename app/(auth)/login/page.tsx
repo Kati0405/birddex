@@ -1,23 +1,13 @@
 import { signInWithGoogleAction } from '../actions';
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
+export default function LoginPage() {
   return (
-    <div
-      className="w-full max-w-sm rounded-xl p-8 space-y-6"
-      style={{
-        background: 'linear-gradient(170deg, #faf6ed 0%, #f0e6cc 45%, #e4d5b0 100%)',
-        border: '1px solid #c4a87840',
-      }}
-    >
+    <div className="w-full max-w-sm rounded-xl p-8 space-y-6 bg-card border border-border">
       <div className="text-center space-y-1">
-        <h1 className="text-2xl font-black" style={{ color: '#2a1808', fontFamily: 'var(--font-playfair)' }}>
+        <h1 className="text-2xl font-black font-heading text-foreground">
           BirdDex
         </h1>
-        <p className="text-sm italic" style={{ color: '#8a6c44', fontFamily: 'var(--font-playfair)' }}>
+        <p className="text-sm italic font-heading text-muted-foreground">
           Your field journal awaits
         </p>
       </div>
@@ -25,15 +15,14 @@ export default function LoginPage({
       <form action={signInWithGoogleAction}>
         <button
           type="submit"
-          className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-semibold transition-all hover:opacity-90"
-          style={{ background: '#ffffff', color: '#1a1208', border: '1px solid #c4a87860' }}
+          className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-semibold bg-background text-foreground border border-border transition-all hover:opacity-90"
         >
           <GoogleIcon />
           Continue with Google
         </button>
       </form>
 
-      <p className="text-center text-[11px] leading-relaxed" style={{ color: '#8a6c44' }}>
+      <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
         By signing in you agree to keep your field notes somewhat accurate.
       </p>
     </div>

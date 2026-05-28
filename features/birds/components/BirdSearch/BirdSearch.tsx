@@ -1,17 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Bird, Biome, Food, Rarity } from '@/entities/bird-domain';
+import { BIOMES, FOODS } from '@/entities/bird-domain';
+import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
+import BirdSearchSidebar from './BirdSearchSidebar';
+import type { SavedLocation } from '@/features/locations/location-queries';
 
 const PAGE_SIZE = 20;
-import { Input } from '@/components/ui/input';
-import { cn } from '@/shared/lib/cn';
-import type { Bird, Biome, Food, Rarity } from '@/entities/bird-domain';
-import { BIOMES, biomeImage, biomeIcon, BIOME_FALLBACK_ICON } from '@/entities/bird-domain';
-import { FOODS, foodImage, foodIcon, FOOD_FALLBACK_ICON } from '@/entities/bird-domain';
-import { RARITY_COLOR } from '@/entities/bird-domain';
-import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
-import HexIcon from '@/shared/ui/HexIcon/HexIcon';
-
 const RARITIES: Rarity[] = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
 
 export default function BirdSearch({
@@ -19,11 +15,13 @@ export default function BirdSearch({
   isAdmin = false,
   isAuthenticated = false,
   observedIds = [],
+  savedLocations = [],
 }: {
   birds: Bird[];
   isAdmin?: boolean;
   isAuthenticated?: boolean;
   observedIds?: number[];
+  savedLocations?: SavedLocation[];
 }) {
   const [query, setQuery] = useState('');
   const [selectedRarities, setSelectedRarities] = useState<Set<Rarity>>(new Set());
@@ -92,164 +90,47 @@ export default function BirdSearch({
   }, [loadMore]);
 
   const visibleBirds = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
-  const hasMore = visibleCount < filtered.length;
   const hasActiveFilters = selectedRarities.size > 0 || selectedBiomes.size > 0 || selectedFoods.size > 0;
 
+  function handleReset() {
+    setSelectedRarities(new Set());
+    setSelectedBiomes(new Set());
+    setSelectedFoods(new Set());
+    setVisibleCount(PAGE_SIZE);
+  }
+
   return (
-    <div className="flex min-h-[calc(100vh-160px)]">
-      {/* Sidebar */}
-      <aside className="w-64 shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-border flex flex-col" style={{ background: '#faf6ee' }}>
-        <div className="flex-1 px-4 py-5 space-y-6">
-          <Input
-            type="text"
-            placeholder="Search birds..."
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }}
-            className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60"
-          />
+    <div className='flex min-h-[calc(100vh-160px)]'>
+      <BirdSearchSidebar
+        query={query}
+        onQueryChange={(q) => { setQuery(q); setVisibleCount(PAGE_SIZE); }}
+        selectedRarities={selectedRarities}
+        onToggleRarity={(r) => { setSelectedRarities(toggle(selectedRarities, r)); setVisibleCount(PAGE_SIZE); }}
+        selectedBiomes={selectedBiomes}
+        onToggleBiome={(b) => { setSelectedBiomes(toggle(selectedBiomes, b)); setVisibleCount(PAGE_SIZE); }}
+        selectedFoods={selectedFoods}
+        onToggleFood={(f) => { setSelectedFoods(toggle(selectedFoods, f)); setVisibleCount(PAGE_SIZE); }}
+        availableBiomes={availableBiomes}
+        availableFoods={availableFoods}
+        rarityCounts={rarityCounts}
+        biomeCounts={biomeCounts}
+        foodCounts={foodCounts}
+        hasActiveFilters={hasActiveFilters}
+        onReset={handleReset}
+      />
 
-          <div>
-            <p className="text-[9px] font-semibold tracking-[0.25em] text-muted-foreground uppercase mb-3" style={{ fontFamily: 'var(--font-dm-mono)' }}>
-              Filters
-            </p>
-
-            <FilterSection label="Rarity">
-              {RARITIES.map((r) => {
-                const active = selectedRarities.has(r);
-                return (
-                  <FilterRow
-                    key={r}
-                    active={active}
-                    onClick={() => { setSelectedRarities(toggle(selectedRarities, r)); setVisibleCount(PAGE_SIZE); }}
-                    count={rarityCounts[r] ?? 0}
-                    label={r}
-                    icon={
-                      <span
-                        className="inline-block shrink-0"
-                        style={{
-                          width: 18,
-                          height: 18,
-                          clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                          backgroundColor: RARITY_COLOR[r],
-                        }}
-                      />
-                    }
-                  />
-                );
-              })}
-            </FilterSection>
-
-            <FilterSection label="Biome">
-              {availableBiomes.map((b) => {
-                const active = selectedBiomes.has(b);
-                return (
-                  <FilterRow
-                    key={b}
-                    active={active}
-                    onClick={() => { setSelectedBiomes(toggle(selectedBiomes, b)); setVisibleCount(PAGE_SIZE); }}
-                    count={biomeCounts[b] ?? 0}
-                    label={b}
-                    icon={
-                      biomeImage[b]
-                        ? <HexIcon imageSrc={biomeImage[b]} size={24} />
-                        : <span className="text-base leading-none">{biomeIcon[b] ?? BIOME_FALLBACK_ICON}</span>
-                    }
-                  />
-                );
-              })}
-            </FilterSection>
-
-            <FilterSection label="Food">
-              {availableFoods.map((f) => {
-                const active = selectedFoods.has(f);
-                return (
-                  <FilterRow
-                    key={f}
-                    active={active}
-                    onClick={() => { setSelectedFoods(toggle(selectedFoods, f)); setVisibleCount(PAGE_SIZE); }}
-                    count={foodCounts[f] ?? 0}
-                    label={f}
-                    icon={
-                      foodImage[f]
-                        ? <HexIcon imageSrc={foodImage[f]} size={24} />
-                        : <span className="text-base leading-none">{foodIcon[f] ?? FOOD_FALLBACK_ICON}</span>
-                    }
-                  />
-                );
-              })}
-            </FilterSection>
-          </div>
-        </div>
-
-        {hasActiveFilters && (
-          <div className="px-4 py-4 border-t border-border">
-            <button
-              onClick={() => {
-                setSelectedRarities(new Set());
-                setSelectedBiomes(new Set());
-                setSelectedFoods(new Set());
-                setVisibleCount(PAGE_SIZE);
-              }}
-              className="w-full rounded-md px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
-            >
-              Reset Filters
-            </button>
-          </div>
-        )}
-      </aside>
-
-      {/* Grid area */}
-      <div className="flex-1 px-6 py-5">
-        <p className="mb-4 text-[10px] text-muted-foreground tracking-widest uppercase" style={{ fontFamily: 'var(--font-dm-mono)' }}>
+      <div className='flex-1 px-6 py-5'>
+        <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
           {filtered.length} {filtered.length === 1 ? 'species' : 'species'} found
         </p>
-        <BirdGrid birds={visibleBirds} isAdmin={isAdmin} isAuthenticated={isAuthenticated} observedIds={observedIds} />
-        <div ref={sentinelRef} className="h-8" />
-        {hasMore && (
-          <p className="py-4 text-center text-[10px] text-muted-foreground tracking-widest uppercase" style={{ fontFamily: 'var(--font-dm-mono)' }}>
+        <BirdGrid birds={visibleBirds} isAdmin={isAdmin} isAuthenticated={isAuthenticated} observedIds={observedIds} savedLocations={savedLocations} />
+        <div ref={sentinelRef} className='h-8' />
+        {visibleCount < filtered.length && (
+          <p className='py-4 text-center text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
             Loading…
           </p>
         )}
       </div>
     </div>
-  );
-}
-
-function FilterSection({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="mb-5">
-      <p className="mb-1.5 text-[9px] font-medium text-muted-foreground uppercase tracking-[0.2em]" style={{ fontFamily: 'var(--font-dm-mono)' }}>{label}</p>
-      <div className="space-y-0.5">{children}</div>
-    </div>
-  );
-}
-
-function FilterRow({
-  icon,
-  label,
-  count,
-  active,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  count: number;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors',
-        active
-          ? 'bg-muted/60 text-foreground'
-          : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground',
-      )}
-    >
-      <span className="flex h-6 w-6 items-center justify-center shrink-0">{icon}</span>
-      <span className="flex-1 capitalize">{label}</span>
-      <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
-    </button>
   );
 }

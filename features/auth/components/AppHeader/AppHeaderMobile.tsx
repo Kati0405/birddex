@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/shared/lib/cn';
 import { logoutAction } from '@/app/(auth)/actions';
 
 type Props = {
@@ -21,30 +22,15 @@ export default function AppHeaderMobile({ isAuthenticated, seenCount, totalBirds
       <button
         onClick={() => setOpen(!open)}
         aria-label="Toggle menu"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          gap: '5px',
-          width: '36px',
-          height: '36px',
-          padding: '6px',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-        }}
+        className="flex flex-col justify-center gap-[5px] w-9 h-9 p-1.5 bg-transparent border-0 cursor-pointer"
       >
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            style={{
-              display: 'block',
-              height: '1.5px',
-              background: '#2d4a1e',
-              borderRadius: '1px',
-              width: i === 1 ? '60%' : '100%',
-              transition: 'opacity 0.2s',
-            }}
+            className={cn(
+              'block h-[1.5px] bg-foreground rounded-sm transition-opacity',
+              i === 1 ? 'w-[60%]' : 'w-full',
+            )}
           />
         ))}
       </button>
@@ -53,45 +39,12 @@ export default function AppHeaderMobile({ isAuthenticated, seenCount, totalBirds
         <>
           <div
             onClick={() => setOpen(false)}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 40,
-              background: 'rgba(20,32,12,0.35)',
-              backdropFilter: 'blur(2px)',
-            }}
+            className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm"
           />
-          <nav
-            style={{
-              position: 'fixed',
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: 'min(280px, 80vw)',
-              zIndex: 50,
-              background: '#f8f4ec',
-              borderLeft: '1px solid #d0c8b0',
-              display: 'flex',
-              flexDirection: 'column',
-              padding: '48px 32px 32px',
-              gap: '4px',
-              boxShadow: '-8px 0 32px rgba(20,32,12,0.12)',
-            }}
-          >
+          <nav className="fixed top-0 right-0 bottom-0 w-[min(280px,80vw)] z-50 bg-card border-l border-border flex flex-col pt-12 px-8 pb-8 gap-1 shadow-2xl">
             <button
               onClick={() => setOpen(false)}
-              style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#7a7060',
-                fontSize: '20px',
-                lineHeight: 1,
-                padding: '4px',
-              }}
+              className="absolute top-4 right-4 bg-transparent border-0 cursor-pointer text-muted-foreground text-xl leading-none p-1"
             >
               ×
             </button>
@@ -100,52 +53,28 @@ export default function AppHeaderMobile({ isAuthenticated, seenCount, totalBirds
             {isAuthenticated && (
               <MobileNavLink href="/collection" label="My Collection" active={currentPath === '/collection'} onClick={() => setOpen(false)} />
             )}
+            {isAuthenticated && (
+              <MobileNavLink href="/locations" label="My Locations" active={currentPath === '/locations'} onClick={() => setOpen(false)} />
+            )}
 
             {isAuthenticated && seenCount !== undefined && totalBirds !== undefined && (
-              <div style={{
-                marginTop: '16px',
-                padding: '12px 16px',
-                background: '#eee8d8',
-                borderRadius: '8px',
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '11px',
-                color: '#5a7a3a',
-                letterSpacing: '0.08em',
-              }}>
+              <div className="mt-4 px-4 py-3 bg-secondary rounded-lg font-mono text-[11px] text-primary tracking-wide">
                 Seen {seenCount} / {totalBirds}
               </div>
             )}
 
-            <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid #d8d0be' }}>
+            <div className="mt-auto pt-6 border-t border-border">
               {isAuthenticated ? (
                 <>
                   {userEmail && (
-                    <div style={{
-                      fontFamily: 'var(--font-dm-mono)',
-                      fontSize: '10px',
-                      color: '#9a9080',
-                      marginBottom: '12px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}>
+                    <div className="font-mono text-[10px] text-muted-foreground mb-3 truncate">
                       {userEmail}
                     </div>
                   )}
                   <form action={logoutAction}>
                     <button
                       type="submit"
-                      style={{
-                        fontFamily: 'var(--font-dm-mono)',
-                        fontSize: '10px',
-                        letterSpacing: '0.15em',
-                        textTransform: 'uppercase',
-                        color: '#8a6040',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: 0,
-                      }}
+                      className="font-mono text-[10px] tracking-[0.15em] uppercase text-muted-foreground bg-transparent border-0 cursor-pointer p-0 hover:text-foreground transition-colors"
                     >
                       Log out
                     </button>
@@ -155,18 +84,7 @@ export default function AppHeaderMobile({ isAuthenticated, seenCount, totalBirds
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  style={{
-                    display: 'inline-block',
-                    fontFamily: 'var(--font-dm-mono)',
-                    fontSize: '10px',
-                    letterSpacing: '0.15em',
-                    textTransform: 'uppercase',
-                    color: '#f8f4ec',
-                    background: '#3a5828',
-                    padding: '10px 20px',
-                    borderRadius: '6px',
-                    textDecoration: 'none',
-                  }}
+                  className="inline-block font-mono text-[10px] tracking-[0.15em] uppercase text-primary-foreground bg-primary px-5 py-2.5 rounded-md no-underline"
                 >
                   Log in
                 </Link>
@@ -184,17 +102,10 @@ function MobileNavLink({ href, label, active, onClick }: { href: string; label: 
     <Link
       href={href}
       onClick={onClick}
-      style={{
-        display: 'block',
-        fontFamily: 'var(--font-playfair)',
-        fontSize: '1.15rem',
-        fontWeight: active ? 700 : 400,
-        color: active ? '#2d4a1e' : '#5a5040',
-        textDecoration: 'none',
-        padding: '10px 0',
-        borderBottom: '1px solid #e8e0cc',
-        letterSpacing: '-0.01em',
-      }}
+      className={cn(
+        'block font-heading text-[1.15rem] no-underline py-2.5 border-b border-border tracking-[-0.01em]',
+        active ? 'font-bold text-foreground' : 'font-normal text-muted-foreground',
+      )}
     >
       {label}
     </Link>

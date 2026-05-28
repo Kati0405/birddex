@@ -9,8 +9,7 @@ export default async function AuthBar() {
     return (
       <Link
         href="/login"
-        className="text-xs font-semibold uppercase tracking-widest transition-colors"
-        style={{ color: '#6a9048' }}
+        className="text-xs font-semibold uppercase tracking-widest text-primary transition-colors hover:text-primary/80"
       >
         Log in
       </Link>
@@ -19,17 +18,13 @@ export default async function AuthBar() {
 
   return (
     <div className="flex items-center gap-3">
-      <span
-        className="text-xs"
-        style={{ color: '#6a9048', fontFamily: 'var(--font-dm-mono)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-      >
+      <span className="text-xs font-mono text-primary max-w-[160px] overflow-hidden text-ellipsis whitespace-nowrap">
         {user.email}
       </span>
       <form action={logoutAction}>
         <button
           type="submit"
-          className="text-xs font-semibold uppercase tracking-widest transition-colors"
-          style={{ color: '#4a6838' }}
+          className="text-xs font-semibold uppercase tracking-widest text-primary/80 bg-transparent border-0 cursor-pointer transition-colors hover:text-primary"
         >
           Log out
         </button>

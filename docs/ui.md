@@ -7,9 +7,11 @@ All UI is built exclusively with **shadcn/ui** components. Do not create custom 
 | Component | Path | Used for |
 |-----------|------|----------|
 | `Badge`   | `components/ui/badge.tsx` | `RarityBadge`, `StatChip` |
-| `Button`  | `components/ui/button.tsx` | Rarity filter toggles |
+| `Button`  | `components/ui/button.tsx` | Rarity filter toggles, actions |
 | `Card`, `CardContent` | `components/ui/card.tsx` | `BirdCard`, bird detail page |
 | `Input`   | `components/ui/input.tsx` | Search field in `BirdSearch` |
+| `Calendar` | `components/ui/calendar.tsx` | Date picker in observation modal |
+| `Popover` | `components/ui/popover.tsx` | Date picker trigger |
 
 ## Adding a new component
 
@@ -19,38 +21,43 @@ npx shadcn@latest add <component-name>
 
 ## Theme
 
-The birddex theme is a dark forest palette mapped to shadcn CSS variables in `app/globals.css`. There is no light/dark toggle — the site is always dark.
+The BirdDex theme is a **light earthy / parchment palette** mapped to shadcn CSS variables in `app/globals.css`. There is no dark mode — the site is always light.
 
 | shadcn token | Value | Role |
 |---|---|---|
-| `--background` | `#0f1a0e` | Page background |
-| `--foreground` | `#e8ead4` | Body text |
-| `--card` | `#1a2b18` | Card surface |
-| `--card-foreground` | `#e8ead4` | Card text |
-| `--secondary` | `#243320` | Recessed surfaces (card hero area) |
-| `--muted-foreground` | `#7a9170` | Subdued / secondary text |
-| `--border` | `#2e4a2b` | Borders, dividers |
-| `--primary` | `#c8a84b` | Gold accent (logo, blockquote border) |
-| `--ring` | `#c8a84b` | Focus ring |
+| `--background` | `#f5f0e8` | Page background (parchment) |
+| `--foreground` | `#1c1810` | Body text (dark ink) |
+| `--card` | `#fdfaf4` | Card surface |
+| `--card-foreground` | `#1c1810` | Card text |
+| `--secondary` | `#ede8dc` | Recessed surfaces, sidebar |
+| `--muted` | `#ede8dc` | Muted backgrounds |
+| `--muted-foreground` | `#7a7060` | Subdued / secondary text |
+| `--border` | `#d8d0be` | Borders, dividers |
+| `--primary` | `#5a7a3a` | Green accent (logo, active states) |
+| `--primary-foreground` | `#fdfaf4` | Text on primary background |
+| `--ring` | `#5a7a3a` | Focus ring |
 
 Use these Tailwind utilities — **never** raw hex values or CSS variable references like `text-[--color-muted]`:
 
 - Text: `text-foreground`, `text-muted-foreground`, `text-card-foreground`
-- Backgrounds: `bg-background`, `bg-card`, `bg-secondary`
+- Backgrounds: `bg-background`, `bg-card`, `bg-secondary`, `bg-muted`
 - Borders: `border-border`, `border-primary`
-- Accent: `text-primary`, `bg-primary`
+- Accent: `text-primary`, `bg-primary`, `text-primary-foreground`
+- Font families: `font-sans` (Lato), `font-mono` (DM Mono), `font-heading` (Playfair Display)
 
 ## Rarity colors
 
-Rarity colors are one-off and not part of the shadcn token system. Apply them as Tailwind arbitrary values only inside `RarityBadge` and `BirdSearch`. The values are:
+Rarity colors are one-off and not part of the shadcn token system. They are defined as Tailwind theme tokens (`--color-rarity-*`) and must be applied as `bg-rarity-*` / `text-rarity-*` utilities or as inline styles only inside `BirdCard`, `RarityBadge`, and `BirdSearch`. The values are:
 
-| Rarity | Color |
-|--------|-------|
-| Common | `#4ade80` |
-| Uncommon | `#60a5fa` |
-| Rare | `#c084fc` |
-| Epic | `#fb923c` |
-| Legendary | `#fbbf24` |
+| Rarity | Tailwind token | Hex |
+|--------|----------------|-----|
+| Common | `rarity-common` | `#eaecf7` |
+| Uncommon | `rarity-uncommon` | `#198b58` |
+| Rare | `rarity-rare` | `#306fd5` |
+| Epic | `rarity-epic` | `#8d33ab` |
+| Legendary | `rarity-legendary` | `#f9a01f` |
+
+For **dynamic** rarity colors (e.g. computed from a bird's rarity at runtime) use the `RARITY_COLOR` map from `@/entities/bird-domain` with inline styles. Do not hard-code color hex strings outside of `globals.css` and `entities/bird-domain.ts`.
 
 ## Conventions
 
@@ -58,3 +65,5 @@ Rarity colors are one-off and not part of the shadcn token system. Apply them as
 - Never wrap a shadcn component in a new component just to rename it — import and use it directly.
 - Use `variant` and `size` props before reaching for `className` overrides.
 - Icons: use `lucide-react` (already installed as a shadcn dependency).
+- Responsive layout: use Tailwind responsive prefixes (`sm:`, `md:`) — no `@media` blocks in component files.
+- Never use raw hex values in component files. All static color values must map to a CSS variable token via a Tailwind utility class.

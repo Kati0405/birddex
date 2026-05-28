@@ -1,11 +1,13 @@
 import type { Bird } from '@/entities/bird-domain';
 import BirdCard from '@/features/birds/components/BirdCard/BirdCard';
+import type { SavedLocation } from '@/features/locations/location-queries';
 
 interface BirdGridProps {
   birds: Bird[];
   isAdmin?: boolean;
   isAuthenticated?: boolean;
   observedIds?: number[];
+  savedLocations?: SavedLocation[];
 }
 
 export default function BirdGrid({
@@ -13,6 +15,7 @@ export default function BirdGrid({
   isAdmin = false,
   isAuthenticated = false,
   observedIds = [],
+  savedLocations = [],
 }: BirdGridProps) {
   if (birds.length === 0) {
     return (
@@ -33,6 +36,7 @@ export default function BirdGrid({
           isAdmin={isAdmin}
           isAuthenticated={isAuthenticated}
           isObserved={observedSet.has(bird.id)}
+          savedLocations={savedLocations}
         />
       ))}
     </div>

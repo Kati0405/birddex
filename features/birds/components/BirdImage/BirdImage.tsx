@@ -8,7 +8,6 @@ interface Props {
   imageUrl?: string;
   selectedImage?: WikimediaImage;
   className?: string;
-  fadeColor?: string;
   style?: React.CSSProperties;
 }
 
@@ -16,7 +15,6 @@ export default function BirdImage({
   imageUrl,
   selectedImage,
   className,
-  fadeColor = '#e8dfc8',
   style,
 }: Props) {
   const src = selectedImage?.imageUrl ?? imageUrl ?? null;
@@ -24,10 +22,10 @@ export default function BirdImage({
   return (
     <div
       className={cn(
-        'w-full relative overflow-hidden flex items-center justify-center',
+        'w-full relative overflow-hidden flex items-center justify-center bg-secondary',
         className,
       )}
-      style={{ background: '#ddd0ae', ...style }}
+      style={style}
     >
       {src ? (
         <Image
@@ -47,12 +45,7 @@ export default function BirdImage({
         />
       )}
 
-      <div
-        className='absolute bottom-0 left-0 right-0 h-2/5 z-10'
-        style={{
-          background: `linear-gradient(to top, ${fadeColor} 0%, transparent 50%)`,
-        }}
-      />
+      <div className='absolute bottom-0 left-0 right-0 h-2/5 z-10 bg-linear-to-t from-card/80 to-transparent' />
 
       {selectedImage && (
         <a
