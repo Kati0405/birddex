@@ -13,7 +13,6 @@ import SoundButton from '@/shared/ui/SoundButton/SoundButton';
 import wingImg from '@/components/icons/ui/wing.png';
 
 const PAPER_BG = 'linear-gradient(170deg, #faf6ed 0%, #f0e6cc 45%, #e4d5b0 100%)';
-const PAPER_MID = '#eadfc6';
 const INK = '#2a1808';
 const INK_MED = '#6b5030';
 const INK_LIGHT = '#8a6c44';
@@ -85,7 +84,6 @@ export default async function BirdPage({
             imageUrl={bird.image_url}
             selectedImage={bird.selected_image}
             className="mx-3 rounded-lg"
-            fadeColor={PAPER_MID}
             style={{ height: 320 }}
           />
 
