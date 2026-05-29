@@ -1,10 +1,10 @@
 import Image from 'next/image';
 import { biomeImage, foodImage, behaviourImage } from '@/entities/bird-domain';
 import wingImg from '@/components/icons/ui/wing.png';
-import birdImg from '@/components/icons/ui/bird.png';
+import rotateImg from '@/components/icons/ui/rotate.svg';
 import type { Bird } from '@/entities/bird-domain';
 import BirdImage from '@/features/birds/components/BirdImage/BirdImage';
-import SoundButton from '@/shared/ui/SoundButton/SoundButton';
+
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import ObservationButton from '@/features/observations/components/ObservationButton/ObservationButton';
 import type { SavedLocation } from '@/features/locations/location-queries';
@@ -19,7 +19,14 @@ interface Props {
   onFlip: () => void;
 }
 
-export default function BirdCardFront({ bird, frameColor, isAuthenticated, isObserved, savedLocations = [], onFlip }: Props) {
+export default function BirdCardFront({
+  bird,
+  frameColor,
+  isAuthenticated,
+  isObserved,
+  savedLocations = [],
+  onFlip,
+}: Props) {
   return (
     <div
       className='absolute inset-0 rounded-xl [backface-visibility:hidden] flex flex-col overflow-hidden bg-card'
@@ -38,9 +45,6 @@ export default function BirdCardFront({ bird, frameColor, isAuthenticated, isObs
             <h2 className='text-sm font-semibold leading-tight truncate text-card-foreground'>
               {bird.name_eng}
             </h2>
-            <div className='shrink-0'>
-              <SoundButton soundUrl={bird.sound_url} />
-            </div>
           </div>
           <p className='text-[10px] italic mt-0.5 truncate text-muted-foreground'>
             {bird.name_latin}
@@ -64,7 +68,8 @@ export default function BirdCardFront({ bird, frameColor, isAuthenticated, isObs
         <div
           className='w-[22px] h-[25px] relative'
           style={{
-            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+            clipPath:
+              'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
             background: `linear-gradient(145deg, rgba(255,255,255,0.95) 0%, ${frameColor} 45%, ${frameColor}bb 100%)`,
             boxShadow: `0 0 7px ${frameColor}90, 0 0 14px ${frameColor}40`,
           }}
@@ -87,30 +92,62 @@ export default function BirdCardFront({ bird, frameColor, isAuthenticated, isObs
       />
 
       {/* Icon row: food left, biomes right */}
-      <div className='px-1.5 pt-1 pb-0.5 flex items-center justify-between shrink-0'>
-        <div className='flex gap-0.5'>
-          {bird.food.slice(0, 3).map((f) => (
-            <HexIcon key={f} imageSrc={foodImage[f]} label={f} size={36} />
-          ))}
+      <div className='px-1.5 pt-1 pb-0.5 flex items-end justify-between shrink-0'>
+        <div className='flex flex-col gap-0.5'>
+          <p
+            className='text-[7px] uppercase tracking-[0.18em] font-mono'
+            style={{ color: 'rgba(120,95,60,0.5)' }}
+          >
+            Food
+          </p>
+          <div className='flex gap-0.5'>
+            {bird.food.slice(0, 3).map((f) => (
+              <HexIcon key={f} imageSrc={foodImage[f]} label={f} size={36} bgColor={`${frameColor}28`} />
+            ))}
+          </div>
         </div>
-        <div className='flex gap-0.5'>
-          {bird.biomes.slice(0, 3).map((b) => (
-            <HexIcon key={b} imageSrc={biomeImage[b]} label={b} size={36} />
-          ))}
+        <div className='flex flex-col items-end gap-0.5'>
+          <p
+            className='text-[7px] uppercase tracking-[0.18em] font-mono'
+            style={{ color: 'rgba(120,95,60,0.5)' }}
+          >
+            Habitat
+          </p>
+          <div className='flex gap-0.5'>
+            {bird.biomes.slice(0, 3).map((b) => (
+              <HexIcon key={b} imageSrc={biomeImage[b]} label={b} size={36} bgColor={`${frameColor}28`} />
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Field note */}
-      <div className='relative shrink-0 pt-4 pb-2 px-2.5'>
-        <div className='rounded px-2.5 py-1.5' style={{ border: `1px solid ${frameColor}35` }}>
-          <div className='flex items-start gap-1.5'>
-            <span className='text-base leading-none select-none shrink-0 opacity-65' style={{ color: frameColor }}>
-              ❝
-            </span>
-            <p className='text-[10px] italic leading-snug line-clamp-2 flex-1 text-muted-foreground'>
-              {bird.field_note}
-            </p>
-          </div>
+      <div className='relative shrink-0  pb-1.5'>
+        <div
+          className='rounded-sm px-2 py-1.5 relative overflow-hidden flex flex-col justify-center'
+          style={{
+            background: 'transparent',
+          }}
+        >
+          <span
+            className='absolute text-[11px] select-none pointer-events-none'
+            style={{ opacity: 0.5, top: '2px', left: '6px' }}
+            aria-hidden
+          >
+            🪶
+          </span>
+          <p
+            className='relative line-clamp-2 leading-snug pr-2 pl-4'
+            style={{
+              fontFamily: 'var(--font-caveat, cursive)',
+              fontSize: 13,
+              color: '#3a2e1e',
+              letterSpacing: '0.01em',
+              height: '2lh',
+            }}
+          >
+            {bird.field_note}
+          </p>
         </div>
       </div>
 
@@ -121,10 +158,19 @@ export default function BirdCardFront({ bird, frameColor, isAuthenticated, isObs
             <span
               key={b}
               className='text-[9px] px-1.5 py-0.5 rounded leading-none inline-flex items-center gap-1 text-muted-foreground'
-              style={{ background: `${frameColor}18`, border: `1px solid ${frameColor}45` }}
+              style={{
+                background: `${frameColor}18`,
+                border: `1px solid ${frameColor}45`,
+              }}
             >
               {behaviourImage[b] && (
-                <Image src={behaviourImage[b]} alt='' width={10} height={10} className='opacity-70' />
+                <Image
+                  src={behaviourImage[b]}
+                  alt=''
+                  width={10}
+                  height={10}
+                  className='opacity-70'
+                />
               )}
               {b}
             </span>
@@ -134,25 +180,63 @@ export default function BirdCardFront({ bird, frameColor, isAuthenticated, isObs
 
       {/* Wingspan */}
       <div className='pl-3 pr-8 pt-1.5 pb-2 flex items-center shrink-0 border-t border-border gap-1'>
-        <Image src={wingImg} alt='' width={22} height={22} className='opacity-55' />
-        <div className='flex-1 h-px' style={{ background: `linear-gradient(to right, ${frameColor}80, ${frameColor}20)` }} />
+        <Image
+          src={wingImg}
+          alt=''
+          width={22}
+          height={22}
+          className='opacity-55'
+        />
+        <div
+          className='flex-1 h-px'
+          style={{
+            background: `linear-gradient(to right, ${frameColor}80, ${frameColor}20)`,
+          }}
+        />
         <span className='text-[12px] font-bold tabular-nums px-1.5 text-card-foreground tracking-[0.02em]'>
           {bird.wingspan}
-          <span className='text-[9px] font-normal ml-0.5 text-muted-foreground'>cm</span>
+          <span className='text-[9px] font-normal ml-0.5 text-muted-foreground'>
+            cm
+          </span>
         </span>
-        <div className='flex-1 h-px' style={{ background: `linear-gradient(to left, ${frameColor}80, ${frameColor}20)` }} />
-        <Image src={wingImg} alt='' width={22} height={22} className='opacity-55 scale-x-[-1]' />
+        <div
+          className='flex-1 h-px'
+          style={{
+            background: `linear-gradient(to left, ${frameColor}80, ${frameColor}20)`,
+          }}
+        />
+        <Image
+          src={wingImg}
+          alt=''
+          width={22}
+          height={22}
+          className='opacity-55 scale-x-[-1]'
+        />
       </div>
 
       {/* Flip button */}
       <button
-        onClick={(e) => { e.stopPropagation(); onFlip(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onFlip();
+        }}
         title='Flip card'
         aria-label='Flip card'
         className='absolute bottom-2 right-2 flex items-center justify-center rounded-full transition-all hover:opacity-80 active:scale-90'
-        style={{ width: 22, height: 22, background: `${frameColor}18`, border: `1px solid ${frameColor}40` }}
+        style={{
+          width: 22,
+          height: 22,
+          background: `${frameColor}18`,
+          border: `1px solid ${frameColor}40`,
+        }}
       >
-        <Image src={birdImg} alt='' width={12} height={12} className='opacity-55' />
+        <Image
+          src={rotateImg}
+          alt=''
+          width={12}
+          height={12}
+          className='opacity-55'
+        />
       </button>
     </div>
   );

@@ -12,23 +12,18 @@ export default function SoundButton({ soundUrl }: Props) {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const circleBase = 'relative group flex items-center justify-center rounded-full transition-all';
+  const size = { width: 26, height: 26 };
+  const imgSize = 13;
+
   if (!soundUrl) {
     return (
-      <div className="relative group">
-        <Image
-          src={soundWaveImg}
-          alt=""
-          width={18}
-          height={18}
-          className="brightness-0 opacity-20 select-none"
-          aria-hidden
-        />
-        <span
-          className="pointer-events-none absolute top-full mt-1.5 right-0
-            opacity-0 group-hover:opacity-100 transition-opacity duration-150
-            bg-foreground/80 text-background text-[8px] tracking-wide uppercase
-            px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20"
-        >
+      <div
+        className={circleBase}
+        style={{ ...size, background: 'rgba(42,24,8,0.08)', border: '1px solid rgba(42,24,8,0.15)' }}
+      >
+        <Image src={soundWaveImg} alt="" width={imgSize} height={imgSize} className="brightness-0 opacity-20 select-none" aria-hidden />
+        <span className="pointer-events-none absolute top-full mt-1.5 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-foreground/80 text-background text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20">
           No recording
         </span>
       </div>
@@ -55,23 +50,23 @@ export default function SoundButton({ soundUrl }: Props) {
     <div className="relative group">
       <button
         onClick={toggle}
-        className="transition-opacity hover:opacity-70 active:scale-90"
+        className={`${circleBase} hover:opacity-80 active:scale-90`}
+        style={{
+          ...size,
+          background: playing ? 'rgba(42,24,8,0.18)' : 'rgba(42,24,8,0.08)',
+          border: `1px solid ${playing ? 'rgba(42,24,8,0.35)' : 'rgba(42,24,8,0.15)'}`,
+        }}
         aria-label={playing ? 'Stop bird call' : 'Play bird call'}
       >
         <Image
           src={soundWaveImg}
           alt=""
-          width={18}
-          height={18}
-          className={`brightness-0 ${playing ? 'opacity-100' : 'opacity-80'}`}
+          width={imgSize}
+          height={imgSize}
+          className={`brightness-0 ${playing ? 'opacity-100' : 'opacity-55'}`}
         />
       </button>
-      <span
-        className="pointer-events-none absolute top-full mt-1.5 right-0
-          opacity-0 group-hover:opacity-100 transition-opacity duration-150
-          bg-foreground/80 text-background text-[8px] tracking-wide uppercase
-          px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20"
-      >
+      <span className="pointer-events-none absolute top-full mt-1.5 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-foreground/80 text-background text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20">
         {playing ? 'Stop' : 'Play call'}
       </span>
     </div>

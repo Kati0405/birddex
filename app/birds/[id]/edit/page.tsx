@@ -130,6 +130,10 @@ export default async function BirdEditPage({
           currentFood={bird.food}
           currentBiomes={bird.biomes}
           currentBehaviour={bird.behaviour}
+          currentBestMonths={bird.best_months ?? []}
+          currentFieldNote={bird.field_note ?? ''}
+          currentTipsToFind={bird.tips_to_find ?? []}
+          currentFieldMarks={bird.field_marks ?? []}
         />
       </div>
     </main>

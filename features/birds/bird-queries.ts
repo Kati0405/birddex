@@ -38,7 +38,15 @@ export async function updateBirdSelectedImage(id: number, img: WikimediaImage): 
 
 export async function updateBirdMetadata(
   id: number,
-  data: { food?: Food[]; biomes?: Biome[]; behaviour?: Behaviour[] }
+  data: {
+    food?: Food[];
+    biomes?: Biome[];
+    behaviour?: Behaviour[];
+    best_months?: number[];
+    field_note?: string;
+    tips_to_find?: string[];
+    field_marks?: string[];
+  }
 ): Promise<void> {
   const { error } = await supabaseAdmin
     .from('birds')
