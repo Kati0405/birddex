@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Mono, Lato } from "next/font/google";
+import { Playfair_Display, DM_Mono, Lato, Caveat } from "next/font/google";
 import AppHeader from "@/features/auth/components/AppHeader/AppHeader";
 import "./globals.css";
 
@@ -14,6 +14,12 @@ const dmMono = DM_Mono({
   variable: "--font-dm-mono",
   subsets: ["latin"],
   weight: ["300", "400", "500"],
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const lato = Lato({
@@ -35,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${dmMono.variable} ${lato.variable} h-full antialiased`}
+      className={`${playfair.variable} ${dmMono.variable} ${lato.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AppHeader />

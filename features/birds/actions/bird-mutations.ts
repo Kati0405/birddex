@@ -44,6 +44,10 @@ const UpdateBirdMetadataSchema = z.object({
   food: z.array(z.enum(FOOD_VALUES)).min(1).max(3),
   biomes: z.array(z.enum(BIOME_VALUES)).min(1).max(3),
   behaviour: z.array(z.enum(BEHAVIOUR_VALUES)).min(1).max(3),
+  best_months: z.array(z.number().int().min(1).max(12)),
+  field_note: z.string().max(300),
+  tips_to_find: z.array(z.string().max(200)).max(4),
+  field_marks: z.array(z.string().max(200)).max(4),
 });
 
 type UpdateBirdMetadataInput = z.infer<typeof UpdateBirdMetadataSchema>;

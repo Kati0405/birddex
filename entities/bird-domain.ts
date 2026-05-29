@@ -32,6 +32,15 @@ import feederImg      from '@/components/icons/behaviour/feeder.svg';
 
 export type Rarity = 'Common' | 'Uncommon' | 'Rare' | 'Epic' | 'Legendary';
 
+export type Difficulty = 'beginner' | 'easy' | 'moderate' | 'tricky' | 'good_luck';
+
+export interface BestTimeOfDay {
+  dawn: boolean;
+  day: boolean;
+  dusk: boolean;
+  night: boolean;
+}
+
 export type Food = 'insects' | 'seeds' | 'fish' | 'rodents' | 'berries' | 'omnivore' | 'scavenger';
 
 export type Biome = 'forest' | 'wetlands' | 'city' | 'fields' | 'rivers' | 'mountains' | 'coast' | 'gardens';
@@ -72,6 +81,11 @@ export interface Bird {
   image_url?: string;
   sound_url?: string;
   best_months: number[];
+  tips_to_find: string[];
+  field_marks: string[];
+  difficulty?: Difficulty;
+  best_time_of_day?: BestTimeOfDay;
+  signature_behavior?: string;
   selected_image?: WikimediaImage;
 }
 

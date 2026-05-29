@@ -5,12 +5,14 @@ import Image from 'next/image';
 import binocularsImg from '@/components/icons/ui/binoculars.png';
 import checkMarkImg from '@/components/icons/ui/check-mark.png';
 import AddObservationModal from '@/features/observations/components/AddObservationModal/AddObservationModal';
+import type { SavedLocation } from '@/features/locations/location-queries';
 
 interface ObservationButtonProps {
   birdId: number;
   birdName: string;
   frameColor: string;
   initialObserved: boolean;
+  savedLocations?: SavedLocation[];
 }
 
 export default function ObservationButton({
@@ -18,6 +20,7 @@ export default function ObservationButton({
   birdName,
   frameColor,
   initialObserved,
+  savedLocations = [],
 }: ObservationButtonProps) {
   const [observed, setObserved] = useState(initialObserved);
   const [modalOpen, setModalOpen] = useState(false);
@@ -65,6 +68,7 @@ export default function ObservationButton({
           birdId={birdId}
           birdName={birdName}
           frameColor={frameColor}
+          savedLocations={savedLocations}
           onClose={() => setModalOpen(false)}
           onSaved={() => setObserved(true)}
         />
