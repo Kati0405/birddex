@@ -26,6 +26,11 @@ interface Props {
   onReset: () => void;
 }
 
+interface ExtendedProps extends Props {
+  className?: string;
+  hideSearchInput?: boolean;
+}
+
 export default function BirdSearchSidebar({
   query,
   onQueryChange,
@@ -42,17 +47,21 @@ export default function BirdSearchSidebar({
   foodCounts,
   hasActiveFilters,
   onReset,
-}: Props) {
+  className,
+  hideSearchInput,
+}: ExtendedProps) {
   return (
-    <aside className='w-64 shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-border flex flex-col bg-card'>
+    <aside className={className ?? 'w-64 shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-border flex flex-col bg-card'}>
       <div className='flex-1 px-4 py-5 space-y-6'>
-        <Input
-          type='text'
-          placeholder='Search birds...'
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60'
-        />
+        {!hideSearchInput && (
+          <Input
+            type='text'
+            placeholder='Search birds...'
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60'
+          />
+        )}
 
         <div>
           <p className='text-[9px] font-semibold tracking-[0.25em] text-muted-foreground uppercase mb-3 font-mono'>

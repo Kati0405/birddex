@@ -6,6 +6,8 @@ import { BIOMES, FOODS } from '@/entities/bird-domain';
 import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
 import BirdSearchSidebar from './BirdSearchSidebar';
 import type { SavedLocation } from '@/features/locations/location-queries';
+import { Input } from '@/components/ui/input';
+import { Filter, X } from 'lucide-react';
 
 const PAGE_SIZE = 20;
 const RARITIES: Rarity[] = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
@@ -28,6 +30,7 @@ export default function BirdSearch({
   const [selectedBiomes, setSelectedBiomes] = useState<Set<Biome>>(new Set());
   const [selectedFoods, setSelectedFoods] = useState<Set<Food>>(new Set());
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const availableBiomes = useMemo(
@@ -99,27 +102,81 @@ export default function BirdSearch({
     setVisibleCount(PAGE_SIZE);
   }
 
+  const sidebarProps = {
+    query,
+    onQueryChange: (q: string) => { setQuery(q); setVisibleCount(PAGE_SIZE); },
+    selectedRarities,
+    onToggleRarity: (r: Rarity) => { setSelectedRarities(toggle(selectedRarities, r)); setVisibleCount(PAGE_SIZE); },
+    selectedBiomes,
+    onToggleBiome: (b: Biome) => { setSelectedBiomes(toggle(selectedBiomes, b)); setVisibleCount(PAGE_SIZE); },
+    selectedFoods,
+    onToggleFood: (f: Food) => { setSelectedFoods(toggle(selectedFoods, f)); setVisibleCount(PAGE_SIZE); },
+    availableBiomes,
+    availableFoods,
+    rarityCounts,
+    biomeCounts,
+    foodCounts,
+    hasActiveFilters,
+    onReset: handleReset,
+  };
+
   return (
     <div className='flex min-h-[calc(100vh-160px)]'>
+      {/* Desktop sidebar */}
       <BirdSearchSidebar
-        query={query}
-        onQueryChange={(q) => { setQuery(q); setVisibleCount(PAGE_SIZE); }}
-        selectedRarities={selectedRarities}
-        onToggleRarity={(r) => { setSelectedRarities(toggle(selectedRarities, r)); setVisibleCount(PAGE_SIZE); }}
-        selectedBiomes={selectedBiomes}
-        onToggleBiome={(b) => { setSelectedBiomes(toggle(selectedBiomes, b)); setVisibleCount(PAGE_SIZE); }}
-        selectedFoods={selectedFoods}
-        onToggleFood={(f) => { setSelectedFoods(toggle(selectedFoods, f)); setVisibleCount(PAGE_SIZE); }}
-        availableBiomes={availableBiomes}
-        availableFoods={availableFoods}
-        rarityCounts={rarityCounts}
-        biomeCounts={biomeCounts}
-        foodCounts={foodCounts}
-        hasActiveFilters={hasActiveFilters}
-        onReset={handleReset}
+        {...sidebarProps}
+        className='hidden md:flex w-64 shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-border flex-col bg-card'
       />
 
-      <div className='flex-1 px-6 py-5'>
+      {/* Mobile top bar — sits below the sticky app header (~62px) */}
+      <div className='md:hidden fixed top-[62px] left-0 right-0 z-30 bg-card border-b border-border px-4 py-2 flex items-center gap-2'>
+        <Input
+          type='text'
+          placeholder='Search birds...'
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }}
+          className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 flex-1'
+        />
+        <button
+          onClick={() => setMobileFiltersOpen(true)}
+          className='relative flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium border border-border bg-background text-foreground shrink-0'
+        >
+          <Filter size={15} />
+          Filters
+          {hasActiveFilters && (
+            <span className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
+              {selectedRarities.size + selectedBiomes.size + selectedFoods.size}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile filter drawer */}
+      {mobileFiltersOpen && (
+        <div className='md:hidden fixed inset-0 z-40 flex flex-col justify-end'>
+          <div
+            className='absolute inset-0 bg-black/50'
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+          <div className='relative bg-card rounded-t-2xl max-h-[80vh] flex flex-col'>
+            <div className='flex items-center justify-between px-4 py-3 border-b border-border'>
+              <span className='text-sm font-semibold'>Filters</span>
+              <button onClick={() => setMobileFiltersOpen(false)} className='p-1 text-muted-foreground hover:text-foreground'>
+                <X size={18} />
+              </button>
+            </div>
+            <div className='overflow-y-auto flex-1'>
+              <BirdSearchSidebar
+                {...sidebarProps}
+                className='flex flex-col bg-card'
+                hideSearchInput
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className='flex-1 px-4 md:px-6 py-5 mt-[52px] md:mt-0'>
         <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
           {filtered.length} {filtered.length === 1 ? 'species' : 'species'} found
         </p>
