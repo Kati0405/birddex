@@ -69,15 +69,7 @@ A bird card must contain ONLY these fields:
 8. Minimalistic best-months-to-observe chart
 9. Wingspan in cm
 
-Do not add extra labels like:
-- "biomes"
-- "food"
-- "behaviour"
-- "wingspan"
-- "description"
-- "rarity"
-
-Instead, make the meaning recognizable visually through icons, layout, and styling.
+Mini section labels (e.g. "Food", "Habitat", "Behaviour") are allowed and encouraged — they aid scannability. Keep them small, muted, and in the established mono/uppercase style.
 
 ## Data rules
 

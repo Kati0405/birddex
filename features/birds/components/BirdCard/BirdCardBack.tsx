@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import rotateImg from '@/components/icons/ui/rotate.svg';
 import type { Bird, Difficulty, BestTimeOfDay } from '@/entities/bird-domain';
 import ObservationMonthsChart from '@/shared/ui/ObservationMonthsChart/ObservationMonthsChart';
 import TipsToFind from '@/shared/ui/TipsToFind/TipsToFind';
@@ -20,7 +18,6 @@ interface Props {
   bird: Bird;
   frameColor: string;
   isAdmin: boolean;
-  onFlip: () => void;
 }
 
 type Tab = 'marks' | 'tips';
@@ -72,12 +69,8 @@ function ObservationDifficulty({
           ))}
         </div>
         <span
-          className='font-mono ml-0.5'
-          style={{
-            fontSize: 7,
-            color: `${frameColor}88`,
-            letterSpacing: '0.04em',
-          }}
+          className='text-[7px] font-mono ml-0.5 tracking-[0.04em]'
+          style={{ color: `${frameColor}88` }}
         >
           {DIFFICULTY_LABEL[difficulty]}
         </span>
@@ -139,7 +132,6 @@ export default function BirdCardBack({
   bird,
   frameColor,
   isAdmin,
-  onFlip,
 }: Props) {
   const [tab, setTab] = useState<Tab>('tips');
 
@@ -149,7 +141,7 @@ export default function BirdCardBack({
 
   return (
     <div
-      className='absolute inset-0 rounded-xl [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col gap-2 p-4 overflow-hidden bg-card'
+      className='[grid-area:1/1] h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl flex flex-col gap-3 p-4 overflow-hidden bg-card'
       style={{
         border: `2px solid ${frameColor}70`,
         boxShadow: `0 4px 20px ${frameColor}20`,
@@ -161,7 +153,7 @@ export default function BirdCardBack({
       />
 
       {/* Sound button — top right */}
-      <div className='absolute top-5 right-3'>
+      <div className='absolute top-5 right-3' onClick={(e) => e.stopPropagation()}>
         <SoundButton soundUrl={bird.sound_url} />
       </div>
 
@@ -191,9 +183,8 @@ export default function BirdCardBack({
             Signature behavior
           </p>
           <p
-            className='italic leading-snug'
+            className='italic leading-snug text-[9.5px]'
             style={{
-              fontSize: 9.5,
               color: '#2a1808cc',
               fontFamily: 'var(--font-sans)',
             }}
@@ -220,23 +211,22 @@ export default function BirdCardBack({
         <ObservationMonthsChart bestMonths={bird.best_months ?? []} frameColor={frameColor} />
       </div>
 
-      {/* Tab switcher */}
+      {/* Tab switcher — flex-1 absorbs extra height from row equalisation */}
       <div
-        className='rounded-lg overflow-hidden flex flex-col'
+        className='rounded-lg flex flex-col flex-1 min-h-0'
         style={{ border: `1px solid ${frameColor}22` }}
       >
-        <div className='flex' style={{ background: `${frameColor}08` }}>
+        <div
+          className='flex shrink-0 rounded-t-lg overflow-hidden'
+          style={{ background: `${frameColor}08` }}
+        >
           {(['tips', 'marks'] as Tab[]).map((t) => (
             <button
               key={t}
               type='button'
-              onClick={() => setTab(t)}
-              className='flex-1 py-1 transition-colors duration-150'
+              onClick={(e) => { e.stopPropagation(); setTab(t); }}
+              className='flex-1 py-1 text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
               style={{
-                fontSize: 7,
-                letterSpacing: '0.16em',
-                textTransform: 'uppercase',
-                fontFamily: 'var(--font-mono, monospace)',
                 color: tab === t ? frameColor : `${frameColor}55`,
                 background: tab === t ? `${frameColor}16` : 'transparent',
                 borderBottom:
@@ -249,7 +239,7 @@ export default function BirdCardBack({
             </button>
           ))}
         </div>
-        <div className='p-2'>
+        <div className='p-2 flex-1'>
           {tab === 'marks' ? (
             <FieldMarks marks={bird.field_marks ?? []} />
           ) : (
@@ -283,11 +273,11 @@ export default function BirdCardBack({
       )}
 
       {/* Links */}
-      <div className='flex items-center justify-center gap-3 mt-auto'>
+      <div className='flex items-center justify-center gap-3 pb-2'>
         <Link
           href={`/birds/${bird.id}`}
           onClick={(e) => e.stopPropagation()}
-          className='text-[10px] underline underline-offset-4 transition-colors text-muted-foreground hover:text-foreground'
+          className='text-xs py-2 px-3 underline underline-offset-4 transition-colors text-muted-foreground hover:text-foreground'
         >
           Full profile →
         </Link>
@@ -295,7 +285,7 @@ export default function BirdCardBack({
           <Link
             href={`/birds/${bird.id}/edit`}
             onClick={(e) => e.stopPropagation()}
-            className='text-[10px] px-2.5 py-1 rounded border transition-colors text-muted-foreground hover:text-foreground'
+            className='text-xs px-2.5 py-1.5 rounded border transition-colors text-muted-foreground hover:text-foreground'
             style={{
               borderColor: `${frameColor}60`,
               background: `${frameColor}12`,
@@ -306,30 +296,6 @@ export default function BirdCardBack({
         )}
       </div>
 
-      {/* Flip back button */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onFlip();
-        }}
-        title='Flip back'
-        aria-label='Flip back'
-        className='absolute bottom-2 right-2 flex items-center justify-center rounded-full transition-all hover:opacity-80 active:scale-90'
-        style={{
-          width: 22,
-          height: 22,
-          background: `${frameColor}18`,
-          border: `1px solid ${frameColor}40`,
-        }}
-      >
-        <Image
-          src={rotateImg}
-          alt=''
-          width={12}
-          height={12}
-          className='opacity-55'
-        />
-      </button>
     </div>
   );
 }

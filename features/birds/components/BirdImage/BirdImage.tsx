@@ -1,4 +1,3 @@
-import React from 'react';
 import Image from 'next/image';
 import { cn } from '@/shared/lib/cn';
 import defaultBirdImg from '@/components/icons/ui/bird.png';
@@ -8,14 +7,12 @@ interface Props {
   imageUrl?: string;
   selectedImage?: WikimediaImage;
   className?: string;
-  style?: React.CSSProperties;
 }
 
 export default function BirdImage({
   imageUrl,
   selectedImage,
   className,
-  style,
 }: Props) {
   const src = selectedImage?.imageUrl ?? imageUrl ?? null;
 
@@ -25,7 +22,6 @@ export default function BirdImage({
         'w-full relative overflow-hidden flex items-center justify-center bg-secondary',
         className,
       )}
-      style={style}
     >
       {src ? (
         <Image

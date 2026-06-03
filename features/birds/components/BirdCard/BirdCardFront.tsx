@@ -1,10 +1,7 @@
 import Image from 'next/image';
 import { biomeImage, foodImage, behaviourImage } from '@/entities/bird-domain';
-import wingImg from '@/components/icons/ui/wing.png';
-import rotateImg from '@/components/icons/ui/rotate.svg';
 import type { Bird } from '@/entities/bird-domain';
 import BirdImage from '@/features/birds/components/BirdImage/BirdImage';
-
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import ObservationButton from '@/features/observations/components/ObservationButton/ObservationButton';
 import type { SavedLocation } from '@/features/locations/location-queries';
@@ -16,7 +13,6 @@ interface Props {
   isObserved: boolean;
   isAuthenticated: boolean;
   savedLocations?: SavedLocation[];
-  onFlip: () => void;
 }
 
 export default function BirdCardFront({
@@ -25,33 +21,47 @@ export default function BirdCardFront({
   isAuthenticated,
   isObserved,
   savedLocations = [],
-  onFlip,
 }: Props) {
   return (
     <div
-      className='absolute inset-0 rounded-xl [backface-visibility:hidden] flex flex-col overflow-hidden bg-card'
+      className='[grid-area:1/1] h-full [backface-visibility:hidden] rounded-xl flex flex-col overflow-hidden bg-card'
       style={{
         border: `2px solid ${frameColor}70`,
         boxShadow: `0 4px 20px ${frameColor}20`,
       }}
     >
-      {/* Rarity colour band */}
+      {/* Rarity colour band — top */}
       <div className='h-1 w-full shrink-0' style={{ background: frameColor }} />
 
       {/* Name row */}
-      <div className='pl-10 pr-3 pt-4 pb-1 flex items-start justify-between gap-1 shrink-0'>
+      <div className='px-2 pt-2 pb-1 flex items-center gap-2'>
         <div className='min-w-0 flex-1'>
-          <div className='flex items-center gap-1 min-w-0'>
-            <h2 className='text-sm font-semibold leading-tight truncate text-card-foreground'>
-              {bird.name_eng}
-            </h2>
+          <div className='flex items-center gap-1 mb-0.5'>
+            <div
+              className='w-[8px] h-[8px] shrink-0'
+              style={{
+                clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+                background: frameColor,
+              }}
+            />
+            <span
+              className='text-[7px] uppercase tracking-[0.2em] font-mono'
+              style={{ color: frameColor }}
+            >
+              {bird.rarity}
+            </span>
           </div>
+          <h2 className='text-sm font-semibold leading-tight truncate text-card-foreground'>
+            {bird.name_eng}
+          </h2>
           <p className='text-[10px] italic mt-0.5 truncate text-muted-foreground'>
             {bird.name_latin}
           </p>
         </div>
-        {isAuthenticated && (
-          <div className='shrink-0 pt-0.5'>
+
+        {/* Observation button */}
+        <div className='shrink-0' onClick={(e) => e.stopPropagation()}>
+          {isAuthenticated && (
             <ObservationButton
               birdId={bird.id}
               birdName={bird.name_eng}
@@ -59,41 +69,20 @@ export default function BirdCardFront({
               initialObserved={isObserved}
               savedLocations={savedLocations}
             />
-          </div>
-        )}
-      </div>
-
-      {/* Hexagon rarity gem */}
-      <div className='absolute top-5.5 left-5 -translate-x-1/2 z-10'>
-        <div
-          className='w-[22px] h-[25px] relative'
-          style={{
-            clipPath:
-              'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-            background: `linear-gradient(145deg, rgba(255,255,255,0.95) 0%, ${frameColor} 45%, ${frameColor}bb 100%)`,
-            boxShadow: `0 0 7px ${frameColor}90, 0 0 14px ${frameColor}40`,
-          }}
-        >
-          <div
-            className='absolute top-1 left-1 w-2 h-1.5'
-            style={{
-              clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
-              background: 'rgba(255,255,255,0.6)',
-            }}
-          />
+          )}
         </div>
       </div>
 
-      {/* Image */}
+      {/* Image — grows to absorb extra height from row equalisation */}
       <BirdImage
         imageUrl={bird.image_url}
         selectedImage={bird.selected_image}
-        className='flex-1 min-h-0 mx-1.5 rounded-md'
+        className='mx-1.5 rounded-md flex-1 min-h-[80px]'
       />
 
       {/* Icon row: food left, biomes right */}
-      <div className='px-1.5 pt-1 pb-0.5 flex items-end justify-between shrink-0'>
-        <div className='flex flex-col gap-0.5'>
+      <div className='px-1.5 pt-1 pb-0.5 flex items-end justify-between min-w-0'>
+        <div className='flex flex-col gap-0.5 min-w-0'>
           <p
             className='text-[7px] uppercase tracking-[0.18em] font-mono'
             style={{ color: 'rgba(120,95,60,0.5)' }}
@@ -106,7 +95,7 @@ export default function BirdCardFront({
             ))}
           </div>
         </div>
-        <div className='flex flex-col items-end gap-0.5'>
+        <div className='flex flex-col items-end gap-0.5 min-w-0'>
           <p
             className='text-[7px] uppercase tracking-[0.18em] font-mono'
             style={{ color: 'rgba(120,95,60,0.5)' }}
@@ -122,28 +111,28 @@ export default function BirdCardFront({
       </div>
 
       {/* Field note */}
-      <div className='relative shrink-0  pb-1.5'>
+      <div className='relative mx-1.5 my-1'>
         <div
-          className='rounded-sm px-2 py-1.5 relative overflow-hidden flex flex-col justify-center'
+          className='relative rounded-sm px-4 py-2 overflow-hidden'
           style={{
-            background: 'transparent',
+            background: '#f7f1e6',
+            border: '1px solid #e5dac8',
+            backgroundImage:
+              'radial-gradient(rgba(120,90,50,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.4), rgba(0,0,0,.03))',
+            backgroundSize: '6px 6px, 100% 100%',
           }}
         >
-          <span
-            className='absolute text-[11px] select-none pointer-events-none'
-            style={{ opacity: 0.5, top: '2px', left: '6px' }}
-            aria-hidden
-          >
-            🪶
-          </span>
+          <div className='absolute left-1.5 top-2 flex flex-col gap-1.5'>
+            <span className='h-1.5 w-1.5 rounded-full bg-white border border-[#d8cbb8] block' />
+            <span className='h-1.5 w-1.5 rounded-full bg-white border border-[#d8cbb8] block' />
+          </div>
+
           <p
-            className='relative line-clamp-2 leading-snug pr-2 pl-4'
+            className='relative pl-5 pr-3 line-clamp-2 leading-snug text-[13px]'
             style={{
-              fontFamily: 'var(--font-caveat, cursive)',
-              fontSize: 13,
+              fontFamily: 'var(--font-handwritten)',
               color: '#3a2e1e',
               letterSpacing: '0.01em',
-              height: '2lh',
             }}
           >
             {bird.field_note}
@@ -153,91 +142,40 @@ export default function BirdCardFront({
 
       {/* Behaviour tags */}
       {bird.behaviour.length > 0 && (
-        <div className='px-2 pb-1 flex flex-wrap gap-1 shrink-0'>
-          {bird.behaviour.map((b) => (
-            <span
-              key={b}
-              className='text-[9px] px-1.5 py-0.5 rounded leading-none inline-flex items-center gap-1 text-muted-foreground'
-              style={{
-                background: `${frameColor}18`,
-                border: `1px solid ${frameColor}45`,
-              }}
-            >
-              {behaviourImage[b] && (
-                <Image
-                  src={behaviourImage[b]}
-                  alt=''
-                  width={10}
-                  height={10}
-                  className='opacity-70'
-                />
-              )}
-              {b}
-            </span>
-          ))}
+        <div className='px-2 pb-3 flex flex-col items-start gap-1'>
+          <p
+            className='text-[7px] uppercase tracking-[0.18em] font-mono'
+            style={{ color: 'rgba(120,95,60,0.5)' }}
+          >
+            Behaviour
+          </p>
+          <div className='flex flex-wrap gap-1'>
+            {bird.behaviour.map((b) => (
+              <span
+                key={b}
+                title={b}
+                className='text-[10px] px-2 py-0.5 rounded leading-none inline-flex items-center gap-1 text-muted-foreground'
+                style={{
+                  background: `${frameColor}18`,
+                  border: `1px solid ${frameColor}45`,
+                }}
+              >
+                {behaviourImage[b] && (
+                  <Image
+                    src={behaviourImage[b]}
+                    alt={b}
+                    width={11}
+                    height={11}
+                    className='opacity-70'
+                  />
+                )}
+                {b}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Wingspan */}
-      <div className='pl-3 pr-8 pt-1.5 pb-2 flex items-center shrink-0 border-t border-border gap-1'>
-        <Image
-          src={wingImg}
-          alt=''
-          width={22}
-          height={22}
-          className='opacity-55'
-        />
-        <div
-          className='flex-1 h-px'
-          style={{
-            background: `linear-gradient(to right, ${frameColor}80, ${frameColor}20)`,
-          }}
-        />
-        <span className='text-[12px] font-bold tabular-nums px-1.5 text-card-foreground tracking-[0.02em]'>
-          {bird.wingspan}
-          <span className='text-[9px] font-normal ml-0.5 text-muted-foreground'>
-            cm
-          </span>
-        </span>
-        <div
-          className='flex-1 h-px'
-          style={{
-            background: `linear-gradient(to left, ${frameColor}80, ${frameColor}20)`,
-          }}
-        />
-        <Image
-          src={wingImg}
-          alt=''
-          width={22}
-          height={22}
-          className='opacity-55 scale-x-[-1]'
-        />
-      </div>
-
-      {/* Flip button */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onFlip();
-        }}
-        title='Flip card'
-        aria-label='Flip card'
-        className='absolute bottom-2 right-2 flex items-center justify-center rounded-full transition-all hover:opacity-80 active:scale-90'
-        style={{
-          width: 22,
-          height: 22,
-          background: `${frameColor}18`,
-          border: `1px solid ${frameColor}40`,
-        }}
-      >
-        <Image
-          src={rotateImg}
-          alt=''
-          width={12}
-          height={12}
-          className='opacity-55'
-        />
-      </button>
     </div>
   );
 }
