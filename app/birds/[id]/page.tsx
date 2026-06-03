@@ -83,8 +83,7 @@ export default async function BirdPage({
           <BirdImage
             imageUrl={bird.image_url}
             selectedImage={bird.selected_image}
-            className="mx-3 rounded-lg"
-            style={{ height: 320 }}
+            className="mx-3 rounded-lg h-80"
           />
 
           <div className="px-3 pt-3 pb-1 flex items-center justify-between">
