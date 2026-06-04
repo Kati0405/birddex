@@ -117,7 +117,7 @@ export default function BirdCardBackObservation({ bird, frameColor, collectionDa
               {/* Photo */}
               <div
                 className='rounded-lg overflow-hidden shrink-0'
-                style={{ height: 86, background: `${frameColor}08`, border: `1px solid ${frameColor}20` }}
+                style={{ height: 140, background: `${frameColor}08`, border: `1px solid ${frameColor}20` }}
               >
                 {obs.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -202,8 +202,8 @@ export default function BirdCardBackObservation({ bird, frameColor, collectionDa
                     }}
                   />
                   <p
-                    className='relative leading-[1.6] line-clamp-4 italic'
-                    style={{ color: '#3d2b1a', fontFamily: 'var(--font-caveat, Georgia, serif)', fontSize: '12px' }}
+                    className='relative leading-[1.6] line-clamp-2 italic'
+                    style={{ color: '#3d2b1a', fontFamily: 'var(--font-caveat, Georgia, serif)', fontSize: '11px' }}
                   >
                     &ldquo;{obs.notes}&rdquo;
                   </p>
