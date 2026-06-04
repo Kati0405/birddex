@@ -274,13 +274,6 @@ export default function BirdCardBack({
 
       {/* Links */}
       <div className='flex items-center justify-center gap-3 pb-2'>
-        <Link
-          href={`/birds/${bird.id}`}
-          onClick={(e) => e.stopPropagation()}
-          className='text-xs py-2 px-3 underline underline-offset-4 transition-colors text-muted-foreground hover:text-foreground'
-        >
-          Full profile →
-        </Link>
         {isAdmin && (
           <Link
             href={`/birds/${bird.id}/edit`}
