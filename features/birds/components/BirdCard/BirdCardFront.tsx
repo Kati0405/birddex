@@ -77,7 +77,7 @@ export default function BirdCardFront({
       <BirdImage
         imageUrl={bird.image_url}
         selectedImage={bird.selected_image}
-        className='mx-1.5 rounded-md flex-1 min-h-[80px]'
+        className='mx-1.5 rounded-md flex-1 min-h-[160px]'
       />
 
       {/* Icon row: food left, biomes right */}
