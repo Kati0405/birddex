@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getBirdById } from '@/features/birds/bird-queries';
 import WikimediaImagePicker from '@/features/birds/components/WikimediaImagePicker/WikimediaImagePicker';
+import CloudinaryImagePicker from '@/features/birds/components/CloudinaryImagePicker/CloudinaryImagePicker';
 import BirdMetadataEditor from '@/features/birds/components/BirdMetadataEditor/BirdMetadataEditor';
 import type { WikimediaImage } from '@/entities/bird-domain';
 import { requireAdmin } from '@/features/auth/auth-helpers';
@@ -118,6 +119,14 @@ export default async function BirdEditPage({
             Search
           </button>
         </form>
+
+        <CloudinaryImagePicker birdId={bird.id} />
+
+        <div className="relative flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">or search Wikimedia</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
 
         <WikimediaImagePicker
           birdId={bird.id}

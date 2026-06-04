@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import type { WikimediaImage } from '@/entities/bird-domain';
 import { updateBirdImageAction } from '@/features/birds/actions/bird-mutations';
 
@@ -18,10 +18,15 @@ interface Props {
 
 export default function WikimediaImagePicker({ birdId, results, currentImage }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   function handleSelect(img: WikimediaImage) {
+    setError(null);
     startTransition(async () => {
-      await updateBirdImageAction({ birdId, selectedImage: img });
+      const result = await updateBirdImageAction({ birdId, selectedImage: img });
+      if (result && 'error' in result && typeof result.error === 'string') {
+        setError(result.error);
+      }
     });
   }
 
@@ -67,7 +72,8 @@ export default function WikimediaImagePicker({ birdId, results, currentImage }: 
         ))}
       </div>
 
-      {isPending && <p className="text-sm text-muted-foreground">Saving…</p>}
+      {isPending && <p className="text-sm text-muted-foreground">Uploading to Cloudinary…</p>}
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
 }

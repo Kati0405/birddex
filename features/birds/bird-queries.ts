@@ -36,6 +36,14 @@ export async function updateBirdSelectedImage(id: number, img: WikimediaImage): 
   if (error) throw new Error(`updateBirdSelectedImage(${id}): ${error.message}`);
 }
 
+export async function updateBirdCloudinaryImage(id: number, imageUrl: string): Promise<void> {
+  const { error } = await supabaseAdmin
+    .from('birds')
+    .update({ image_url: imageUrl, selected_image: null })
+    .eq('id', id);
+  if (error) throw new Error(`updateBirdCloudinaryImage(${id}): ${error.message}`);
+}
+
 export async function updateBirdMetadata(
   id: number,
   data: {
