@@ -6,7 +6,9 @@ import type { Bird } from '@/entities/bird-domain';
 import { RARITY_COLOR } from '@/entities/bird-domain';
 import BirdCardFront from './BirdCardFront';
 import BirdCardBack from './BirdCardBack';
+import BirdCardBackObservation from './BirdCardBackObservation';
 import type { SavedLocation } from '@/features/locations/location-queries';
+import type { CollectionCardData } from '@/features/observations/observation-queries';
 
 export default function BirdCard({
   bird,
@@ -14,12 +16,14 @@ export default function BirdCard({
   isObserved = false,
   isAuthenticated = false,
   savedLocations = [],
+  collectionData,
 }: {
   bird: Bird;
   isAdmin?: boolean;
   isObserved?: boolean;
   isAuthenticated?: boolean;
   savedLocations?: SavedLocation[];
+  collectionData?: CollectionCardData;
 }) {
   const [flipped, setFlipped] = useState(false);
   const frameColor = RARITY_COLOR[bird.rarity];
@@ -45,11 +49,20 @@ export default function BirdCard({
           isAuthenticated={isAuthenticated}
           savedLocations={savedLocations}
         />
-        <BirdCardBack
-          bird={bird}
-          frameColor={frameColor}
-          isAdmin={isAdmin}
-        />
+        {collectionData ? (
+          <BirdCardBackObservation
+            bird={bird}
+            frameColor={frameColor}
+            collectionData={collectionData}
+            savedLocations={savedLocations}
+          />
+        ) : (
+          <BirdCardBack
+            bird={bird}
+            frameColor={frameColor}
+            isAdmin={isAdmin}
+          />
+        )}
       </div>
     </div>
   );

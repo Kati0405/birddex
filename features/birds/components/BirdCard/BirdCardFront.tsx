@@ -91,7 +91,13 @@ export default function BirdCardFront({
           </p>
           <div className='flex gap-0.5'>
             {bird.food.slice(0, 3).map((f) => (
-              <HexIcon key={f} imageSrc={foodImage[f]} label={f} size={36} bgColor={`${frameColor}28`} />
+              <HexIcon
+                key={f}
+                imageSrc={foodImage[f]}
+                label={f}
+                size={36}
+                bgColor={`${frameColor}28`}
+              />
             ))}
           </div>
         </div>
@@ -104,7 +110,13 @@ export default function BirdCardFront({
           </p>
           <div className='flex gap-0.5'>
             {bird.biomes.slice(0, 3).map((b) => (
-              <HexIcon key={b} imageSrc={biomeImage[b]} label={b} size={36} bgColor={`${frameColor}28`} />
+              <HexIcon
+                key={b}
+                imageSrc={biomeImage[b]}
+                label={b}
+                size={36}
+                bgColor={`${frameColor}28`}
+              />
             ))}
           </div>
         </div>
@@ -175,7 +187,6 @@ export default function BirdCardFront({
           </div>
         </div>
       )}
-
     </div>
   );
 }

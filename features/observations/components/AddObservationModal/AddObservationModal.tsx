@@ -1,27 +1,43 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import { format } from 'date-fns';
-import { CalendarIcon, MapPin, Map } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CalendarIcon, Eye, Music, Camera, Images, LocateFixed, MapPin, Map, X } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { addObservationAction } from '@/features/observations/actions/observation-mutations';
+import { addObservationAction, updateObservationAction, uploadObservationPhotoAction } from '@/features/observations/actions/observation-mutations';
 import type { LatLng } from '@/features/observations/components/LocationPicker';
 import type { SavedLocation } from '@/features/locations/location-queries';
 
 const LocationPicker = dynamic(
   () => import('@/features/observations/components/LocationPicker'),
-  { ssr: false, loading: () => <div className='h-[220px] rounded-xl bg-secondary' /> }
+  { ssr: false, loading: () => <div className='h-[180px] rounded-lg bg-muted/30' /> }
 );
+
+type ObservationQuality = 'bad' | 'good' | 'excellent' | null;
+
+export interface ObservationInitialData {
+  observationId: string;
+  date: Date;
+  seen: boolean;
+  heard: boolean;
+  photographed: boolean;
+  quality: ObservationQuality;
+  notes: string | null;
+  photoUrl: string | null;
+  lat: number | null;
+  lng: number | null;
+  locationName: string | null;
+}
 
 interface AddObservationModalProps {
   birdId: number;
   birdName: string;
   frameColor: string;
   savedLocations?: SavedLocation[];
+  initialData?: ObservationInitialData;
   onClose: () => void;
   onSaved: () => void;
 }
@@ -31,32 +47,85 @@ export default function AddObservationModal({
   birdName,
   frameColor,
   savedLocations = [],
+  initialData,
   onClose,
   onSaved,
 }: AddObservationModalProps) {
-  const [date, setDate] = useState<Date>(new Date());
+  const isEdit = !!initialData;
+
+  const [date, setDate] = useState<Date>(initialData?.date ?? new Date());
   const [locationMode, setLocationMode] = useState<'map' | 'saved'>(
     savedLocations.length > 0 ? 'saved' : 'map'
   );
-  const [latLng, setLatLng] = useState<LatLng | null>(null);
+  const [latLng, setLatLng] = useState<LatLng | null>(
+    initialData?.lat != null && initialData?.lng != null
+      ? { lat: initialData.lat, lng: initialData.lng, locationName: initialData.locationName ?? undefined }
+      : null
+  );
   const [selectedSavedId, setSelectedSavedId] = useState<number | null>(null);
+  const [seen, setSeen] = useState(initialData?.seen ?? false);
+  const [heard, setHeard] = useState(initialData?.heard ?? false);
+  const [photographed, setPhotographed] = useState(initialData?.photographed ?? false);
+  const [quality, setQuality] = useState<ObservationQuality>(initialData?.quality ?? null);
+  const [notes, setNotes] = useState(initialData?.notes ?? '');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(initialData?.photoUrl ?? null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(initialData?.photoUrl ?? null);
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const resolvedLatLng: LatLng | null =
-    locationMode === 'saved'
-      ? (savedLocations.find((l) => l.id === selectedSavedId) ?? null)
-      : latLng;
+  const resolvedLatLng: LatLng | null = (() => {
+    if (locationMode !== 'saved') return latLng;
+    const saved = savedLocations.find((l) => l.id === selectedSavedId);
+    if (!saved) return null;
+    return { lat: saved.lat, lng: saved.lng, locationName: saved.name };
+  })();
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoPreview(URL.createObjectURL(file));
+    setPhotoUploading(true);
+    setError(null);
+    const formData = new FormData();
+    formData.append('file', file);
+    const result = await uploadObservationPhotoAction(formData);
+    setPhotoUploading(false);
+    if ('error' in result) {
+      setError(result.error);
+      setPhotoPreview(null);
+    } else {
+      setPhotoUrl(result.url);
+    }
+  }
+
+  function removePhoto() {
+    setPhotoPreview(null);
+    setPhotoUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
 
   function handleSave() {
     setError(null);
     startTransition(async () => {
-      const result = await addObservationAction({
-        birdId,
+      const payload = {
         observedAt: date,
         lat: resolvedLatLng?.lat ?? null,
         lng: resolvedLatLng?.lng ?? null,
-      });
+        locationName: resolvedLatLng?.locationName ?? null,
+        seen,
+        heard,
+        photographed,
+        quality,
+        notes: notes.trim() || null,
+        photoUrl,
+      };
+
+      const result = isEdit
+        ? await updateObservationAction({ id: initialData!.observationId, ...payload })
+        : await addObservationAction({ birdId, ...payload });
+
       if ('error' in result) {
         setError(result.error);
       } else {
@@ -66,35 +135,85 @@ export default function AddObservationModal({
     });
   }
 
+  const evidence = [
+    { key: 'seen',         Icon: Eye,    label: 'Seen',         value: seen,         toggle: () => setSeen(!seen) },
+    { key: 'heard',        Icon: Music,  label: 'Heard',        value: heard,        toggle: () => setHeard(!heard) },
+    { key: 'photographed', Icon: Camera, label: 'Photographed', value: photographed, toggle: () => setPhotographed(!photographed) },
+  ];
+
+  const qualities: { key: ObservationQuality; label: string }[] = [
+    { key: 'bad',       label: 'Brief glance' },
+    { key: 'good',      label: 'Good view'    },
+    { key: 'excellent', label: 'Excellent'    },
+  ];
+
   return createPortal(
     <div
-      className='fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60'
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      className='fixed inset-0 z-[110] flex items-center justify-center p-4'
+      style={{ background: 'rgba(0,0,0,0.55)' }}
+      onClick={(e) => { e.stopPropagation(); e.target === e.currentTarget && onClose(); }}
     >
       <div
-        className='relative w-full max-w-lg rounded-2xl overflow-hidden bg-card border border-border shadow-2xl'
-        style={{ boxShadow: `0 12px 60px ${frameColor}25` }}
+        className='relative w-full max-w-sm rounded-xl overflow-hidden flex flex-col bg-card'
+        style={{
+          border: `2px solid ${frameColor}70`,
+          boxShadow: `0 8px 40px ${frameColor}30, 0 2px 12px rgba(0,0,0,0.25)`,
+          maxHeight: '90vh',
+        }}
       >
-        <div className='h-1.5 w-full' style={{ background: frameColor }} />
+        <div className='h-1 w-full shrink-0' style={{ background: frameColor }} />
 
-        <div className='px-8 pt-7 pb-8'>
-          <div className='mb-6'>
-            <h2 className='text-lg font-semibold text-card-foreground'>Add observation</h2>
-            <p className='text-sm text-muted-foreground italic mt-1'>{birdName}</p>
+        <button
+          type='button'
+          onClick={onClose}
+          aria-label='Close'
+          className='absolute top-3 right-3 rounded-full p-1 text-muted-foreground hover:text-foreground transition-colors'
+        >
+          <X className='h-3.5 w-3.5' />
+        </button>
+
+        <div className='overflow-y-auto flex-1 px-5 pt-4 pb-3 flex flex-col gap-3'>
+
+          <div>
+            <p className='text-[7px] uppercase tracking-[0.18em] font-mono mb-0.5 text-muted-foreground'>
+              {isEdit ? 'Edit observation' : 'Log observation'}
+            </p>
+            <p className='text-sm font-semibold text-card-foreground leading-tight'>{birdName}</p>
           </div>
 
-          <div className='mb-6'>
-            <label className='block text-xs text-muted-foreground mb-2 tracking-wide'>
-              When did you observe this bird?
-            </label>
+          <Section label='How observed' frameColor={frameColor}>
+            <div className='flex gap-1.5'>
+              {evidence.map(({ key, Icon, label, value, toggle }) => (
+                <button
+                  key={key}
+                  type='button'
+                  onClick={toggle}
+                  aria-pressed={value}
+                  className='flex-1 flex flex-col items-center gap-1 py-2 rounded-md text-[9px] font-mono uppercase tracking-[0.05em] transition-all'
+                  style={value
+                    ? { background: `${frameColor}20`, border: `1px solid ${frameColor}`, color: frameColor }
+                    : { background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted-foreground)' }
+                  }
+                >
+                  <Icon className='h-3.5 w-3.5' />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          <Section label='Date' frameColor={frameColor}>
             <Popover>
               <PopoverTrigger render={
-                <Button variant='outline' className='w-full justify-start text-left font-normal'>
-                  <CalendarIcon className='mr-2 h-4 w-4 text-muted-foreground' />
-                  {format(date, 'dd MMMM yyyy')}
-                </Button>
+                <button
+                  type='button'
+                  className='w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-[11px] font-mono text-card-foreground border border-border hover:border-muted-foreground/50 transition-colors bg-background/60'
+                >
+                  <CalendarIcon className='h-3 w-3 shrink-0 text-muted-foreground' />
+                  {format(date, 'dd MMM yyyy')}
+                </button>
               } />
-              <PopoverContent className='w-auto p-0' align='start'>
+              <PopoverContent className='w-auto p-0 !z-[120]' align='start'>
                 <Calendar
                   mode='single'
                   selected={date}
@@ -105,79 +224,194 @@ export default function AddObservationModal({
                 />
               </PopoverContent>
             </Popover>
-          </div>
+          </Section>
 
-          <div className='mb-6'>
-            <div className='flex items-center justify-between mb-3'>
-              <span className='text-xs text-muted-foreground tracking-wide'>
-                Where did you see it? <span className='text-muted-foreground/60'>(optional)</span>
-              </span>
-              {savedLocations.length > 0 && (
-                <div className='flex gap-1 p-0.5 rounded-lg bg-secondary'>
-                  <button
-                    type='button'
-                    onClick={() => setLocationMode('saved')}
-                    className='flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] transition-colors'
-                    style={locationMode === 'saved' ? { background: frameColor + '22', color: frameColor } : {}}
-                  >
-                    <MapPin className='h-3 w-3' />
-                    Saved
-                  </button>
-                  <button
-                    type='button'
-                    onClick={() => setLocationMode('map')}
-                    className='flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] transition-colors'
-                    style={locationMode === 'map' ? { background: frameColor + '22', color: frameColor } : {}}
-                  >
-                    <Map className='h-3 w-3' />
-                    Map
-                  </button>
+          <Section
+            label='Location'
+            frameColor={frameColor}
+            trailing={
+              savedLocations.length > 0 ? (
+                <div className='flex gap-0.5 p-0.5 rounded border border-border bg-muted/40'>
+                  {(['saved', 'map'] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      type='button'
+                      onClick={() => setLocationMode(mode)}
+                      className='flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-mono uppercase tracking-wide transition-all'
+                      style={locationMode === mode
+                        ? { background: frameColor, color: 'white' }
+                        : { color: 'var(--muted-foreground)' }
+                      }
+                    >
+                      {mode === 'saved' ? <MapPin className='h-2 w-2' /> : <Map className='h-2 w-2' />}
+                      {mode}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
-
+              ) : null
+            }
+          >
             {locationMode === 'saved' ? (
-              <div className='flex flex-col gap-1.5'>
-                {savedLocations.map((loc) => (
-                  <button
-                    key={loc.id}
-                    type='button'
-                    onClick={() => setSelectedSavedId(loc.id === selectedSavedId ? null : loc.id)}
-                    className='flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-colors'
-                    style={
-                      selectedSavedId === loc.id
-                        ? { borderColor: frameColor, background: frameColor + '12' }
-                        : { borderColor: 'var(--border)' }
-                    }
-                  >
-                    <MapPin className='h-3.5 w-3.5 shrink-0 text-muted-foreground' />
-                    <div>
-                      <p className='text-sm text-card-foreground'>{loc.name}</p>
-                      <p className='text-[10px] font-mono text-muted-foreground/60'>
-                        {loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}
-                      </p>
-                    </div>
-                  </button>
-                ))}
+              <div className='flex flex-col gap-1'>
+                {savedLocations.map((loc) => {
+                  const active = selectedSavedId === loc.id;
+                  return (
+                    <button
+                      key={loc.id}
+                      type='button'
+                      onClick={() => setSelectedSavedId(active ? null : loc.id)}
+                      aria-pressed={active}
+                      className='flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-all'
+                      style={active
+                        ? { background: `${frameColor}18`, border: `1px solid ${frameColor}`, color: frameColor }
+                        : { background: 'var(--background)', border: '1px solid var(--border)', color: 'var(--card-foreground)' }
+                      }
+                    >
+                      <LocateFixed className='h-3 w-3 shrink-0 text-muted-foreground' />
+                      <span className='text-[10px] font-mono'>{loc.name}</span>
+                    </button>
+                  );
+                })}
               </div>
             ) : (
               <LocationPicker value={latLng} onChange={setLatLng} frameColor={frameColor} />
             )}
-          </div>
+          </Section>
 
-          {error && <p className='text-xs text-destructive mb-4'>{error}</p>}
+          <Section label='Quality' frameColor={frameColor}>
+            <div className='flex gap-1.5'>
+              {qualities.map(({ key, label }) => {
+                const active = quality === key;
+                return (
+                  <button
+                    key={key}
+                    type='button'
+                    onClick={() => setQuality(active ? null : key)}
+                    aria-pressed={active}
+                    className='flex-1 py-1.5 rounded-md text-[9px] font-mono tracking-[0.04em] uppercase transition-all'
+                    style={active
+                      ? { background: `${frameColor}20`, border: `1px solid ${frameColor}`, color: frameColor }
+                      : { background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted-foreground)' }
+                    }
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </Section>
 
-          <div className='flex gap-3 justify-end'>
-            <Button variant='outline' onClick={onClose} disabled={pending}>
+          <Section label='Notes' frameColor={frameColor}>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder='What happened?'
+              maxLength={2000}
+              rows={2}
+              aria-label='Observation notes'
+              className='w-full rounded-md px-2.5 py-1.5 text-[11px] font-mono text-card-foreground placeholder:text-muted-foreground/50 resize-none leading-relaxed focus:outline-none border border-border bg-background/60 transition-colors focus:border-muted-foreground/50'
+            />
+          </Section>
+
+          <Section label='Photo' frameColor={frameColor}>
+            {photoPreview ? (
+              <div className='relative rounded-md overflow-hidden'>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photoPreview} alt='Observation photo' className='w-full max-h-36 object-cover' />
+                {photoUploading && (
+                  <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+                    <div
+                      className='w-5 h-5 rounded-full border-2 border-t-transparent animate-spin'
+                      style={{ borderColor: `${frameColor} transparent transparent transparent` }}
+                    />
+                  </div>
+                )}
+                {!photoUploading && (
+                  <button
+                    type='button'
+                    onClick={removePhoto}
+                    aria-label='Remove photo'
+                    className='absolute top-1.5 right-1.5 rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button
+                type='button'
+                onClick={() => fileInputRef.current?.click()}
+                className='group flex w-full flex-col items-center justify-center gap-1.5 py-5 rounded-md border-2 border-dashed border-border hover:border-muted-foreground/40 text-[9px] font-mono uppercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-all bg-muted/20 hover:bg-muted/30'
+              >
+                <Images className='h-5 w-5 transition-transform group-hover:scale-110 duration-150' />
+                <span>Add a photo</span>
+                {photographed && (
+                  <span className='normal-case tracking-normal text-muted-foreground/70'>
+                    You marked this as photographed
+                  </span>
+                )}
+              </button>
+            )}
+            <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handlePhotoChange} />
+          </Section>
+
+        </div>
+
+        <div className='shrink-0 px-5 py-3 flex items-center justify-between gap-2 border-t border-border bg-muted/20'>
+          {error ? (
+            <p className='text-[10px] font-mono text-destructive'>⚠ {error}</p>
+          ) : (
+            <span />
+          )}
+          <div className='flex gap-2'>
+            <button
+              type='button'
+              onClick={onClose}
+              disabled={pending || photoUploading}
+              className='px-3 py-1.5 rounded-md text-[10px] font-mono uppercase tracking-[0.1em] border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors disabled:opacity-50'
+            >
               Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={pending} style={{ background: frameColor, borderColor: frameColor }}>
-              {pending ? 'Saving…' : 'Save observation'}
-            </Button>
+            </button>
+            <button
+              type='button'
+              onClick={handleSave}
+              disabled={pending || photoUploading}
+              className='px-4 py-1.5 rounded-md text-[10px] font-mono uppercase tracking-[0.1em] text-white transition-all hover:brightness-110 active:scale-[0.97] disabled:opacity-60'
+              style={{ background: frameColor, boxShadow: `0 2px 8px ${frameColor}50` }}
+            >
+              {pending ? 'Saving…' : isEdit ? 'Update' : 'Save'}
+            </button>
           </div>
         </div>
       </div>
     </div>,
     document.body
+  );
+}
+
+function Section({
+  label,
+  frameColor,
+  trailing,
+  children,
+}: {
+  label: string;
+  frameColor: string;
+  trailing?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className='rounded-lg p-2.5'
+      style={{ background: `${frameColor}08`, border: `1px solid ${frameColor}25` }}
+    >
+      <div className='flex items-center justify-between mb-2'>
+        <p className='text-[7px] uppercase tracking-[0.18em] font-mono text-muted-foreground'>
+          {label}
+        </p>
+        {trailing}
+      </div>
+      {children}
+    </div>
   );
 }
