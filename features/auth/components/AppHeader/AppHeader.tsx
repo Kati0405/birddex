@@ -16,7 +16,7 @@ export default async function AppHeader() {
     <header className="sticky top-0 z-[100] bg-card border-b border-border shadow-[0_1px_12px_rgba(20,32,12,0.06)]">
       <div className="h-0.5 bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
 
-      <div className="max-w-[1280px] mx-auto px-[clamp(1rem,4vw,3rem)] h-[60px] flex items-center gap-8">
+      <div className="max-w-[1280px] mx-auto px-3 sm:px-[clamp(1rem,4vw,3rem)] h-[60px] flex items-center gap-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 no-underline shrink-0">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">

@@ -62,7 +62,7 @@ export default function TipsToFind({ tips }: Props) {
             {tipIcon(tip)}
           </span>
           <p
-            className='text-[9.5px] leading-snug'
+            className='text-sm sm:text-[9.5px] leading-snug'
             style={{
               color: '#4a4030',
               fontFamily: 'var(--font-sans)',

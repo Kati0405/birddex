@@ -48,28 +48,29 @@ function ObservationDifficulty({
   return (
     <div className='flex flex-col gap-1'>
       <p
-        className='text-[7px] uppercase tracking-[0.18em] font-mono'
+        className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono'
         style={{ color: `${frameColor}bb` }}
       >
         Finding difficulty
       </p>
-      <div className='flex items-center gap-1'>
-        <div className='flex gap-0.5'>
+      <div className='flex lg:flex-col items-center lg:items-start gap-1.5 sm:gap-1 lg:gap-0.5'>
+        <div className='flex gap-1 sm:gap-0.5'>
           {DIFFICULTY_LEVELS.map((_, i) => (
             <div
               key={i}
               style={{
-                width: 10,
-                height: 11,
+                width: 14,
+                height: 16,
                 clipPath:
                   'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                 background: i < level ? `${frameColor}cc` : `${frameColor}18`,
               }}
+              className='sm:!w-[10px] sm:!h-[11px]'
             />
           ))}
         </div>
         <span
-          className='text-[7px] font-mono ml-0.5 tracking-[0.04em]'
+          className='text-[11px] sm:text-[7px] font-mono tracking-[0.04em]'
           style={{ color: `${frameColor}88` }}
         >
           {DIFFICULTY_LABEL[difficulty]}
@@ -100,12 +101,12 @@ function BestTimeOfDayRow({
   return (
     <div className='flex flex-col gap-1'>
       <p
-        className='text-[7px] uppercase tracking-[0.18em] font-mono'
+        className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono self-end'
         style={{ color: `${frameColor}bb` }}
       >
         Best time
       </p>
-      <div className='flex gap-1'>
+      <div className='flex gap-2 sm:gap-1 lg:scale-75 lg:origin-right lg:-mb-2 sm:mb-0'>
         {TIME_SLOTS.map(({ key, label, img }) => {
           const active = times[key];
           return (
@@ -117,7 +118,7 @@ function BestTimeOfDayRow({
               <HexIcon
                 imageSrc={img}
                 label={label}
-                size={26}
+                size={36}
                 bgColor={active ? `${frameColor}28` : 'rgba(42,24,8,0.07)'}
               />
             </div>
@@ -141,28 +142,28 @@ export default function BirdCardBack({
 
   return (
     <div
-      className='[grid-area:1/1] h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl flex flex-col gap-3 p-4 overflow-hidden bg-card'
+      className='[grid-area:1/1] h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl flex flex-col gap-4 sm:gap-3 p-5 sm:p-4 overflow-hidden bg-card'
       style={{
         border: `2px solid ${frameColor}70`,
         boxShadow: `0 4px 20px ${frameColor}20`,
       }}
     >
       <div
-        className='h-1 w-full absolute top-0 left-0'
+        className='h-1.5 sm:h-1 w-full absolute top-0 left-0'
         style={{ background: frameColor }}
       />
 
       {/* Sound button — top right */}
-      <div className='absolute top-5 right-3' onClick={(e) => e.stopPropagation()}>
+      <div className='absolute top-6 sm:top-5 right-4 sm:right-3' onClick={(e) => e.stopPropagation()}>
         <SoundButton soundUrl={bird.sound_url} />
       </div>
 
       {/* Name */}
-      <div className='text-center pt-0.5'>
-        <p className='text-sm font-semibold text-card-foreground leading-tight'>
+      <div className='text-center pt-1'>
+        <p className='text-xl sm:text-sm font-semibold text-card-foreground leading-tight'>
           {bird.name_eng}
         </p>
-        <p className='text-[9px] italic mt-0.5 text-muted-foreground'>
+        <p className='text-sm sm:text-[9px] italic mt-1 sm:mt-0.5 text-muted-foreground'>
           {bird.name_latin}
         </p>
       </div>
@@ -170,20 +171,20 @@ export default function BirdCardBack({
       {/* Signature behavior */}
       {bird.signature_behavior && (
         <div
-          className='rounded-lg px-3 py-2'
+          className='rounded-lg px-4 sm:px-3 py-3 sm:py-2'
           style={{
             background: `${frameColor}10`,
             border: `1px solid ${frameColor}28`,
           }}
         >
           <p
-            className='text-[7px] uppercase tracking-[0.18em] font-mono mb-1'
+            className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono mb-1.5 sm:mb-1'
             style={{ color: `${frameColor}bb` }}
           >
             Signature behavior
           </p>
           <p
-            className='italic leading-snug text-[9.5px]'
+            className='italic leading-snug text-sm sm:text-[9.5px]'
             style={{
               color: '#2a1808cc',
               fontFamily: 'var(--font-sans)',
@@ -196,14 +197,14 @@ export default function BirdCardBack({
 
       {/* Best months chart */}
       <div
-        className='rounded-lg px-3 pt-2 pb-2'
+        className='rounded-lg px-4 sm:px-3 pt-3 sm:pt-2 pb-3 sm:pb-2'
         style={{
           background: `${frameColor}08`,
           border: `1px solid ${frameColor}22`,
         }}
       >
         <p
-          className='text-[7px] uppercase tracking-[0.18em] mb-1.5 font-mono'
+          className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] mb-2 sm:mb-1.5 font-mono'
           style={{ color: `${frameColor}bb` }}
         >
           Best months to observe
@@ -211,7 +212,7 @@ export default function BirdCardBack({
         <ObservationMonthsChart bestMonths={bird.best_months ?? []} frameColor={frameColor} />
       </div>
 
-      {/* Tab switcher — flex-1 absorbs extra height from row equalisation */}
+      {/* Tab switcher */}
       <div
         className='rounded-lg flex flex-col flex-1 min-h-0'
         style={{ border: `1px solid ${frameColor}22` }}
@@ -225,7 +226,7 @@ export default function BirdCardBack({
               key={t}
               type='button'
               onClick={(e) => { e.stopPropagation(); setTab(t); }}
-              className='flex-1 py-1 text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
+              className='flex-1 py-2 sm:py-1 text-[11px] sm:text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
               style={{
                 color: tab === t ? frameColor : `${frameColor}55`,
                 background: tab === t ? `${frameColor}16` : 'transparent',
@@ -239,7 +240,7 @@ export default function BirdCardBack({
             </button>
           ))}
         </div>
-        <div className='p-2 flex-1'>
+        <div className='p-3 sm:p-2 flex-1 overflow-auto'>
           {tab === 'marks' ? (
             <FieldMarks marks={bird.field_marks ?? []} />
           ) : (
@@ -251,7 +252,7 @@ export default function BirdCardBack({
       {/* Challenge + Best time of day */}
       {showBottom && (
         <div
-          className='rounded-lg px-3 py-2 flex items-start justify-between gap-2'
+          className='rounded-lg px-4 sm:px-3 py-3 sm:py-2 flex items-start justify-between gap-2'
           style={{
             background: `${frameColor}08`,
             border: `1px solid ${frameColor}22`,
@@ -278,7 +279,7 @@ export default function BirdCardBack({
           <Link
             href={`/birds/${bird.id}/edit`}
             onClick={(e) => e.stopPropagation()}
-            className='text-xs px-2.5 py-1.5 rounded border transition-colors text-muted-foreground hover:text-foreground'
+            className='text-sm sm:text-xs px-3 sm:px-2.5 py-2 sm:py-1.5 rounded border transition-colors text-muted-foreground hover:text-foreground'
             style={{
               borderColor: `${frameColor}60`,
               background: `${frameColor}12`,

@@ -31,7 +31,7 @@ export default function BirdGrid({
   const observedSet = new Set(observedIds);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch px-8 sm:px-0 [&>*]:max-w-sm [&>*]:mx-auto sm:[&>*]:max-w-none sm:[&>*]:mx-0 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 items-stretch w-full px-4 sm:px-4 lg:px-0 [&>*]:h-[calc(100svh-60px)] sm:[&>*]:h-auto">
       {birds.map((bird) => (
         <BirdCard
           key={bird.id}
