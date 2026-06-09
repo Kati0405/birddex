@@ -71,6 +71,7 @@ export default function AddObservationModal({
   const [photoPreview, setPhotoPreview] = useState<string | null>(initialData?.photoUrl ?? null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(initialData?.photoUrl ?? null);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,22 +88,35 @@ export default function AddObservationModal({
     if (!file) return;
     setPhotoPreview(URL.createObjectURL(file));
     setPhotoUploading(true);
+    setPhotoError(null);
     setError(null);
     const formData = new FormData();
     formData.append('file', file);
-    const result = await uploadObservationPhotoAction(formData);
-    setPhotoUploading(false);
-    if ('error' in result) {
-      setError(result.error);
+    try {
+      const timeout = new Promise<{ error: string }>((resolve) =>
+        setTimeout(() => resolve({ error: 'Upload timed out. Check your connection and try again.' }), 20000)
+      );
+      const result = await Promise.race([uploadObservationPhotoAction(formData), timeout]);
+      if ('error' in result) {
+        setPhotoError(result.error);
+        setPhotoPreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      } else {
+        setPhotoUrl(result.url);
+      }
+    } catch {
+      setPhotoError('Upload failed. Please try again.');
       setPhotoPreview(null);
-    } else {
-      setPhotoUrl(result.url);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } finally {
+      setPhotoUploading(false);
     }
   }
 
   function removePhoto() {
     setPhotoPreview(null);
     setPhotoUrl(null);
+    setPhotoError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
 
@@ -314,6 +328,12 @@ export default function AddObservationModal({
           </Section>
 
           <Section label='Photo' frameColor={frameColor}>
+            {photoError && (
+              <div className='mb-2 flex items-start gap-1.5 rounded-md px-2.5 py-2 bg-destructive/10 border border-destructive/30 text-destructive text-[10px] font-mono'>
+                <span className='shrink-0 mt-px'>⚠</span>
+                <span>{photoError}</span>
+              </div>
+            )}
             {photoPreview ? (
               <div className='relative rounded-md overflow-hidden'>
                 {/* eslint-disable-next-line @next/next/no-img-element */}

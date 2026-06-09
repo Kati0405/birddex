@@ -96,7 +96,11 @@ export async function updateObservationAction(
 export async function uploadObservationPhotoAction(
   formData: FormData
 ): Promise<{ url: string } | { error: string }> {
-  await requireAuth();
+  try {
+    await requireAuth();
+  } catch {
+    return { error: 'You must be signed in to upload photos.' };
+  }
 
   const file = formData.get('file') as File | null;
   if (!file) return { error: 'No file provided' };
