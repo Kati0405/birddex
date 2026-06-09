@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import binocularsImg from '@/components/icons/ui/binoculars.png';
 import checkMarkImg from '@/components/icons/ui/check-mark.png';
@@ -22,6 +23,7 @@ export default function ObservationButton({
   initialObserved,
   savedLocations = [],
 }: ObservationButtonProps) {
+  const router = useRouter();
   const [observed, setObserved] = useState(initialObserved);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -70,7 +72,7 @@ export default function ObservationButton({
           frameColor={frameColor}
           savedLocations={savedLocations}
           onClose={() => setModalOpen(false)}
-          onSaved={() => setObserved(true)}
+          onSaved={() => { setObserved(true); router.refresh(); }}
         />
       )}
     </>

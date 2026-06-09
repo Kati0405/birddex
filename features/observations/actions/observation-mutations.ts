@@ -47,6 +47,7 @@ export async function addObservationAction(
   }
 
   revalidatePath('/');
+  revalidatePath('/collection');
   return { success: true };
 }
 
