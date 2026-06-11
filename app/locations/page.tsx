@@ -3,8 +3,8 @@ import { getSavedLocations } from '@/features/locations/location-queries';
 import LocationsManager from '@/features/locations/components/LocationsManager/LocationsManager';
 
 export default async function LocationsPage() {
-  await requireAuth();
-  const locations = await getSavedLocations();
+  const user = await requireAuth();
+  const locations = await getSavedLocations(user.id);
 
   return (
     <main className='min-h-screen bg-background'>

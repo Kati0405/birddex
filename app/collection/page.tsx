@@ -9,7 +9,7 @@ export default async function CollectionPage() {
   const [role, observedIds, savedLocations] = await Promise.all([
     getUserRole(),
     getObservedBirdIds(user.id),
-    getSavedLocations(),
+    getSavedLocations(user.id),
   ]);
   const [birds, collectionDataByBirdId] = await Promise.all([
     getBirdsByIds(observedIds),

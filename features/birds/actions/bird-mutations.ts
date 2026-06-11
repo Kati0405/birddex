@@ -46,13 +46,13 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
   }
   const buffer = Buffer.from(await imgRes.arrayBuffer());
 
-  let uploaded;
+  let uploaded: { secure_url: string; public_id: string };
   try {
-    uploaded = await new Promise<{ secure_url: string }>((resolve, reject) => {
+    uploaded = await new Promise((resolve, reject) => {
       cloudinary.uploader
         .upload_stream({ folder: 'birddex', resource_type: 'image' }, (err, res) => {
           if (err || !res) return reject(err ?? new Error('Upload failed'));
-          resolve(res);
+          resolve({ secure_url: res.secure_url, public_id: res.public_id });
         })
         .end(buffer);
     });
@@ -62,11 +62,17 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
     return { error: `Cloudinary upload failed (${e.http_code ?? 'unknown'}): ${e.message ?? 'unknown error'}` };
   }
 
-  await updateBirdSelectedImage(birdId, {
-    ...selectedImage,
-    imageUrl: uploaded.secure_url,
-    thumbnailUrl: uploaded.secure_url,
-  });
+  try {
+    await updateBirdSelectedImage(birdId, {
+      ...selectedImage,
+      imageUrl: uploaded.secure_url,
+      thumbnailUrl: uploaded.secure_url,
+    });
+  } catch (err) {
+    await cloudinary.uploader.destroy(uploaded.public_id).catch(() => {});
+    throw err;
+  }
+
   revalidatePath(`/birds/${birdId}`);
   redirect(`/birds/${birdId}`);
 }

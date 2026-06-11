@@ -25,6 +25,8 @@ type AddObservationInput = z.infer<typeof AddObservationSchema>;
 export async function addObservationAction(
   input: AddObservationInput
 ): Promise<{ success: true } | { error: string }> {
+  await requireAuth();
+
   const parsed = AddObservationSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') };
 
@@ -70,6 +72,8 @@ type UpdateObservationInput = z.infer<typeof UpdateObservationSchema>;
 export async function updateObservationAction(
   input: UpdateObservationInput
 ): Promise<{ success: true } | { error: string }> {
+  await requireAuth();
+
   const parsed = UpdateObservationSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues.map((i) => `${i.path.join('.') || 'root'}: ${i.message}`).join(', ') };
 
@@ -101,6 +105,8 @@ const DeleteObservationSchema = z.object({
 export async function deleteObservationAction(
   input: z.infer<typeof DeleteObservationSchema>
 ): Promise<{ success: true } | { error: string }> {
+  await requireAuth();
+
   const parsed = DeleteObservationSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') };
 
@@ -118,11 +124,7 @@ export async function deleteObservationAction(
 export async function uploadObservationPhotoAction(
   formData: FormData
 ): Promise<{ url: string } | { error: string }> {
-  try {
-    await requireAuth();
-  } catch {
-    return { error: 'You must be signed in to upload photos.' };
-  }
+  await requireAuth();
 
   const file = formData.get('file') as File | null;
   if (!file) return { error: 'No file provided' };

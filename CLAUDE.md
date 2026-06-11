@@ -102,11 +102,11 @@ Rarity controls the frame color. Use this exact mapping — no other colors:
 
 | Rarity    | Color  | Hex       |
 |-----------|--------|-----------|
-| Common    | white  | `#e8e8e8` |
-| Uncommon  | green  | `#4ade80` |
-| Rare      | blue   | `#60a5fa` |
-| Epic      | purple | `#c084fc` |
-| Legendary | orange | `#fb923c` |
+| Common    | grey   | `#808080` |
+| Uncommon  | green  | `#198b58` |
+| Rare      | blue   | `#306fd5` |
+| Epic      | purple | `#8d33ab` |
+| Legendary | orange | `#f9a01f` |
 
 Wingspan must be a single precise number in cm, not a range.
 

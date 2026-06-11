@@ -383,11 +383,12 @@ export default function BirdCardBackObservation({
                 {evidence.filter(({ active }) => active).map(({ Icon, label }) => (
                   <div
                     key={label}
-                    title={label}
+                    aria-label={label}
+                    role='img'
                     className='flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full'
                     style={{ background: `${frameColor}16`, color: `${frameColor}cc` }}
                   >
-                    <Icon className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
+                    <Icon className='h-4 w-4 sm:h-2.5 sm:w-2.5' aria-hidden='true' />
                   </div>
                 ))}
               </div>

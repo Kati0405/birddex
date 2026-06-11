@@ -124,12 +124,13 @@ export default function BirdSearch({
         />
         <button
           onClick={() => setFiltersOpen(true)}
+          aria-label={hasActiveFilters ? `Filters, ${activeCount} active` : 'Filters'}
           className={`relative flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium border transition-colors shrink-0 ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-foreground'}`}
         >
           <SlidersHorizontal size={15} />
           Filters
           {hasActiveFilters && (
-            <span className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
+            <span aria-hidden='true' className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
               {activeCount}
             </span>
           )}
@@ -149,12 +150,13 @@ export default function BirdSearch({
           />
           <button
             onClick={() => setFiltersOpen(true)}
+            aria-label={hasActiveFilters ? `Filters, ${activeCount} active` : 'Filters'}
             className={`relative flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium border transition-colors shrink-0 ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-foreground hover:bg-muted/40'}`}
           >
             <SlidersHorizontal size={15} />
             Filters
             {hasActiveFilters && (
-              <span className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
+              <span aria-hidden='true' className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
                 {activeCount}
               </span>
             )}
@@ -162,7 +164,7 @@ export default function BirdSearch({
         </div>
 
         <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
-          {filtered.length} {filtered.length === 1 ? 'species' : 'species'} found
+          {filtered.length} species found
         </p>
         <BirdGrid birds={visibleBirds} isAdmin={isAdmin} isAuthenticated={isAuthenticated} observedIds={observedIds} savedLocations={savedLocations} />
         <div ref={sentinelRef} className='h-8' />
@@ -176,11 +178,20 @@ export default function BirdSearch({
       {/* Filter modal */}
       {filtersOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
-          <div className='absolute inset-0 bg-black/50' onClick={() => setFiltersOpen(false)} />
-          <div className='relative bg-card rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col'>
+          <div className='absolute inset-0 bg-black/50' onClick={() => setFiltersOpen(false)} aria-hidden='true' />
+          <div
+            role='dialog'
+            aria-modal='true'
+            aria-labelledby='filters-dialog-title'
+            className='relative bg-card rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col'
+          >
             <div className='flex items-center justify-between px-5 py-4 border-b border-border'>
-              <span className='text-sm font-semibold tracking-wide'>Filters</span>
-              <button onClick={() => setFiltersOpen(false)} className='p-1 text-muted-foreground hover:text-foreground'>
+              <span id='filters-dialog-title' className='text-sm font-semibold tracking-wide'>Filters</span>
+              <button
+                onClick={() => setFiltersOpen(false)}
+                aria-label='Close filters'
+                className='p-1 text-muted-foreground hover:text-foreground'
+              >
                 <X size={18} />
               </button>
             </div>

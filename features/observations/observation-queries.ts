@@ -20,7 +20,7 @@ export interface ObservationData {
 export async function addObservation(data: ObservationData): Promise<void> {
   const user = await requireAuth();
   const supabase = await createSupabaseServerClient();
-  await supabase.from('observations').insert({
+  const { error } = await supabase.from('observations').insert({
     user_id: user.id,
     bird_id: data.birdId,
     observed_at: data.observedAt.toISOString(),
@@ -34,6 +34,7 @@ export async function addObservation(data: ObservationData): Promise<void> {
     notes: data.notes,
     photo_url: data.photoUrl,
   });
+  if (error) throw new Error(`addObservation: ${error.message}`);
 }
 
 export interface ObservationEntry {
@@ -131,7 +132,7 @@ export interface ObservationUpdate {
 export async function updateObservation(id: string, data: ObservationUpdate): Promise<void> {
   const user = await requireAuth();
   const supabase = await createSupabaseServerClient();
-  await supabase
+  const { error } = await supabase
     .from('observations')
     .update({
       observed_at: data.observedAt.toISOString(),
@@ -147,16 +148,18 @@ export async function updateObservation(id: string, data: ObservationUpdate): Pr
     })
     .eq('id', id)
     .eq('user_id', user.id);
+  if (error) throw new Error(`updateObservation(${id}): ${error.message}`);
 }
 
 export async function deleteObservation(id: string): Promise<void> {
   const user = await requireAuth();
   const supabase = await createSupabaseServerClient();
-  await supabase
+  const { error } = await supabase
     .from('observations')
     .delete()
     .eq('id', id)
     .eq('user_id', user.id);
+  if (error) throw new Error(`deleteObservation(${id}): ${error.message}`);
 }
 
 export async function getObservedBirdIds(userId: string): Promise<number[]> {
@@ -170,8 +173,16 @@ export async function getObservedBirdIds(userId: string): Promise<number[]> {
 }
 
 export async function getObservationCount(userId: string): Promise<number> {
-  const ids = await getObservedBirdIds(userId);
-  return ids.length;
+  const supabase = await createSupabaseServerClient();
+  // Supabase's query builder doesn't support COUNT(DISTINCT) directly.
+  // Selecting only bird_id (one int column, no row body) is cheap and lets us
+  // deduplicate in JS to get the unique-species count the header badge shows.
+  const { data, error } = await supabase
+    .from('observations')
+    .select('bird_id')
+    .eq('user_id', userId);
+  if (error) throw new Error(`getObservationCount: ${error.message}`);
+  return new Set((data ?? []).map((r) => r.bird_id as number)).size;
 }
 
 export interface ObservationPhoto {

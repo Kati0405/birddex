@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -18,7 +19,19 @@ const INK_MED = '#6b5030';
 const INK_LIGHT = '#8a6c44';
 const DIVIDER = '#c4a87840';
 
-export const dynamic = 'force-dynamic';
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const bird = await getBirdById(Number(id));
+  if (!bird) return { title: 'Bird not found — BirdDex' };
+  return {
+    title: `${bird.name_eng} — BirdDex`,
+    description: bird.field_note ?? `${bird.name_eng} (${bird.name_latin}) — ${bird.rarity} species.`,
+  };
+}
 
 export default async function BirdPage({
   params,

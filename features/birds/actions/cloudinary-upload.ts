@@ -24,21 +24,27 @@ export async function uploadBirdImageAction(formData: FormData) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  const result = await new Promise<{ secure_url: string }>(
+  const uploaded = await new Promise<{ secure_url: string; public_id: string }>(
     (resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
           { folder: 'birddex', resource_type: 'image' },
           (err, res) => {
             if (err || !res) return reject(err ?? new Error('Upload failed'));
-            resolve({ secure_url: res.secure_url });
+            resolve({ secure_url: res.secure_url, public_id: res.public_id });
           }
         )
         .end(buffer);
     }
   );
 
-  await updateBirdCloudinaryImage(birdId, result.secure_url);
+  try {
+    await updateBirdCloudinaryImage(birdId, uploaded.secure_url);
+  } catch (err) {
+    await cloudinary.uploader.destroy(uploaded.public_id).catch(() => {});
+    throw err;
+  }
+
   revalidatePath(`/birds/${birdId}`);
   redirect(`/birds/${birdId}`);
 }

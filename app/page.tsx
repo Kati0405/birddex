@@ -1,14 +1,20 @@
+import type { Metadata } from 'next';
 import { getBirds } from '@/features/birds/bird-queries';
 import BirdSearch from '@/features/birds/components/BirdSearch/BirdSearch';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
 import { getObservedBirdIds } from '@/features/observations/observation-queries';
 import { getSavedLocations } from '@/features/locations/location-queries';
 
+export const metadata: Metadata = {
+  title: 'BirdDex — Bird Field Guide',
+  description: 'A collectible field guide to birds, each with a personality.',
+};
+
 export default async function Home() {
   const [birds, role, user] = await Promise.all([getBirds(), getUserRole(), getUser()]);
   const [observedIds, savedLocations] = await Promise.all([
     user ? getObservedBirdIds(user.id) : Promise.resolve([]),
-    user ? getSavedLocations() : Promise.resolve([]),
+    user ? getSavedLocations(user.id) : Promise.resolve([]),
   ]);
 
   return (
