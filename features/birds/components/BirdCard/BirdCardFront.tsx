@@ -89,7 +89,7 @@ export default function BirdCardFront({
           >
             Food
           </p>
-          <div className='flex gap-1.5 sm:gap-0.5 lg:scale-75 lg:origin-left lg:-mb-3 sm:mb-0'>
+          <div className='flex gap-1.5 sm:gap-1 scale-75 origin-left -mb-3 sm:-mb-2 lg:scale-75 lg:origin-left lg:-mb-3'>
             {bird.food.slice(0, 3).map((f) => (
               <HexIcon
                 key={f}
@@ -108,7 +108,7 @@ export default function BirdCardFront({
           >
             Habitat
           </p>
-          <div className='flex gap-1.5 sm:gap-0.5 lg:scale-75 lg:origin-right lg:-mb-3 sm:mb-0'>
+          <div className='flex gap-1.5 sm:gap-1 scale-75 origin-right -mb-3 sm:-mb-2 lg:scale-75 lg:origin-right lg:-mb-3'>
             {bird.biomes.slice(0, 3).map((b) => (
               <HexIcon
                 key={b}
@@ -165,7 +165,7 @@ export default function BirdCardFront({
             {bird.behaviour.map((b) => (
               <span
                 key={b}
-                title={b}
+
                 className='text-sm sm:text-[10px] px-3 sm:px-2 py-1.5 sm:py-0.5 rounded leading-none inline-flex items-center gap-1.5 sm:gap-1 text-muted-foreground'
                 style={{
                   background: `${frameColor}18`,

@@ -149,6 +149,16 @@ export async function updateObservation(id: string, data: ObservationUpdate): Pr
     .eq('user_id', user.id);
 }
 
+export async function deleteObservation(id: string): Promise<void> {
+  const user = await requireAuth();
+  const supabase = await createSupabaseServerClient();
+  await supabase
+    .from('observations')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id);
+}
+
 export async function getObservedBirdIds(userId: string): Promise<number[]> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
@@ -162,4 +172,45 @@ export async function getObservedBirdIds(userId: string): Promise<number[]> {
 export async function getObservationCount(userId: string): Promise<number> {
   const ids = await getObservedBirdIds(userId);
   return ids.length;
+}
+
+export interface ObservationPhoto {
+  observationId: string;
+  photoUrl: string;
+  observedAt: string;
+  birdId: number;
+  birdNameEng: string;
+}
+
+export async function getUserObservationPhotos(): Promise<ObservationPhoto[]> {
+  const user = await requireAuth();
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from('observations')
+    .select('id, photo_url, observed_at, bird_id')
+    .eq('user_id', user.id)
+    .not('photo_url', 'is', null)
+    .order('observed_at', { ascending: false });
+
+  const rows = data ?? [];
+  if (rows.length === 0) return [];
+
+  const birdIds = [...new Set(rows.map((r) => r.bird_id as number))];
+  const { data: birdsData } = await supabase
+    .from('birds')
+    .select('id, name_eng')
+    .in('id', birdIds);
+
+  const birdNameById: Record<number, string> = {};
+  for (const b of birdsData ?? []) {
+    birdNameById[b.id as number] = b.name_eng as string;
+  }
+
+  return rows.map((row) => ({
+    observationId: row.id as string,
+    photoUrl: row.photo_url as string,
+    observedAt: row.observed_at as string,
+    birdId: row.bird_id as number,
+    birdNameEng: birdNameById[row.bird_id as number] ?? 'Unknown',
+  }));
 }

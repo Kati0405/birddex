@@ -112,31 +112,8 @@ export default function BirdSearch({
   }
 
   return (
-    <div className='flex-1 px-0 md:px-6 py-5 mt-[52px] md:mt-0'>
-      {/* Search bar + filter button */}
-      <div className='hidden md:flex items-center gap-2 mb-4'>
-        <Input
-          type='text'
-          placeholder='Search birds...'
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }}
-          className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 max-w-xs'
-        />
-        <button
-          onClick={() => setFiltersOpen(true)}
-          className={`relative flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium border transition-colors shrink-0 ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-foreground hover:bg-muted/40'}`}
-        >
-          <SlidersHorizontal size={15} />
-          Filters
-          {hasActiveFilters && (
-            <span className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
-              {activeCount}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* Mobile top bar */}
+    <div className='mt-[52px] md:mt-0 py-5'>
+      {/* Mobile top bar — full-width fixed, outside the content container */}
       <div className='md:hidden fixed top-[62px] left-0 right-0 z-30 bg-card border-b border-border px-4 py-2 flex items-center gap-2'>
         <Input
           type='text'
@@ -159,16 +136,42 @@ export default function BirdSearch({
         </button>
       </div>
 
-      <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
-        {filtered.length} {filtered.length === 1 ? 'species' : 'species'} found
-      </p>
-      <BirdGrid birds={visibleBirds} isAdmin={isAdmin} isAuthenticated={isAuthenticated} observedIds={observedIds} savedLocations={savedLocations} />
-      <div ref={sentinelRef} className='h-8' />
-      {visibleCount < filtered.length && (
-        <p className='py-4 text-center text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
-          Loading…
+      {/* Single content container — matches header max-w and padding */}
+      <div className='max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)]'>
+        {/* Search bar + filter button (desktop) */}
+        <div className='hidden md:flex items-center gap-2 mb-4'>
+          <Input
+            type='text'
+            placeholder='Search birds...'
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }}
+            className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 max-w-xs'
+          />
+          <button
+            onClick={() => setFiltersOpen(true)}
+            className={`relative flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium border transition-colors shrink-0 ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-foreground hover:bg-muted/40'}`}
+          >
+            <SlidersHorizontal size={15} />
+            Filters
+            {hasActiveFilters && (
+              <span className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
+                {activeCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
+          {filtered.length} {filtered.length === 1 ? 'species' : 'species'} found
         </p>
-      )}
+        <BirdGrid birds={visibleBirds} isAdmin={isAdmin} isAuthenticated={isAuthenticated} observedIds={observedIds} savedLocations={savedLocations} />
+        <div ref={sentinelRef} className='h-8' />
+        {visibleCount < filtered.length && (
+          <p className='py-4 text-center text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
+            Loading…
+          </p>
+        )}
+      </div>
 
       {/* Filter modal */}
       {filtersOpen && (

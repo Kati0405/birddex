@@ -39,7 +39,7 @@ interface AddObservationModalProps {
   savedLocations?: SavedLocation[];
   initialData?: ObservationInitialData;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (updated?: ObservationInitialData) => void;
 }
 
 export default function AddObservationModal({
@@ -162,7 +162,19 @@ export default function AddObservationModal({
       if ('error' in result) {
         setError(result.error);
       } else {
-        onSaved();
+        onSaved(isEdit ? {
+          observationId: initialData!.observationId,
+          date: payload.observedAt,
+          seen: payload.seen,
+          heard: payload.heard,
+          photographed: payload.photographed,
+          quality: payload.quality ?? null,
+          notes: payload.notes ?? null,
+          photoUrl: payload.photoUrl ?? null,
+          lat: payload.lat ?? null,
+          lng: payload.lng ?? null,
+          locationName: payload.locationName ?? null,
+        } : undefined);
         onClose();
       }
     });
@@ -340,13 +352,14 @@ export default function AddObservationModal({
               onChange={(e) => setNotes(e.target.value)}
               placeholder='What happened?'
               maxLength={2000}
-              rows={2}
+              rows={4}
               aria-label='Observation notes'
-              className='w-full rounded-md px-2.5 py-1.5 text-[11px] font-mono text-card-foreground placeholder:text-muted-foreground/50 resize-none leading-relaxed focus:outline-none border border-border bg-background/60 transition-colors focus:border-muted-foreground/50'
+              className='w-full rounded-md px-2.5 py-1.5 text-lg text-card-foreground placeholder:text-muted-foreground/50 resize-none leading-relaxed focus:outline-none border border-border bg-background/60 transition-colors focus:border-muted-foreground/50'
+              style={{ fontFamily: 'var(--font-handwritten)' }}
             />
           </Section>
 
-          <Section label='Photo' frameColor={frameColor}>
+          {photographed && <Section label='Photo' frameColor={frameColor}>
             {photoError && (
               <div className='mb-2 flex items-start gap-1.5 rounded-md px-2.5 py-2 bg-destructive/10 border border-destructive/30 text-destructive text-[10px] font-mono'>
                 <span className='shrink-0 mt-px'>⚠</span>
@@ -384,15 +397,10 @@ export default function AddObservationModal({
               >
                 <Images className='h-5 w-5 transition-transform group-hover:scale-110 duration-150' />
                 <span>Add a photo</span>
-                {photographed && (
-                  <span className='normal-case tracking-normal text-muted-foreground/70'>
-                    You marked this as photographed
-                  </span>
-                )}
               </button>
             )}
             <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handlePhotoChange} />
-          </Section>
+          </Section>}
 
         </div>
 

@@ -1,53 +1,72 @@
 'use client';
 
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { MapPin } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 
-const MapView = dynamic(() => import('./MapView'), { ssr: false, loading: () => (
-  <div className='w-full h-full flex items-center justify-center text-[9px] font-mono text-muted-foreground'>
-    Loading map…
-  </div>
-) });
+const MapView = dynamic(() => import('./MapView'), {
+  ssr: false,
+  loading: () => (
+    <div className='w-full h-full flex items-center justify-center text-[9px] font-mono text-muted-foreground'>
+      Loading map…
+    </div>
+  ),
+});
 
 interface Props {
   lat: number;
   lng: number;
   locationName: string | null;
   frameColor: string;
+  /** Controlled open state — pass true to show the modal */
+  open: boolean;
+  onClose: () => void;
 }
 
-export default function LocationMapPopover({ lat, lng, locationName, frameColor }: Props) {
-  return (
-    <Popover>
-      <PopoverTrigger
-        onClick={e => e.stopPropagation()}
-        className='flex items-center gap-1 min-w-0 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-none p-0'
-      >
-        <MapPin className='h-2.5 w-2.5 shrink-0' style={{ color: frameColor }} />
-        <span className='text-[9px] font-mono text-muted-foreground truncate'>
-          {locationName ?? `${lat.toFixed(2)}°, ${lng.toFixed(2)}°`}
-        </span>
-      </PopoverTrigger>
-      <PopoverContent
-        side='top'
-        align='start'
-        className='p-0 overflow-hidden rounded-xl'
-        style={{ width: 240, border: `1px solid ${frameColor}40` }}
+export default function LocationMapModal({ lat, lng, locationName, frameColor, open, onClose }: Props) {
+  if (!open || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      className='fixed inset-0 z-50 flex items-center justify-center'
+      onClick={e => { e.stopPropagation(); onClose(); }}
+    >
+      <div className='absolute inset-0 bg-black/60 backdrop-blur-sm' />
+
+      <div
+        className='relative z-10 overflow-hidden rounded-xl w-80 bg-card shadow-2xl'
+        style={{ border: `1px solid ${frameColor}40` }}
         onClick={e => e.stopPropagation()}
       >
-        {locationName && (
-          <div className='px-2.5 py-1.5 text-[9px] font-mono text-muted-foreground border-b' style={{ borderColor: `${frameColor}20` }}>
-            {locationName}
+        <div
+          className='flex items-start justify-between px-3 py-2 border-b'
+          style={{ borderColor: `${frameColor}20` }}
+        >
+          <div className='flex flex-col gap-0.5'>
+            {locationName && (
+              <span className='text-[11px] font-mono font-medium text-card-foreground leading-snug'>
+                {locationName}
+              </span>
+            )}
+            <span className='text-[9px] font-mono text-muted-foreground/60'>
+              {lat.toFixed(5)}, {lng.toFixed(5)}
+            </span>
           </div>
-        )}
-        <div style={{ height: 160 }}>
+          <button
+            type='button'
+            onClick={e => { e.stopPropagation(); onClose(); }}
+            className='text-muted-foreground hover:text-foreground transition-colors ml-3 mt-0.5'
+          >
+            <X className='h-3.5 w-3.5' />
+          </button>
+        </div>
+
+        <div style={{ height: 320 }}>
           <MapView lat={lat} lng={lng} frameColor={frameColor} />
         </div>
-        <div className='px-2.5 py-1 text-[8px] font-mono text-muted-foreground/50 border-t text-center' style={{ borderColor: `${frameColor}20` }}>
-          {lat.toFixed(4)}, {lng.toFixed(4)}
-        </div>
-      </PopoverContent>
-    </Popover>
+      </div>
+    </div>,
+    document.body
   );
 }

@@ -20,6 +20,9 @@ export default function AppHeaderNav({ isAuthenticated }: Props) {
       {isAuthenticated && (
         <NavLink href="/locations" label="My Locations" active={pathname === '/locations'} />
       )}
+      {isAuthenticated && (
+        <NavLink href="/photos" label="My Photos" active={pathname === '/photos'} />
+      )}
     </nav>
   );
 }

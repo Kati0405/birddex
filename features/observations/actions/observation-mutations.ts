@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { addObservation, updateObservation } from '@/features/observations/observation-queries';
+import { addObservation, updateObservation, deleteObservation } from '@/features/observations/observation-queries';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { requireAuth } from '@/features/auth/auth-helpers';
 
@@ -90,6 +90,27 @@ export async function updateObservationAction(
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
+  revalidatePath('/collection');
+  return { success: true };
+}
+
+const DeleteObservationSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export async function deleteObservationAction(
+  input: z.infer<typeof DeleteObservationSchema>
+): Promise<{ success: true } | { error: string }> {
+  const parsed = DeleteObservationSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') };
+
+  try {
+    await deleteObservation(parsed.data.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+
+  revalidatePath('/');
   revalidatePath('/collection');
   return { success: true };
 }

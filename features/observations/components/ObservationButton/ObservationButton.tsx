@@ -36,17 +36,22 @@ export default function ObservationButton({
     <>
       <button
         onClick={handleClick}
-        title='Add observation'
-        aria-label='Add observation'
-        className='relative flex items-center justify-center rounded-full transition-all'
+        title='Log observation'
+        aria-label='Log observation'
+        className='relative flex items-center gap-1 rounded-full px-2 transition-all'
         style={{
-          width: 28,
           height: 28,
           background: observed ? `${frameColor}22` : 'rgba(250,246,237,0.85)',
           border: `1px solid ${observed ? frameColor + '70' : '#c4a87840'}`,
           flexShrink: 0,
         }}
       >
+        <span
+          className='text-[13px] font-light leading-none'
+          style={{ opacity: observed ? 0.85 : 0.45 }}
+        >
+          +
+        </span>
         <Image
           src={binocularsImg}
           alt=''

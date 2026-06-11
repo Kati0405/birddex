@@ -56,6 +56,9 @@ export default function AppHeaderMobile({ isAuthenticated, seenCount, totalBirds
             {isAuthenticated && (
               <MobileNavLink href="/locations" label="My Locations" active={currentPath === '/locations'} onClick={() => setOpen(false)} />
             )}
+            {isAuthenticated && (
+              <MobileNavLink href="/photos" label="My Photos" active={currentPath === '/photos'} onClick={() => setOpen(false)} />
+            )}
 
             {isAuthenticated && seenCount !== undefined && totalBirds !== undefined && (
               <div className="mt-4 px-4 py-3 bg-secondary rounded-lg font-mono text-[11px] text-primary tracking-wide">

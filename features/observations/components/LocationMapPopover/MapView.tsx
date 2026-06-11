@@ -24,6 +24,7 @@ export default function MapView({ lat, lng }: Props) {
       zoom={12}
       style={{ width: '100%', height: '100%' }}
       attributionControl={false}
+      zoomControl={false}
     >
       <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' />
       <Marker position={[lat, lng]} />

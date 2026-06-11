@@ -29,12 +29,7 @@ export default function BirdCard({
   const frameColor = RARITY_COLOR[bird.rarity];
 
   return (
-    <div className='[perspective:1000px] w-full h-full cursor-pointer' onClick={() => setFlipped(f => !f)}>
-      {/*
-        Both faces sit in a CSS grid (same cell) so the wrapper height is
-        driven by whichever face is taller. Each face is visible/invisible
-        via backface-visibility; the inner div rotates on flip.
-      */}
+    <div className='[perspective:1000px] w-full h-full cursor-pointer' onClick={(e) => { if ((e.target as HTMLElement).closest('button, a, input, textarea, select, label')) return; setFlipped(f => !f); }}>
       <div
         className={cn(
           'grid h-full transition-transform duration-500 [transform-style:preserve-3d]',

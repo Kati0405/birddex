@@ -2,7 +2,7 @@ import { requireAuth, getUserRole } from '@/features/auth/auth-helpers';
 import { getObservedBirdIds, getCollectionCardDataByBirdIds } from '@/features/observations/observation-queries';
 import { getBirdsByIds } from '@/features/birds/bird-queries';
 import { getSavedLocations } from '@/features/locations/location-queries';
-import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
+import CollectionSearch from '@/features/birds/components/CollectionSearch/CollectionSearch';
 
 export default async function CollectionPage() {
   const user = await requireAuth();
@@ -18,17 +18,10 @@ export default async function CollectionPage() {
 
   return (
     <main className='min-h-screen bg-background'>
-      <div className='flex-1 px-0 md:px-6 py-5'>
-        <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
-          {birds.length === 0
-            ? 'No birds observed yet'
-            : `${birds.length} ${birds.length === 1 ? 'species' : 'species'} collected`}
-        </p>
-
-        <BirdGrid
+      <div className='mt-[52px] md:mt-0 py-5'>
+        <CollectionSearch
           birds={birds}
           isAdmin={role === 'admin'}
-          isAuthenticated
           observedIds={observedIds}
           savedLocations={savedLocations}
           collectionDataByBirdId={collectionDataByBirdId}

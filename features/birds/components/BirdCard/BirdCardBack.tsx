@@ -142,7 +142,7 @@ export default function BirdCardBack({
 
   return (
     <div
-      className='[grid-area:1/1] h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl flex flex-col gap-4 sm:gap-3 p-5 sm:p-4 overflow-hidden bg-card'
+      className='[grid-area:1/1] absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl flex flex-col gap-4 sm:gap-3 p-5 sm:p-4 overflow-hidden bg-card'
       style={{
         border: `2px solid ${frameColor}70`,
         boxShadow: `0 4px 20px ${frameColor}20`,
