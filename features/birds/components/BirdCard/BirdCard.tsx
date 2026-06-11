@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import type { Bird } from '@/entities/bird-domain';
 import { RARITY_COLOR } from '@/entities/bird-domain';
 import BirdCardFront from './BirdCardFront';
 import BirdCardBack from './BirdCardBack';
-import BirdCardBackObservation from './BirdCardBackObservation';
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { CollectionCardData } from '@/features/observations/observation-queries';
 
@@ -28,8 +27,28 @@ export default function BirdCard({
   const [flipped, setFlipped] = useState(false);
   const frameColor = RARITY_COLOR[bird.rarity];
 
+  // Decide during the capture phase whether the click landed on an interactive
+  // element. Capture runs before the target's own onClick, so the clicked node
+  // is still attached to the DOM. Doing this check in the bubble-phase onClick
+  // is unreliable: an inner tab's handler may call setState and swap its
+  // content first, detaching the clicked node — then .closest() returns null
+  // and the card flips unintentionally.
+  const interactiveClickRef = useRef(false);
+
   return (
-    <div className='[perspective:1000px] w-full h-full cursor-pointer' onClick={(e) => { if ((e.target as HTMLElement).closest('button, a, input, textarea, select, label')) return; setFlipped(f => !f); }}>
+    <div
+      className='[perspective:1000px] w-full h-full cursor-pointer'
+      onClickCapture={(e) => {
+        const target = e.target as HTMLElement | null;
+        interactiveClickRef.current = !!target?.closest(
+          'button, a, input, textarea, select, label',
+        );
+      }}
+      onClick={() => {
+        if (interactiveClickRef.current) return;
+        setFlipped((f) => !f);
+      }}
+    >
       <div
         className={cn(
           'grid h-full transition-transform duration-500 [transform-style:preserve-3d]',
@@ -44,20 +63,15 @@ export default function BirdCard({
           isAuthenticated={isAuthenticated}
           savedLocations={savedLocations}
         />
-        {collectionData ? (
-          <BirdCardBackObservation
-            bird={bird}
-            frameColor={frameColor}
-            collectionData={collectionData}
-            savedLocations={savedLocations}
-          />
-        ) : (
-          <BirdCardBack
-            bird={bird}
-            frameColor={frameColor}
-            isAdmin={isAdmin}
-          />
-        )}
+        <BirdCardBack
+          bird={bird}
+          frameColor={frameColor}
+          isAdmin={isAdmin}
+          isAuthenticated={isAuthenticated}
+          isObserved={isObserved}
+          savedLocations={savedLocations}
+          collectionData={collectionData}
+        />
       </div>
     </div>
   );

@@ -16,7 +16,10 @@ import {
   MapPin,
 } from 'lucide-react';
 import LocationMapModal from '@/features/observations/components/LocationMapPopover/LocationMapPopover';
-import { isCloudinaryUrl, cloudinaryPublicId } from '@/shared/lib/cloudinary-utils';
+import {
+  isCloudinaryUrl,
+  cloudinaryPublicId,
+} from '@/shared/lib/cloudinary-utils';
 import type { Bird } from '@/entities/bird-domain';
 import type {
   CollectionCardData,
@@ -30,7 +33,7 @@ import { deleteObservationAction } from '@/features/observations/actions/observa
 interface Props {
   bird: Bird;
   frameColor: string;
-  collectionData: CollectionCardData;
+  collectionData?: CollectionCardData;
   savedLocations?: SavedLocation[];
 }
 
@@ -48,16 +51,87 @@ function ObservationImage({ url, alt }: { url: string; alt: string }) {
         src={cloudinaryPublicId(url)}
         alt={alt}
         fill
-        sizes="(max-width: 640px) 50vw, 320px"
-        crop="fill"
-        gravity="auto"
-        className="object-cover object-center"
+        sizes='(max-width: 640px) 50vw, 320px'
+        crop='fill'
+        gravity='auto'
+        className='object-cover object-center'
       />
     );
   }
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={url} alt={alt} className="absolute inset-0 w-full h-full object-cover" />
+    <img
+      src={url}
+      alt={alt}
+      className='absolute inset-0 w-full h-full object-cover'
+    />
+  );
+}
+
+function AddFirstObservation({
+  bird,
+  frameColor,
+  savedLocations,
+}: {
+  bird: Bird;
+  frameColor: string;
+  savedLocations: SavedLocation[];
+}) {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  return (
+    <div className='flex flex-col flex-1 items-center justify-center gap-4 sm:gap-3 px-5 sm:px-4 pb-6 sm:pb-4'>
+      <div
+        className='w-16 h-16 sm:w-10 sm:h-10 rounded-full flex items-center justify-center'
+        style={{
+          background: `${frameColor}12`,
+          border: `1.5px dashed ${frameColor}40`,
+        }}
+      >
+        <Camera
+          className='h-7 w-7 sm:h-4 sm:w-4'
+          style={{ color: `${frameColor}60` }}
+        />
+      </div>
+      <div className='text-center'>
+        <p className='text-sm sm:text-[9px] font-semibold text-card-foreground leading-snug'>
+          Not spotted yet
+        </p>
+        <p className='text-[12px] sm:text-[8px] text-muted-foreground mt-1 sm:mt-0.5 font-mono leading-snug'>
+          Log your first encounter with {bird.name_eng}
+        </p>
+      </div>
+      <button
+        type='button'
+        onClick={(e) => {
+          e.stopPropagation();
+          setModalOpen(true);
+        }}
+        className='flex items-center gap-2 sm:gap-1.5 px-5 sm:px-3 py-2.5 sm:py-1.5 rounded-lg text-[12px] sm:text-[8px] font-mono uppercase tracking-[0.12em] transition-all active:scale-[0.97]'
+        style={{
+          background: frameColor,
+          color: '#fff',
+          boxShadow: `0 2px 10px ${frameColor}40`,
+        }}
+      >
+        <Camera className='h-3.5 w-3.5 sm:h-2.5 sm:w-2.5' />
+        Add first observation
+      </button>
+
+      {modalOpen && (
+        <AddObservationModal
+          birdId={bird.id}
+          birdName={bird.name_eng}
+          frameColor={frameColor}
+          savedLocations={savedLocations}
+          onClose={() => setModalOpen(false)}
+          onSaved={() => {
+            setModalOpen(false);
+            window.location.reload();
+          }}
+        />
+      )}
+    </div>
   );
 }
 
@@ -67,8 +141,9 @@ export default function BirdCardBackObservation({
   collectionData,
   savedLocations = [],
 }: Props) {
-  const { observations: initial } = collectionData;
-  const [observations, setObservations] = useState<ObservationEntry[]>(initial);
+  const [observations, setObservations] = useState<ObservationEntry[]>(
+    collectionData?.observations ?? [],
+  );
   const [idx, setIdx] = useState(0);
   const [editingObs, setEditingObs] = useState<ObservationEntry | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
@@ -177,79 +252,93 @@ export default function BirdCardBackObservation({
       }
     : undefined;
 
+  if (!collectionData) {
+    return (
+      <AddFirstObservation
+        bird={bird}
+        frameColor={frameColor}
+        savedLocations={savedLocations}
+      />
+    );
+  }
+
   return (
     <>
-      <div
-        className='[grid-area:1/1] absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl flex flex-col overflow-hidden bg-card'
-        style={{
-          border: `2px solid ${frameColor}70`,
-          boxShadow: `0 4px 20px ${frameColor}20`,
-        }}
-      >
-        <div
-          className='h-1.5 sm:h-1 w-full shrink-0'
-          style={{ background: frameColor }}
-        />
-
+      <div className='flex flex-col flex-1 min-h-0 overflow-hidden'>
         {/* ════════ SUMMARY HEADER ════════ */}
         <div
-          className='relative flex items-center justify-between gap-3 px-5 sm:px-3.5 pt-4 sm:pt-2.5 pb-3 sm:pb-2.5 shrink-0'
+          className='px-5 sm:px-3.5 pt-2 sm:pt-1.5 pb-3 sm:pb-2 shrink-0 flex flex-col gap-2 sm:gap-1.5'
           style={{
-            background: `linear-gradient(180deg, ${frameColor}12, transparent)`,
+            background: `linear-gradient(180deg, ${frameColor}10, transparent)`,
           }}
         >
-          <div className='min-w-0 flex-1'>
-            <p
-              className='text-[11px] sm:text-[6.5px] uppercase tracking-[0.2em] font-mono'
-              style={{ color: `${frameColor}aa` }}
+          {/* Count + evidence row */}
+          <div className='flex items-center gap-3 sm:gap-2'>
+            <span
+              className='text-[42px] sm:text-[28px] font-bold tabular-nums leading-none'
+              style={{ color: frameColor }}
             >
-              My observations
-            </p>
-            <h3 className='text-xl sm:text-base font-semibold leading-tight truncate text-card-foreground mt-0.5'>
-              {bird.name_eng}
-            </h3>
-            {firstSeenDate && lastSeenDate && (
-              <p className='text-[11px] sm:text-[7.5px] font-mono text-muted-foreground mt-0.5 truncate'>
-                {format(firstSeenDate, 'd MMM yyyy')}
-                <span style={{ color: `${frameColor}99` }} className='px-1'>→</span>
-                {format(lastSeenDate, 'd MMM yyyy')}
-              </p>
-            )}
-          </div>
+              {totalCount}
+            </span>
+            <div className='flex flex-col gap-0.5 sm:gap-px'>
+              <span
+                className='text-[9px] sm:text-[6px] uppercase tracking-[0.2em] font-mono leading-none'
+                style={{ color: `${frameColor}88` }}
+              >
+                {totalCount === 1 ? 'encounter' : 'encounters'}
+              </span>
+              <div className='flex items-center gap-2 sm:gap-1.5 mt-0.5'>
+                {seenCount > 0 && (
+                  <span className='flex items-center gap-1 text-[11px] sm:text-[7px] font-mono text-muted-foreground tabular-nums'>
+                    <Eye className='h-3 w-3 sm:h-2 sm:w-2 shrink-0' />
+                    {seenCount}
+                  </span>
+                )}
+                {heardCount > 0 && (
+                  <span className='flex items-center gap-1 text-[11px] sm:text-[7px] font-mono text-muted-foreground tabular-nums'>
+                    <Music className='h-3 w-3 sm:h-2 sm:w-2 shrink-0' />
+                    {heardCount}
+                  </span>
+                )}
+                {photographedCount > 0 && (
+                  <span className='flex items-center gap-1 text-[11px] sm:text-[7px] font-mono text-muted-foreground tabular-nums'>
+                    <Camera className='h-3 w-3 sm:h-2 sm:w-2 shrink-0' />
+                    {photographedCount}
+                  </span>
+                )}
+              </div>
+            </div>
 
-          {/* Big total + evidence tallies */}
-          <div className='flex items-center gap-3 sm:gap-2 shrink-0'>
-            <div className='flex flex-col items-end gap-1 sm:gap-0.5'>
-              {seenCount > 0 && (
-                <span className='flex items-center gap-1.5 sm:gap-1 text-[12px] sm:text-[7.5px] font-mono text-muted-foreground tabular-nums'>
-                  {seenCount}<Eye className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
-                </span>
-              )}
-              {heardCount > 0 && (
-                <span className='flex items-center gap-1.5 sm:gap-1 text-[12px] sm:text-[7.5px] font-mono text-muted-foreground tabular-nums'>
-                  {heardCount}<Music className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
-                </span>
-              )}
-              {photographedCount > 0 && (
-                <span className='flex items-center gap-1.5 sm:gap-1 text-[12px] sm:text-[7.5px] font-mono text-muted-foreground tabular-nums'>
-                  {photographedCount}<Camera className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
-                </span>
-              )}
-            </div>
-            <div className='flex flex-col items-center'>
-              <span
-                className='text-[52px] sm:text-[36px] font-bold tabular-nums leading-[0.85]'
-                style={{ color: frameColor }}
-              >
-                {totalCount}
-              </span>
-              <span
-                className='text-[9px] sm:text-[5.5px] uppercase tracking-[0.2em] font-mono mt-0.5'
-                style={{ color: `${frameColor}99` }}
-              >
-                {totalCount === 1 ? 'time' : 'times'}
-              </span>
-            </div>
+            {/* Date range pushed to the right */}
+            {firstSeenDate && lastSeenDate && (
+              <div className='ml-auto text-right shrink-0 flex flex-col gap-1 sm:gap-0.5'>
+                <p className='text-[11px] sm:text-[7px] font-mono leading-tight whitespace-nowrap'>
+                  <span
+                    className='uppercase tracking-[0.16em] text-[8px] sm:text-[5.5px]'
+                    style={{ color: frameColor }}
+                  >
+                    First{' '}
+                  </span>
+                  <span className='text-card-foreground'>
+                    {format(firstSeenDate, 'd MMM yyyy')}
+                  </span>
+                </p>
+                {firstSeenDate.toDateString() !==
+                  lastSeenDate.toDateString() && (
+                  <p className='text-[11px] sm:text-[7px] font-mono leading-tight whitespace-nowrap'>
+                    <span
+                      className='uppercase tracking-[0.16em] text-[8px] sm:text-[5.5px]'
+                      style={{ color: frameColor }}
+                    >
+                      Last{' '}
+                    </span>
+                    <span className='text-card-foreground'>
+                      {format(lastSeenDate, 'd MMM yyyy')}
+                    </span>
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -270,7 +359,12 @@ export default function BirdCardBackObservation({
                 disabled={observations.length <= 1 || idx === 0}
                 title='Previous observation'
                 className='flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full transition-opacity disabled:opacity-20 hover:bg-[var(--hover)]'
-                style={{ color: frameColor, '--hover': `${frameColor}14` } as React.CSSProperties}
+                style={
+                  {
+                    color: frameColor,
+                    '--hover': `${frameColor}14`,
+                  } as React.CSSProperties
+                }
               >
                 <ChevronLeft className='h-5 w-5 sm:h-3 sm:w-3' />
               </button>
@@ -283,10 +377,17 @@ export default function BirdCardBackObservation({
               <button
                 type='button'
                 onClick={next}
-                disabled={observations.length <= 1 || idx === observations.length - 1}
+                disabled={
+                  observations.length <= 1 || idx === observations.length - 1
+                }
                 title='Next observation'
                 className='flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full transition-opacity disabled:opacity-20 hover:bg-[var(--hover)]'
-                style={{ color: frameColor, '--hover': `${frameColor}14` } as React.CSSProperties}
+                style={
+                  {
+                    color: frameColor,
+                    '--hover': `${frameColor}14`,
+                  } as React.CSSProperties
+                }
               >
                 <ChevronRight className='h-5 w-5 sm:h-3 sm:w-3' />
               </button>
@@ -294,7 +395,7 @@ export default function BirdCardBackObservation({
 
             {/* Hero photo with overlaid date + quality */}
             <div
-              className='relative rounded-lg overflow-hidden shrink-0 bg-secondary h-[40vh] sm:h-[28vh]'
+              className='relative rounded-lg overflow-hidden shrink-0 bg-secondary h-[30vh] sm:h-[24vh]'
               style={{ boxShadow: `inset 0 0 0 1px ${frameColor}1f` }}
             >
               {obs.photoUrl ? (
@@ -304,7 +405,10 @@ export default function BirdCardBackObservation({
                   className='absolute inset-0 flex flex-col items-center justify-center gap-2 sm:gap-1'
                   style={{ background: `${frameColor}0a` }}
                 >
-                  <ImageOff className='h-8 w-8 sm:h-4 sm:w-4' style={{ color: `${frameColor}40` }} />
+                  <ImageOff
+                    className='h-8 w-8 sm:h-4 sm:w-4'
+                    style={{ color: `${frameColor}40` }}
+                  />
                   <span
                     className='text-[11px] sm:text-[6.5px] font-mono uppercase tracking-[0.12em]'
                     style={{ color: `${frameColor}55` }}
@@ -331,11 +435,18 @@ export default function BirdCardBackObservation({
               {quality && (
                 <div
                   className='absolute top-2 right-2 sm:top-1.5 sm:right-1.5 flex items-center gap-1 rounded-full px-2.5 sm:px-1.5 py-1 sm:py-0.5 backdrop-blur-sm'
-                  style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.25)' }}
+                  style={{
+                    background: 'rgba(0,0,0,0.4)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                  }}
                   title={`Quality: ${quality.label}`}
                 >
-                  <span className='text-white text-sm sm:text-[9px] leading-none'>{quality.symbol}</span>
-                  <span className='text-white/90 font-mono text-[11px] sm:text-[6.5px] uppercase tracking-[0.1em]'>{quality.label}</span>
+                  <span className='text-white text-sm sm:text-[9px] leading-none'>
+                    {quality.symbol}
+                  </span>
+                  <span className='text-white/90 font-mono text-[11px] sm:text-[6.5px] uppercase tracking-[0.1em]'>
+                    {quality.label}
+                  </span>
                 </div>
               )}
 
@@ -343,10 +454,17 @@ export default function BirdCardBackObservation({
               {hasLocation && (
                 <button
                   type='button'
-                  onClick={(e) => { e.stopPropagation(); setMapOpen(true); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMapOpen(true);
+                  }}
                   title='Show on map'
                   className='absolute top-2 left-2 sm:top-1.5 sm:left-1.5 flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full backdrop-blur-sm transition-transform active:scale-90'
-                  style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff' }}
+                  style={{
+                    background: 'rgba(0,0,0,0.4)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    color: '#fff',
+                  }}
                 >
                   <MapPin className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
                 </button>
@@ -358,39 +476,58 @@ export default function BirdCardBackObservation({
               {hasLocation && obs.lat !== null && obs.lng !== null ? (
                 <button
                   type='button'
-                  onClick={(e) => { e.stopPropagation(); setMapOpen(true); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMapOpen(true);
+                  }}
                   title='Show on map'
                   className='flex items-center gap-1.5 sm:gap-1 min-w-0 group'
                 >
-                  <MapPin className='h-4 w-4 sm:h-2.5 sm:w-2.5 shrink-0' style={{ color: `${frameColor}99` }} />
+                  <MapPin
+                    className='h-4 w-4 sm:h-2.5 sm:w-2.5 shrink-0'
+                    style={{ color: `${frameColor}99` }}
+                  />
                   <span className='min-w-0 text-left'>
                     {obs.locationName ? (
                       <span className='block text-[12px] sm:text-[8px] font-mono text-card-foreground leading-tight truncate group-hover:underline'>
                         {obs.locationName}
                       </span>
                     ) : (
-                      <span className='block text-[11px] sm:text-[7px] font-mono leading-tight tabular-nums group-hover:underline' style={{ color: `${frameColor}99` }}>
+                      <span
+                        className='block text-[11px] sm:text-[7px] font-mono leading-tight tabular-nums group-hover:underline'
+                        style={{ color: `${frameColor}99` }}
+                      >
                         {obs.lat.toFixed(3)}, {obs.lng.toFixed(3)}
                       </span>
                     )}
                   </span>
                 </button>
               ) : (
-                <span className='text-[11px] sm:text-[7px] font-mono text-muted-foreground/50 italic'>No location</span>
+                <span className='text-[11px] sm:text-[7px] font-mono text-muted-foreground/50 italic'>
+                  No location
+                </span>
               )}
 
               <div className='flex items-center gap-1.5 sm:gap-1 shrink-0'>
-                {evidence.filter(({ active }) => active).map(({ Icon, label }) => (
-                  <div
-                    key={label}
-                    aria-label={label}
-                    role='img'
-                    className='flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full'
-                    style={{ background: `${frameColor}16`, color: `${frameColor}cc` }}
-                  >
-                    <Icon className='h-4 w-4 sm:h-2.5 sm:w-2.5' aria-hidden='true' />
-                  </div>
-                ))}
+                {evidence
+                  .filter(({ active }) => active)
+                  .map(({ Icon, label }) => (
+                    <div
+                      key={label}
+                      aria-label={label}
+                      role='img'
+                      className='flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full'
+                      style={{
+                        background: `${frameColor}16`,
+                        color: `${frameColor}cc`,
+                      }}
+                    >
+                      <Icon
+                        className='h-4 w-4 sm:h-2.5 sm:w-2.5'
+                        aria-hidden='true'
+                      />
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -402,13 +539,18 @@ export default function BirdCardBackObservation({
                   style={{
                     background: '#f7f1e6',
                     border: '1px solid #e8ddc9',
-                    backgroundImage: 'radial-gradient(rgba(120,90,50,0.06) 1px, transparent 1px)',
+                    backgroundImage:
+                      'radial-gradient(rgba(120,90,50,0.06) 1px, transparent 1px)',
                     backgroundSize: '7px 7px',
                   }}
                 >
                   <p
                     className='leading-snug text-xl sm:text-[13px]'
-                    style={{ fontFamily: 'var(--font-handwritten)', color: '#3a2e1e', letterSpacing: '0.01em' }}
+                    style={{
+                      fontFamily: 'var(--font-handwritten)',
+                      color: '#3a2e1e',
+                      letterSpacing: '0.01em',
+                    }}
                   >
                     {obs.notes}
                   </p>
@@ -416,11 +558,17 @@ export default function BirdCardBackObservation({
               ) : (
                 <div
                   className='h-full rounded-lg flex items-center justify-center'
-                  style={{ background: '#f7f1e60d', border: '1px dashed #e5dac855' }}
+                  style={{
+                    background: '#f7f1e60d',
+                    border: '1px dashed #e5dac855',
+                  }}
                 >
                   <p
                     className='text-lg sm:text-[10px] italic'
-                    style={{ fontFamily: 'var(--font-handwritten)', color: '#a89880' }}
+                    style={{
+                      fontFamily: 'var(--font-handwritten)',
+                      color: '#a89880',
+                    }}
                   >
                     No note written
                   </p>
@@ -435,7 +583,10 @@ export default function BirdCardBackObservation({
                 onClick={openEdit}
                 title='Edit this observation'
                 className='flex items-center gap-1.5 sm:gap-1 px-3 sm:px-2 py-2 sm:py-1 rounded-md text-[12px] sm:text-[7px] font-mono uppercase tracking-[0.12em] transition-colors'
-                style={{ color: `${frameColor}dd`, background: `${frameColor}12` }}
+                style={{
+                  color: `${frameColor}dd`,
+                  background: `${frameColor}12`,
+                }}
               >
                 <Pencil className='h-3.5 w-3.5 sm:h-2 sm:w-2' />
                 Edit

@@ -13,10 +13,7 @@ export default function AppHeaderNav({ isAuthenticated }: Props) {
 
   return (
     <nav className="hidden sm:flex items-center gap-1 flex-1">
-      <NavLink href="/" label="Catalog" active={pathname === '/' || pathname === '/catalog'} />
-      {isAuthenticated && (
-        <NavLink href="/collection" label="My Collection" active={pathname === '/collection'} />
-      )}
+      <NavLink href="/birds" label="Birds" active={pathname === '/birds' || pathname === '/' || pathname === '/collection'} />
       {isAuthenticated && (
         <NavLink href="/locations" label="My Locations" active={pathname === '/locations'} />
       )}

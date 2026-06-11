@@ -4,6 +4,7 @@ import type { Bird } from '@/entities/bird-domain';
 import BirdImage from '@/features/birds/components/BirdImage/BirdImage';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import ObservationButton from '@/features/observations/components/ObservationButton/ObservationButton';
+import SoundButton from '@/shared/ui/SoundButton/SoundButton';
 import type { SavedLocation } from '@/features/locations/location-queries';
 
 interface Props {
@@ -51,9 +52,14 @@ export default function BirdCardFront({
               {bird.rarity}
             </span>
           </div>
-          <h2 className='text-2xl sm:text-sm font-semibold leading-tight truncate text-card-foreground'>
-            {bird.name_eng}
-          </h2>
+          <div className='flex items-center gap-1.5'>
+            <h2 className='text-2xl sm:text-sm font-semibold leading-tight truncate text-card-foreground'>
+              {bird.name_eng}
+            </h2>
+            <div className='shrink-0' onClick={(e) => e.stopPropagation()}>
+              <SoundButton soundUrl={bird.sound_url} />
+            </div>
+          </div>
           <p className='text-sm sm:text-[10px] italic mt-0.5 truncate text-muted-foreground'>
             {bird.name_latin}
           </p>
