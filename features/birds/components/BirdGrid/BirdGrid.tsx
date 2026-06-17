@@ -22,16 +22,15 @@ export default function BirdGrid({
 }: BirdGridProps) {
   if (birds.length === 0) {
     return (
-      <p className="col-span-full text-center text-muted-foreground py-16">
+      <p className='col-span-full text-center text-muted-foreground py-16'>
         No birds match your search.
       </p>
     );
   }
 
   const observedSet = new Set(observedIds);
-
   return (
-    <div className="grid grid-cols-1 gap-6 items-stretch w-full justify-center [&>*]:h-[580px] sm:[&>*]:h-[420px] sm:grid-cols-[repeat(auto-fill,minmax(260px,320px))]">
+    <div className='grid grid-cols-1 gap-6 items-stretch w-full justify-center [&>*]:h-[580px] sm:[&>*]:h-[420px] sm:grid-cols-[repeat(auto-fill,minmax(260px,320px))]'>
       {birds.map((bird) => (
         <BirdCard
           key={bird.id}

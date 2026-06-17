@@ -17,6 +17,11 @@ Key docs:
 - `docs/data-fetching.md` — **MUST read before any data fetching or database work**
 - `docs/data-mutations.md` — **MUST read before any data mutations, Server Actions, or form handling**
 - `docs/authentication.md` — **MUST read before any auth, role, or session-related work**
+- `docs/app-guide.md` — user-facing app guide (also used as Bird Guide chat context)
+
+## IMPORTANT: Keep App Guide Up to Date
+
+After adding, changing, or removing any **user-facing feature** (new page, new UI element, changed workflow, removed functionality), update `docs/app-guide.md` to reflect the change. Also update the condensed version in `features/bird-guide/bird-guide-prompt.ts` (`APP_GUIDE` constant) so the Bird Guide chat can answer "how do I..." questions accurately. This is mandatory — do not skip even for small UX changes.
 
 ## Commands
 
