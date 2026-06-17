@@ -27,5 +27,4 @@ export interface UserContext {
 
 export interface ChatActionInput {
   messages: ChatMessage[];
-  userContext?: UserContext;
 }

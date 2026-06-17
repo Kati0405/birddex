@@ -3,7 +3,8 @@
 import type { UserContext } from '@/features/bird-guide/bird-guide.types';
 
 interface Props {
-  userContext: UserContext | null;
+  userContext?: UserContext | null;
+  isAuthenticated?: boolean;
   onSuggest: (question: string) => void;
 }
 
@@ -12,6 +13,15 @@ const GENERAL_QUESTIONS = [
   'What birds are easiest to spot for beginners?',
   'How can I attract birds to my garden?',
   "What's the best time of day to go birdwatching?",
+];
+
+// Personal phrasings the AI answers from server-side context.
+// These need no client data — safe to show whenever the user is logged in.
+const AUTHENTICATED_QUESTIONS = [
+  "What's my most photographed bird?",
+  'Which birds have I spotted in winter?',
+  'How many birds have I observed so far?',
+  'Which birds have I only heard but never seen?',
 ];
 
 function getPersonalizedQuestions(ctx: UserContext): string[] {
@@ -29,45 +39,45 @@ function getPersonalizedQuestions(ctx: UserContext): string[] {
     questions.push(`What's interesting about the ${mostPhotographed.name}?`);
   }
 
-  const winterBirds = ctx.observations.filter((o) =>
+  const hasWinter = ctx.observations.some((o) =>
     o.sightings.some((s) => {
       const month = new Date(s.date).getMonth() + 1;
       return month === 12 || month === 1 || month === 2;
     }),
   );
-  if (winterBirds.length > 0) {
-    questions.push('Which birds have I spotted in winter?');
-  }
+  if (hasWinter) questions.push('Which birds have I spotted in winter?');
 
-  const summerBirds = ctx.observations.filter((o) =>
+  const hasSummer = ctx.observations.some((o) =>
     o.sightings.some((s) => {
       const month = new Date(s.date).getMonth() + 1;
       return month >= 6 && month <= 8;
     }),
   );
-  if (summerBirds.length > 0) {
-    questions.push('Which birds have I seen in summer?');
-  }
+  if (hasSummer) questions.push('Which birds have I seen in summer?');
 
-  const heardOnly = ctx.observations.filter((o) =>
+  const heardOnly = ctx.observations.find((o) =>
     o.sightings.every((s) => !s.seen && s.heard),
   );
-  if (heardOnly.length > 0) {
-    questions.push(`I've only heard the ${heardOnly[0].name} — how do I spot one?`);
+  if (heardOnly) {
+    questions.push(`I've only heard the ${heardOnly.name} — how do I spot one?`);
   }
 
   if (ctx.observedCount > 0) {
-    questions.push(`How many birds have I observed so far?`);
+    questions.push('How many birds have I observed so far?');
   }
 
   return questions.slice(0, 4);
 }
 
-export default function BirdGuideSuggestions({ userContext, onSuggest }: Props) {
-  const questions =
-    userContext && userContext.observedCount > 0
-      ? getPersonalizedQuestions(userContext)
-      : GENERAL_QUESTIONS;
+export default function BirdGuideSuggestions({ userContext, isAuthenticated, onSuggest }: Props) {
+  let questions: string[];
+  if (userContext && userContext.observedCount > 0) {
+    questions = getPersonalizedQuestions(userContext);
+  } else if (isAuthenticated) {
+    questions = AUTHENTICATED_QUESTIONS;
+  } else {
+    questions = GENERAL_QUESTIONS;
+  }
 
   return (
     <div className="flex flex-col gap-2 px-1">

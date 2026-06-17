@@ -1,16 +1,14 @@
 import { getObservedBirdIds, getCollectionCardDataByBirdIds } from '@/features/observations/observation-queries';
 import { getCollectedCount } from '@/features/collection/collection-queries';
-import { getBirdsByIds, getBirds } from '@/features/birds/bird-queries';
+import { getBirdsByIds, getBirdCount } from '@/features/birds/bird-queries';
 import type { UserContext, ObservedBirdEntry } from './bird-guide.types';
 
 export async function buildUserContext(userId: string): Promise<UserContext> {
-  const [observedBirdIds, collectedCount, allBirds] = await Promise.all([
+  const [observedBirdIds, collectedCount, totalBirdsInCatalog] = await Promise.all([
     getObservedBirdIds(userId),
     getCollectedCount(userId),
-    getBirds(),
+    getBirdCount(),
   ]);
-
-  const totalBirdsInCatalog = allBirds.length;
 
   if (observedBirdIds.length === 0) {
     return {

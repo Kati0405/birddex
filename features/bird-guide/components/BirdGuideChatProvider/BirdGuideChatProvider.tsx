@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback } from 'react';
 import { chatAction } from '@/features/bird-guide/actions/chat-action';
-import type { ChatMessage, UserContext } from '@/features/bird-guide/bird-guide.types';
+import type { ChatMessage } from '@/features/bird-guide/bird-guide.types';
 
 interface ChatState {
   messages: ChatMessage[];
@@ -10,7 +10,7 @@ interface ChatState {
   isStreaming: boolean;
   streamingContent: string;
   error: string | null;
-  userContext: UserContext | null;
+  isAuthenticated: boolean;
   setInput: (v: string) => void;
   send: () => void;
   suggest: (question: string) => void;
@@ -26,11 +26,11 @@ export function useBirdGuideChat() {
 }
 
 interface Props {
-  userContext: UserContext | null;
+  isAuthenticated: boolean;
   children: React.ReactNode;
 }
 
-export default function BirdGuideChatProvider({ userContext, children }: Props) {
+export default function BirdGuideChatProvider({ isAuthenticated, children }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -50,10 +50,7 @@ export default function BirdGuideChatProvider({ userContext, children }: Props) 
     setIsStreaming(true);
     setStreamingContent('');
 
-    const result = await chatAction({
-      messages: nextMessages,
-      userContext: userContext ?? undefined,
-    });
+    const result = await chatAction({ messages: nextMessages });
 
     if ('error' in result) {
       setError(result.error);
@@ -76,7 +73,7 @@ export default function BirdGuideChatProvider({ userContext, children }: Props) 
       setStreamingContent('');
       setIsStreaming(false);
     }
-  }, [input, isStreaming, messages, userContext]);
+  }, [input, isStreaming, messages]);
 
   const suggest = useCallback((question: string) => {
     setInput(question);
@@ -91,7 +88,7 @@ export default function BirdGuideChatProvider({ userContext, children }: Props) 
 
   return (
     <BirdGuideChatContext.Provider
-      value={{ messages, input, isStreaming, streamingContent, error, userContext, setInput, send, suggest, clear }}
+      value={{ messages, input, isStreaming, streamingContent, error, isAuthenticated, setInput, send, suggest, clear }}
     >
       {children}
     </BirdGuideChatContext.Provider>

@@ -2,6 +2,8 @@
 
 import { z } from 'zod';
 import OpenAI from 'openai';
+import { getUser } from '@/features/auth/auth-helpers';
+import { buildUserContext } from '@/features/bird-guide/bird-guide-context';
 import { buildSystemPrompt } from '@/features/bird-guide/bird-guide-prompt';
 import type { ChatActionInput } from '@/features/bird-guide/bird-guide.types';
 
@@ -12,29 +14,6 @@ const ChatMessageSchema = z.object({
 
 const ChatActionSchema = z.object({
   messages: z.array(ChatMessageSchema).min(1).max(20),
-  userContext: z
-    .object({
-      observedCount: z.number().int().nonnegative(),
-      collectedCount: z.number().int().nonnegative(),
-      totalBirdsInCatalog: z.number().int().nonnegative(),
-      observations: z.array(
-        z.object({
-          name: z.string(),
-          sightings: z.array(
-            z.object({
-              date: z.string(),
-              seen: z.boolean(),
-              heard: z.boolean(),
-              photographed: z.boolean(),
-              quality: z.enum(['bad', 'good', 'excellent']).nullable(),
-              notes: z.string().nullable(),
-              locationName: z.string().nullable(),
-            })
-          ),
-        })
-      ),
-    })
-    .optional(),
 });
 
 export async function chatAction(input: ChatActionInput): Promise<ReadableStream<string> | { error: string }> {
@@ -47,7 +26,12 @@ export async function chatAction(input: ChatActionInput): Promise<ReadableStream
     return { error: parsed.error.issues.map((i) => i.message).join(', ') };
   }
 
-  const { messages, userContext } = parsed.data;
+  const { messages } = parsed.data;
+
+  // Build personalization context server-side from the authenticated session.
+  // The client never supplies it — preventing data spoofing and prompt injection.
+  const user = await getUser();
+  const userContext = user ? await buildUserContext(user.id) : undefined;
   const systemPrompt = buildSystemPrompt(userContext);
 
   let client: OpenAI;

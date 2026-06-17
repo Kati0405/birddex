@@ -4,7 +4,6 @@ import AppHeader from "@/features/auth/components/AppHeader/AppHeader";
 import BirdGuideChat from "@/features/bird-guide/components/BirdGuideChat";
 import BirdGuideChatProvider from "@/features/bird-guide/components/BirdGuideChatProvider/BirdGuideChatProvider";
 import { getUser } from "@/features/auth/auth-helpers";
-import { buildUserContext } from "@/features/bird-guide/bird-guide-context";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -43,7 +42,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getUser();
-  const userContext = user ? await buildUserContext(user.id) : null;
 
   return (
     <html
@@ -52,7 +50,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AppHeader />
-        <BirdGuideChatProvider userContext={userContext}>
+        <BirdGuideChatProvider isAuthenticated={!!user}>
           {children}
           <BirdGuideChat />
         </BirdGuideChatProvider>

@@ -14,7 +14,7 @@ import BirdGuideSuggestions from './BirdGuideSuggestions';
 export default function BirdGuideChat() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { messages, input, isStreaming, streamingContent, error, userContext, setInput, send, suggest, clear } =
+  const { messages, input, isStreaming, streamingContent, error, isAuthenticated, setInput, send, suggest, clear } =
     useBirdGuideChat();
 
   const scrollRef = useScrollToBottom<HTMLDivElement>([messages, streamingContent]);
@@ -64,7 +64,7 @@ export default function BirdGuideChat() {
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0">
           {messages.length === 0 && !isStreaming && (
-            <BirdGuideSuggestions userContext={userContext} onSuggest={suggest} />
+            <BirdGuideSuggestions isAuthenticated={isAuthenticated} onSuggest={suggest} />
           )}
           {messages.map((msg, i) => (
             <BirdGuideChatMessage key={i} message={msg} />

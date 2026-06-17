@@ -3,12 +3,17 @@
 import { useBirdGuideChat } from '@/features/bird-guide/components/BirdGuideChatProvider/BirdGuideChatProvider';
 import { useScrollToBottom } from '@/features/bird-guide/hooks/useScrollToBottom';
 import { Trash2 } from 'lucide-react';
+import type { UserContext } from '@/features/bird-guide/bird-guide.types';
 import BirdGuideChatMessage from '@/features/bird-guide/components/BirdGuideChat/BirdGuideChatMessage';
 import BirdGuideChatInput from '@/features/bird-guide/components/BirdGuideChat/BirdGuideChatInput';
 import BirdGuideSuggestions from '@/features/bird-guide/components/BirdGuideChat/BirdGuideSuggestions';
 
-export default function BirdGuideFull() {
-  const { messages, input, isStreaming, streamingContent, error, userContext, setInput, send, suggest, clear } =
+interface Props {
+  userContext: UserContext | null;
+}
+
+export default function BirdGuideFull({ userContext }: Props) {
+  const { messages, input, isStreaming, streamingContent, error, setInput, send, suggest, clear } =
     useBirdGuideChat();
 
   const scrollRef = useScrollToBottom<HTMLDivElement>([messages, streamingContent]);

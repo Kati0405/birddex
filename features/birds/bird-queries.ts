@@ -8,6 +8,14 @@ export async function getBirds(): Promise<Bird[]> {
   return data as Bird[];
 }
 
+export async function getBirdCount(): Promise<number> {
+  const { count, error } = await supabase
+    .from('birds')
+    .select('*', { count: 'exact', head: true });
+  if (error) throw new Error(`getBirdCount: ${error.message}`);
+  return count ?? 0;
+}
+
 export async function getBirdsByIds(ids: number[]): Promise<Bird[]> {
   if (ids.length === 0) return [];
   const { data, error } = await supabase.from('birds').select('*').in('id', ids).order('id');
