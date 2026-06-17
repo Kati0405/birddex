@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Mono, Lato, Caveat } from "next/font/google";
 import AppHeader from "@/features/auth/components/AppHeader/AppHeader";
+import BirdGuideChat from "@/features/bird-guide/components/BirdGuideChat";
+import BirdGuideChatProvider from "@/features/bird-guide/components/BirdGuideChatProvider/BirdGuideChatProvider";
+import { getUser } from "@/features/auth/auth-helpers";
+import { buildUserContext } from "@/features/bird-guide/bird-guide-context";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -33,11 +37,14 @@ export const metadata: Metadata = {
   description: "A field guide to birds, each with a personality.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUser();
+  const userContext = user ? await buildUserContext(user.id) : null;
+
   return (
     <html
       lang="en"
@@ -45,7 +52,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AppHeader />
-        {children}
+        <BirdGuideChatProvider userContext={userContext}>
+          {children}
+          <BirdGuideChat />
+        </BirdGuideChatProvider>
       </body>
     </html>
   );

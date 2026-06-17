@@ -12,19 +12,48 @@ export default function AppHeaderNav({ isAuthenticated }: Props) {
   const pathname = usePathname();
 
   return (
-    <nav className="hidden sm:flex items-center gap-1 flex-1">
-      <NavLink href="/birds" label="Birds" active={pathname === '/birds' || pathname === '/' || pathname === '/collection'} />
+    <nav className='hidden sm:flex items-center gap-1 flex-1'>
+      <NavLink
+        href='/birds'
+        label='Birds'
+        active={
+          pathname === '/birds' ||
+          pathname === '/' ||
+          pathname === '/collection'
+        }
+      />
       {isAuthenticated && (
-        <NavLink href="/locations" label="My Locations" active={pathname === '/locations'} />
+        <NavLink
+          href='/locations'
+          label='Locations'
+          active={pathname === '/locations'}
+        />
       )}
       {isAuthenticated && (
-        <NavLink href="/photos" label="My Photos" active={pathname === '/photos'} />
+        <NavLink
+          href='/photos'
+          label='Photos'
+          active={pathname === '/photos'}
+        />
       )}
+      <NavLink
+        href='/bird-guide'
+        label='Bird Guide'
+        active={pathname === '/bird-guide'}
+      />
     </nav>
   );
 }
 
-function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+function NavLink({
+  href,
+  label,
+  active,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+}) {
   return (
     <Link
       href={href}
@@ -37,7 +66,7 @@ function NavLink({ href, label, active }: { href: string; label: string; active:
     >
       {label}
       {active && (
-        <span className="absolute bottom-[-1px] left-3 right-3 h-0.5 bg-primary rounded-full" />
+        <span className='absolute bottom-[-1px] left-3 right-3 h-0.5 bg-primary rounded-full' />
       )}
     </Link>
   );

@@ -4,6 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
+## Code Style
+
+- Write concise, clean code — no unnecessary boilerplate, comments, or abstractions
+- Always use the latest stable APIs as of today's date (2026-06-17); verify against current docs before using any API
+
 ## IMPORTANT: Documentation First
 
 **Before writing any code**, always check the `/docs` directory for a relevant guide. Read the applicable doc(s) before generating any implementation. This is mandatory — do not skip this step even for small changes.
