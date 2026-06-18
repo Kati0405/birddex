@@ -135,6 +135,6 @@ When in doubt about the current state of the repo, scan it first — don't assum
 When a user-facing feature is added, changed, or removed (new page, new UI element, changed workflow, removed functionality), two files must be updated:
 
 1. `docs/app-guide.md` — the full user-facing guide
-2. `features/bird-guide/bird-guide-prompt.ts` — the `APP_GUIDE` constant (condensed version used as Bird Guide chat context)
+2. `features/bird-guide/bird-guide-prompt.ts` — the `APP_GUIDE` constant (condensed version used as Ask Robin chat context)
 
 If you notice these were not updated after a feature change, flag it before finishing the task.

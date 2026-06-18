@@ -5,21 +5,21 @@ import { createPortal } from 'react-dom';
 import { X, Bird, Maximize2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useBirdGuideChat } from '@/features/bird-guide/components/BirdGuideChatProvider/BirdGuideChatProvider';
+import { useAskRobinChat } from '@/features/bird-guide/components/AskRobinChatProvider/AskRobinChatProvider';
 import { useScrollToBottom } from '@/features/bird-guide/hooks/useScrollToBottom';
-import BirdGuideChatMessage from './BirdGuideChatMessage';
-import BirdGuideChatInput from './BirdGuideChatInput';
-import BirdGuideSuggestions from './BirdGuideSuggestions';
+import AskRobinChatMessage from './AskRobinChatMessage';
+import AskRobinChatInput from './AskRobinChatInput';
+import AskRobinSuggestions from './AskRobinSuggestions';
 
-export default function BirdGuideChat() {
+export default function AskRobinChat() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { messages, input, isStreaming, streamingContent, error, isAuthenticated, setInput, send, suggest, clear } =
-    useBirdGuideChat();
+    useAskRobinChat();
 
   const scrollRef = useScrollToBottom<HTMLDivElement>([messages, streamingContent]);
 
-  if (pathname === '/bird-guide') return null;
+  if (pathname === '/ask-robin') return null;
 
   const hasConversation = messages.length > 0;
 
@@ -32,7 +32,7 @@ export default function BirdGuideChat() {
         <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
           <div className="flex items-center gap-2">
             <Bird size={18} className="text-primary" />
-            <span className="text-sm font-semibold">Bird Guide</span>
+            <span className="text-sm font-semibold">Ask Robin</span>
           </div>
           <div className="flex items-center gap-2">
             {messages.length > 0 && !isStreaming && (
@@ -45,7 +45,7 @@ export default function BirdGuideChat() {
               </button>
             )}
             <Link
-              href="/bird-guide"
+              href="/ask-robin"
               onClick={() => setOpen(false)}
               className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Open full screen"
@@ -64,13 +64,13 @@ export default function BirdGuideChat() {
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0">
           {messages.length === 0 && !isStreaming && (
-            <BirdGuideSuggestions isAuthenticated={isAuthenticated} onSuggest={suggest} />
+            <AskRobinSuggestions isAuthenticated={isAuthenticated} onSuggest={suggest} />
           )}
           {messages.map((msg, i) => (
-            <BirdGuideChatMessage key={i} message={msg} />
+            <AskRobinChatMessage key={i} message={msg} />
           ))}
           {isStreaming && streamingContent && (
-            <BirdGuideChatMessage
+            <AskRobinChatMessage
               message={{ role: 'assistant', content: streamingContent }}
               isStreaming
             />
@@ -78,7 +78,7 @@ export default function BirdGuideChat() {
           {error && <p className="text-xs text-destructive text-center">{error}</p>}
         </div>
 
-        <BirdGuideChatInput
+        <AskRobinChatInput
           value={input}
           onChange={setInput}
           onSend={send}
@@ -93,7 +93,7 @@ export default function BirdGuideChat() {
       <button
         onClick={() => setOpen((o) => !o)}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
-        aria-label="Open Bird Guide"
+        aria-label="Open Ask Robin"
       >
         <Bird size={24} />
         {hasConversation && (

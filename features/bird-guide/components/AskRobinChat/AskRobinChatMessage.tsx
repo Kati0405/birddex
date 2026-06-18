@@ -24,7 +24,7 @@ const markdownComponents: Components = {
   ),
 };
 
-export default function BirdGuideChatMessage({ message, isStreaming }: Props) {
+export default function AskRobinChatMessage({ message, isStreaming }: Props) {
   const isUser = message.role === 'user';
 
   return (

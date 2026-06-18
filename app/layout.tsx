@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Mono, Lato, Caveat } from "next/font/google";
 import AppHeader from "@/features/auth/components/AppHeader/AppHeader";
-import BirdGuideChat from "@/features/bird-guide/components/BirdGuideChat";
-import BirdGuideChatProvider from "@/features/bird-guide/components/BirdGuideChatProvider/BirdGuideChatProvider";
+import AskRobinChat from "@/features/bird-guide/components/AskRobinChat";
+import AskRobinChatProvider from "@/features/bird-guide/components/AskRobinChatProvider/AskRobinChatProvider";
 import { getUser } from "@/features/auth/auth-helpers";
 import "./globals.css";
 
@@ -50,10 +50,10 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AppHeader />
-        <BirdGuideChatProvider isAuthenticated={!!user}>
+        <AskRobinChatProvider isAuthenticated={!!user}>
           {children}
-          <BirdGuideChat />
-        </BirdGuideChatProvider>
+          <AskRobinChat />
+        </AskRobinChatProvider>
       </body>
     </html>
   );

@@ -10,7 +10,7 @@ interface Props {
   disabled: boolean;
 }
 
-export default function BirdGuideChatInput({ value, onChange, onSend, disabled }: Props) {
+export default function AskRobinChatInput({ value, onChange, onSend, disabled }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {

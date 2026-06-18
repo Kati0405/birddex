@@ -37,9 +37,9 @@ export default function AppHeaderNav({ isAuthenticated }: Props) {
         />
       )}
       <NavLink
-        href='/bird-guide'
-        label='Bird Guide'
-        active={pathname === '/bird-guide'}
+        href='/ask-robin'
+        label='Ask Robin'
+        active={pathname === '/ask-robin'}
       />
     </nav>
   );

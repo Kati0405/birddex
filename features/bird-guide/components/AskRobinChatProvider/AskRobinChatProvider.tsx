@@ -17,11 +17,11 @@ interface ChatState {
   clear: () => void;
 }
 
-const BirdGuideChatContext = createContext<ChatState | null>(null);
+const AskRobinChatContext = createContext<ChatState | null>(null);
 
-export function useBirdGuideChat() {
-  const ctx = useContext(BirdGuideChatContext);
-  if (!ctx) throw new Error('useBirdGuideChat must be used inside BirdGuideChatProvider');
+export function useAskRobinChat() {
+  const ctx = useContext(AskRobinChatContext);
+  if (!ctx) throw new Error('useAskRobinChat must be used inside AskRobinChatProvider');
   return ctx;
 }
 
@@ -30,7 +30,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export default function BirdGuideChatProvider({ isAuthenticated, children }: Props) {
+export default function AskRobinChatProvider({ isAuthenticated, children }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -87,10 +87,10 @@ export default function BirdGuideChatProvider({ isAuthenticated, children }: Pro
   }, []);
 
   return (
-    <BirdGuideChatContext.Provider
+    <AskRobinChatContext.Provider
       value={{ messages, input, isStreaming, streamingContent, error, isAuthenticated, setInput, send, suggest, clear }}
     >
       {children}
-    </BirdGuideChatContext.Provider>
+    </AskRobinChatContext.Provider>
   );
 }

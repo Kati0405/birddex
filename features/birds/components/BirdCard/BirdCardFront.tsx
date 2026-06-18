@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { cn } from '@/shared/lib/cn';
 import { biomeImage, foodImage, behaviourImage } from '@/entities/bird-domain';
 import type { Bird } from '@/entities/bird-domain';
 import BirdImage from '@/features/birds/components/BirdImage/BirdImage';
@@ -14,6 +15,8 @@ interface Props {
   isObserved: boolean;
   isAuthenticated: boolean;
   savedLocations?: SavedLocation[];
+  onFlip?: () => void;
+  active?: boolean;
 }
 
 export default function BirdCardFront({
@@ -22,14 +25,20 @@ export default function BirdCardFront({
   isAuthenticated,
   isObserved,
   savedLocations = [],
+  onFlip,
+  active = true,
 }: Props) {
   return (
     <div
-      className='[grid-area:1/1] h-full [backface-visibility:hidden] rounded-xl flex flex-col overflow-hidden bg-card'
+      className={cn(
+        '[grid-area:1/1] h-full [backface-visibility:hidden] rounded-xl flex flex-col overflow-hidden bg-card',
+        !active && 'pointer-events-none',
+      )}
       style={{
         border: `2px solid ${frameColor}70`,
         boxShadow: `0 4px 20px ${frameColor}20`,
       }}
+      onClick={onFlip}
     >
       {/* Rarity colour band — top */}
       <div className='h-1.5 sm:h-1 w-full shrink-0' style={{ background: frameColor }} />

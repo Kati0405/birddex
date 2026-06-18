@@ -1,28 +1,28 @@
 'use client';
 
-import { useBirdGuideChat } from '@/features/bird-guide/components/BirdGuideChatProvider/BirdGuideChatProvider';
+import { useAskRobinChat } from '@/features/bird-guide/components/AskRobinChatProvider/AskRobinChatProvider';
 import { useScrollToBottom } from '@/features/bird-guide/hooks/useScrollToBottom';
 import { Trash2 } from 'lucide-react';
 import type { UserContext } from '@/features/bird-guide/bird-guide.types';
-import BirdGuideChatMessage from '@/features/bird-guide/components/BirdGuideChat/BirdGuideChatMessage';
-import BirdGuideChatInput from '@/features/bird-guide/components/BirdGuideChat/BirdGuideChatInput';
-import BirdGuideSuggestions from '@/features/bird-guide/components/BirdGuideChat/BirdGuideSuggestions';
+import AskRobinChatMessage from '@/features/bird-guide/components/AskRobinChat/AskRobinChatMessage';
+import AskRobinChatInput from '@/features/bird-guide/components/AskRobinChat/AskRobinChatInput';
+import AskRobinSuggestions from '@/features/bird-guide/components/AskRobinChat/AskRobinSuggestions';
 
 interface Props {
   userContext: UserContext | null;
 }
 
-export default function BirdGuideFull({ userContext }: Props) {
+export default function AskRobinFull({ userContext }: Props) {
   const { messages, input, isStreaming, streamingContent, error, setInput, send, suggest, clear } =
-    useBirdGuideChat();
+    useAskRobinChat();
 
   const scrollRef = useScrollToBottom<HTMLDivElement>([messages, streamingContent]);
 
   return (
-    <div className="flex flex-col h-full max-w-2xl mx-auto w-full px-4">
+    <div className="flex flex-col flex-1 min-h-0 max-w-2xl mx-auto w-full px-4">
       <div className="py-6 shrink-0 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Bird Guide</h1>
+          <h1 className="text-2xl font-semibold">Ask Robin</h1>
           {userContext && (
             <p className="text-sm text-muted-foreground mt-1">
               Answering based on your {userContext.observedCount} observed species.
@@ -47,14 +47,14 @@ export default function BirdGuideFull({ userContext }: Props) {
             <p className="text-sm text-muted-foreground mb-4">
               Ask anything about birds — or pick a question to get started:
             </p>
-            <BirdGuideSuggestions userContext={userContext} onSuggest={suggest} />
+            <AskRobinSuggestions userContext={userContext} onSuggest={suggest} />
           </div>
         )}
         {messages.map((msg, i) => (
-          <BirdGuideChatMessage key={i} message={msg} />
+          <AskRobinChatMessage key={i} message={msg} />
         ))}
         {isStreaming && streamingContent && (
-          <BirdGuideChatMessage
+          <AskRobinChatMessage
             message={{ role: 'assistant', content: streamingContent }}
             isStreaming
           />
@@ -63,7 +63,7 @@ export default function BirdGuideFull({ userContext }: Props) {
       </div>
 
       <div className="shrink-0 border-t border-border">
-        <BirdGuideChatInput
+        <AskRobinChatInput
           value={input}
           onChange={setInput}
           onSend={send}

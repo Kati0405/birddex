@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/shared/lib/cn';
 import type { Bird } from '@/entities/bird-domain';
 import { RARITY_COLOR } from '@/entities/bird-domain';
@@ -27,28 +27,16 @@ export default function BirdCard({
   const [flipped, setFlipped] = useState(false);
   const frameColor = RARITY_COLOR[bird.rarity];
 
-  // Decide during the capture phase whether the click landed on an interactive
-  // element. Capture runs before the target's own onClick, so the clicked node
-  // is still attached to the DOM. Doing this check in the bubble-phase onClick
-  // is unreliable: an inner tab's handler may call setState and swap its
-  // content first, detaching the clicked node — then .closest() returns null
-  // and the card flips unintentionally.
-  const interactiveClickRef = useRef(false);
+  // Each face owns a background click handler that flips the card. Interactive
+  // controls inside a face call stopPropagation on their own click, so they
+  // never reach this handler — that's what keeps a button press from flipping
+  // the card. We deliberately avoid inferring intent from the clicked DOM node
+  // (e.g. target.closest(...)): an inner control's click can re-render and swap
+  // its own subtree mid-event, which made such heuristics flip unintentionally.
+  const flip = () => setFlipped((f) => !f);
 
   return (
-    <div
-      className='[perspective:1000px] w-full h-full cursor-pointer'
-      onClickCapture={(e) => {
-        const target = e.target as HTMLElement | null;
-        interactiveClickRef.current = !!target?.closest(
-          'button, a, input, textarea, select, label',
-        );
-      }}
-      onClick={() => {
-        if (interactiveClickRef.current) return;
-        setFlipped((f) => !f);
-      }}
-    >
+    <div className='[perspective:1000px] w-full h-full cursor-pointer'>
       <div
         className={cn(
           'grid h-full transition-transform duration-500 [transform-style:preserve-3d]',
@@ -62,6 +50,8 @@ export default function BirdCard({
           isObserved={isObserved}
           isAuthenticated={isAuthenticated}
           savedLocations={savedLocations}
+          onFlip={flip}
+          active={!flipped}
         />
         <BirdCardBack
           bird={bird}
@@ -71,6 +61,8 @@ export default function BirdCard({
           isObserved={isObserved}
           savedLocations={savedLocations}
           collectionData={collectionData}
+          onFlip={flip}
+          active={flipped}
         />
       </div>
     </div>

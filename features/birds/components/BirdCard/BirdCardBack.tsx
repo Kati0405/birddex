@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { cn } from '@/shared/lib/cn';
 import type { Bird, Difficulty, BestTimeOfDay } from '@/entities/bird-domain';
 import ObservationMonthsChart from '@/shared/ui/ObservationMonthsChart/ObservationMonthsChart';
 import TipsToFind from '@/shared/ui/TipsToFind/TipsToFind';
@@ -24,6 +25,8 @@ interface Props {
   isObserved?: boolean;
   savedLocations?: SavedLocation[];
   collectionData?: CollectionCardData;
+  onFlip?: () => void;
+  active?: boolean;
 }
 
 type MainTab = 'field-guide' | 'my-observations';
@@ -285,6 +288,8 @@ export default function BirdCardBack({
   isObserved = false,
   savedLocations = [],
   collectionData,
+  onFlip,
+  active = true,
 }: Props) {
   const defaultTab: MainTab =
     isAuthenticated && isObserved ? 'my-observations' : 'field-guide';
@@ -292,11 +297,15 @@ export default function BirdCardBack({
 
   return (
     <div
-      className='[grid-area:1/1] absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl flex flex-col overflow-hidden bg-card'
+      className={cn(
+        '[grid-area:1/1] absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-xl flex flex-col overflow-hidden bg-card',
+        !active && 'pointer-events-none',
+      )}
       style={{
         border: `2px solid ${frameColor}70`,
         boxShadow: `0 4px 20px ${frameColor}20`,
       }}
+      onClick={onFlip}
     >
       {/* Top rarity bar */}
       <div

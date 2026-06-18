@@ -69,7 +69,7 @@ function getPersonalizedQuestions(ctx: UserContext): string[] {
   return questions.slice(0, 4);
 }
 
-export default function BirdGuideSuggestions({ userContext, isAuthenticated, onSuggest }: Props) {
+export default function AskRobinSuggestions({ userContext, isAuthenticated, onSuggest }: Props) {
   let questions: string[];
   if (userContext && userContext.observedCount > 0) {
     questions = getPersonalizedQuestions(userContext);

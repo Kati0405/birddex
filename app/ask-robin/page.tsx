@@ -1,20 +1,20 @@
 import type { Metadata } from 'next';
 import { getUser } from '@/features/auth/auth-helpers';
 import { buildUserContext } from '@/features/bird-guide/bird-guide-context';
-import BirdGuideFull from '@/features/bird-guide/components/BirdGuideFull/BirdGuideFull';
+import AskRobinFull from '@/features/bird-guide/components/AskRobinFull/AskRobinFull';
 
 export const metadata: Metadata = {
-  title: 'BirdDex — Bird Guide',
-  description: 'Ask anything about birds. Logged-in users get answers based on their own observations.',
+  title: 'BirdDex — Ask Robin',
+  description: 'Ask Robin anything about birds. Logged-in users get answers based on their own observations.',
 };
 
-export default async function BirdGuidePage() {
+export default async function AskRobinPage() {
   const user = await getUser();
   const userContext = user ? await buildUserContext(user.id) : null;
 
   return (
     <main className="flex flex-col flex-1">
-      <BirdGuideFull userContext={userContext} />
+      <AskRobinFull userContext={userContext} />
     </main>
   );
 }

@@ -8,7 +8,7 @@ How to use every feature in BirdDex — a collectible field guide to birds.
 
 Tap **Log in** in the top-right corner. BirdDex uses Google sign-in — tap "Continue with Google" and pick your Google account. That's it, no passwords.
 
-Once signed in you unlock personal features: observations, collection tracking, saved locations, photos, and personalized Bird Guide answers.
+Once signed in you unlock personal features: observations, collection tracking, saved locations, photos, and personalized Ask Robin answers.
 
 ### Navigation
 
@@ -17,7 +17,7 @@ The top header has links to all sections:
 - **Birds** — the main catalog of all bird cards
 - **Locations** — your saved birding spots (signed-in only)
 - **Photos** — gallery of your observation photos (signed-in only)
-- **Bird Guide** — AI chat assistant for bird questions
+- **Ask Robin** — AI chat assistant for bird questions
 
 On mobile, use the hamburger menu to access these same sections.
 
@@ -122,9 +122,9 @@ The Photos page (`/photos`) shows all photos you've uploaded with your observati
 
 ---
 
-## Bird Guide (AI Chat)
+## Ask Robin (AI Chat)
 
-The Bird Guide (`/bird-guide`) is an AI-powered birding assistant. It can help with:
+The Ask Robin (`/ask-robin`) is an AI-powered birding assistant. It can help with:
 
 - **Bird identification** — describe what you saw and it'll suggest species, confidence level, and what to check next
 - **Habitat & behaviour** — where to find specific birds, what they eat, how they behave
@@ -132,9 +132,9 @@ The Bird Guide (`/bird-guide`) is an AI-powered birding assistant. It can help w
 - **Observation tips** — practical field craft advice
 - **Your personal data** — if you're signed in, it knows your observation history and can answer questions like "which birds have I only heard?" or "what's my most photographed bird?"
 
-### How to Use Bird Guide
+### How to Use Ask Robin
 
-1. Go to the Bird Guide page
+1. Go to the Ask Robin page
 2. Type a question in the input field at the bottom, or tap one of the **suggested questions** to get started
 3. The AI streams its answer in real time
 4. Keep chatting — it remembers the conversation context (up to 20 messages)
@@ -142,7 +142,7 @@ The Bird Guide (`/bird-guide`) is an AI-powered birding assistant. It can help w
 
 ### Suggested Questions
 
-When you first open Bird Guide, you'll see starter questions tailored to you:
+When you first open Ask Robin, you'll see starter questions tailored to you:
 
 - **Not signed in**: general birding questions like "What birds are easiest to spot for beginners?"
 - **Signed in with observations**: personalized questions based on your data, like "What's interesting about the [your most photographed bird]?" or "How do I spot a [bird you've only heard]?"
