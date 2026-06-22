@@ -7,13 +7,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Code Style
 
 - Write concise, clean code — no unnecessary boilerplate, comments, or abstractions
-- Always use the latest stable APIs as of today's date (2026-06-17); verify against current docs before using any API
+- Use APIs that match the versions installed in package.json. When unsure, check the official docs or existing project patterns before introducing new APIs.
 
 ## IMPORTANT: Documentation First
 
 **Before writing any code**, always check the `/docs` directory for a relevant guide. Read the applicable doc(s) before generating any implementation. This is mandatory — do not skip this step even for small changes.
 
 Key docs:
+
 - `docs/data-fetching.md` — **MUST read before any data fetching or database work**
 - `docs/data-mutations.md` — **MUST read before any data mutations, Server Actions, or form handling**
 - `docs/authentication.md` — **MUST read before any auth, role, or session-related work**
@@ -37,8 +38,6 @@ npm run lint     # run ESLint
 - **Tailwind CSS v4** via `@tailwindcss/postcss`
 - No test framework configured yet
 
-
-
 ## Architecture
 
 This is a Next.js App Router project. All routes live under `app/`. The root layout (`app/layout.tsx`) sets up Geist fonts via `next/font/google` and applies base Tailwind classes. Pages are React Server Components by default; add `"use client"` only when needed.
@@ -50,8 +49,9 @@ Styling uses Tailwind utility classes directly in JSX — no separate CSS module
 Auth uses Supabase Auth with Google OAuth. Two roles: `admin` (catalog editing) and `user` (collection tracking). See `docs/authentication.md` for the full reference.
 
 **Critical rules:**
+
 - Always use `requireAdmin()` at the top of any Server Action or page that mutates catalog data
-- Always use `getUser()` / `getUserRole()` (from `lib/auth.ts`) — never read auth state client-side
+- Auth and authorization decisions must happen server-side using getUser(), getUserRole(), requireAuth(), or requireAdmin(). Client components may receive user/role data as props for display only, but must not be trusted for security.
 - Never expose the `SUPABASE_SERVICE_ROLE_KEY` to the client — it's only used in `lib/supabase-admin.ts`
 - Route protection lives in `proxy.ts` but Server Actions must also guard themselves independently
 - To promote a user to admin: `UPDATE public.profiles SET role = 'admin' WHERE id = '<uuid>';` in Supabase SQL Editor
@@ -67,7 +67,7 @@ The visual style should feel like a mix of Hearthstone card framing and Wingspan
 
 ## Core card fields
 
-A bird card must contain ONLY these fields:
+The catalog bird card front should contain only these fields:
 
 1. English name
 2. Latin name
@@ -111,7 +111,7 @@ Use these allowed behaviour values:
 Rarity controls the frame color. Use this exact mapping — no other colors:
 
 | Rarity    | Color  | Hex       |
-|-----------|--------|-----------|
+| --------- | ------ | --------- |
 | Common    | grey   | `#808080` |
 | Uncommon  | green  | `#198b58` |
 | Rare      | blue   | `#306fd5` |
@@ -129,6 +129,7 @@ Good style:
 > Looks like somebody designed a bird after two glasses of wine.
 
 Avoid:
+
 - generic encyclopedia tone
 - too cute Disney language
 - long jokes
@@ -140,6 +141,7 @@ Avoid:
 Cards should be minimalistic, readable, and not overloaded.
 
 Use:
+
 - rarity-colored frame
 - large bird image area
 - small icons for habitat and food
@@ -148,6 +150,7 @@ Use:
 - elegant fantasy/nature feeling
 
 Avoid:
+
 - clutter
 - too many badges
 - text-heavy blocks
@@ -162,13 +165,13 @@ Keep card dimensions consistent.
 
 Important information should be scannable at a glance.
 
-Icons must be understandable without text labels.
+Icons should be visually understandable, but must also include accessible labels, tooltips, or aria-labels where appropriate.
 
 ## Code rules
 
 Use clean, typed components.
 
-Prefer reusable components:
+Prefer reusable components when the UI pattern appears more than once, such as:
 
 - `BirdCard`
 - `RarityFrame`
@@ -180,6 +183,18 @@ Prefer reusable components:
 Keep bird data separate from UI components.
 
 Do not hardcode bird-specific data inside components unless making a one-off mockup.
+
+## Existing behavior preservation
+
+Before refactoring, identify the current user-facing behavior and preserve it unless the task explicitly asks to change it.
+
+Be especially careful with:
+
+- collected vs uncollected bird card backs
+- observation counts as unique species vs total observations
+- Supabase RLS and Server Action auth guards
+- Cloudinary uploads and cleanup on database failure
+- Ask Robin guide context staying in sync with docs/app-guide.md
 
 ## Component props example
 
