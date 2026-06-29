@@ -16,7 +16,7 @@ const LocationPicker = dynamic(
   { ssr: false, loading: () => <div className='h-[180px] rounded-lg bg-muted/30' /> }
 );
 
-type ObservationQuality = 'bad' | 'good' | 'excellent' | null;
+type ObservationQuality = 1 | 2 | 3 | 4 | 5 | null;
 
 export interface ObservationInitialData {
   observationId: string;
@@ -186,10 +186,14 @@ export default function AddObservationModal({
     { key: 'photographed', Icon: Camera, label: 'Photographed', value: photographed, toggle: () => setPhotographed(!photographed) },
   ];
 
-  const qualities: { key: ObservationQuality; label: string }[] = [
-    { key: 'bad',       label: 'Brief glance' },
-    { key: 'good',      label: 'Good view'    },
-    { key: 'excellent', label: 'Excellent'    },
+  const [hoverStar, setHoverStar] = useState<number | null>(null);
+
+  const qualityLevels: { stars: 1 | 2 | 3 | 4 | 5; label: string; description: string }[] = [
+    { stars: 1, label: 'Brief glance',       description: 'Saw it quickly, uncertain details' },
+    { stars: 2, label: 'Partial view',        description: 'Recognized it, but not clearly' },
+    { stars: 3, label: 'Good view',           description: 'Clear enough to identify confidently' },
+    { stars: 4, label: 'Great view',          description: 'Close, clear, or long observation' },
+    { stars: 5, label: 'Excellent encounter', description: 'Memorable, with strong details' },
   ];
 
   return createPortal(
@@ -323,26 +327,51 @@ export default function AddObservationModal({
             )}
           </Section>
 
-          <Section label='Quality' frameColor={frameColor}>
-            <div className='flex gap-1.5'>
-              {qualities.map(({ key, label }) => {
-                const active = quality === key;
+          <Section label='Observation quality' frameColor={frameColor}>
+            <div className='flex flex-col items-center gap-1.5'>
+              <div
+                className='flex gap-1'
+                onMouseLeave={() => setHoverStar(null)}
+              >
+                {qualityLevels.map(({ stars }) => {
+                  const active = hoverStar != null ? stars <= hoverStar : quality != null && stars <= quality;
+                  return (
+                    <button
+                      key={stars}
+                      type='button'
+                      onClick={() => setQuality(quality === stars ? null : stars)}
+                      onMouseEnter={() => setHoverStar(stars)}
+                      aria-label={`${stars} star${stars > 1 ? 's' : ''}`}
+                      className='p-0.5 transition-transform hover:scale-110'
+                    >
+                      <svg viewBox='0 0 20 20' className='w-6 h-6' aria-hidden='true'>
+                        <path
+                          d='M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 14.24l-4.94 2.46.94-5.49-4-3.9 5.53-.8z'
+                          fill={active ? frameColor : 'transparent'}
+                          stroke={active ? frameColor : 'var(--muted-foreground)'}
+                          strokeWidth='1'
+                          strokeLinejoin='round'
+                          style={{ opacity: active ? 1 : 0.35 }}
+                        />
+                      </svg>
+                    </button>
+                  );
+                })}
+              </div>
+              {(() => {
+                const displayLevel = qualityLevels.find((q) => q.stars === (hoverStar ?? quality));
+                if (!displayLevel) return null;
                 return (
-                  <button
-                    key={key}
-                    type='button'
-                    onClick={() => setQuality(active ? null : key)}
-                    aria-pressed={active}
-                    className='flex-1 py-1.5 rounded-md text-[9px] font-mono tracking-[0.04em] uppercase transition-all'
-                    style={active
-                      ? { background: `${frameColor}20`, border: `1px solid ${frameColor}`, color: frameColor }
-                      : { background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted-foreground)' }
-                    }
-                  >
-                    {label}
-                  </button>
+                  <div className='text-center'>
+                    <p className='text-[10px] font-mono uppercase tracking-[0.08em]' style={{ color: frameColor }}>
+                      {displayLevel.label}
+                    </p>
+                    <p className='text-[9px] text-muted-foreground mt-0.5'>
+                      {displayLevel.description}
+                    </p>
+                  </div>
                 );
-              })}
+              })()}
             </div>
           </Section>
 

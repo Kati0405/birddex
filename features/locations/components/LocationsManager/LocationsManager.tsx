@@ -3,14 +3,16 @@
 import { useRef, useState, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Trash2, MapPin, Plus, ChevronUp, MapPinned, Images, X, Eye } from 'lucide-react';
+import { Trash2, MapPin, Plus, ChevronUp, MapPinned, Images, X, Eye, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import {
   saveLocationAction,
   deleteLocationAction,
+  updateLocationAction,
   uploadLocationPhotoAction,
+  updateLocationPhotoAction,
 } from '@/features/locations/actions/location-mutations';
 import { BIOMES, biomeImage } from '@/entities/bird-domain';
 import type { Biome } from '@/entities/bird-domain';
@@ -60,6 +62,20 @@ export default function LocationsManager({ initial, stats }: Props) {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletePending, startDeleteTransition] = useTransition();
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editLatLng, setEditLatLng] = useState<LatLng | null>(null);
+  const [editHabitats, setEditHabitats] = useState<Biome[]>([]);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editPending, startEditTransition] = useTransition();
+
+  const [editPhotoPreview, setEditPhotoPreview] = useState<string | null>(null);
+  const [editPhotoUrl, setEditPhotoUrl] = useState<string | null>(null);
+  const [editPhotoPublicId, setEditPhotoPublicId] = useState<string | null>(null);
+  const [editPhotoUploading, setEditPhotoUploading] = useState(false);
+  const [editPhotoError, setEditPhotoError] = useState<string | null>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -121,6 +137,135 @@ export default function LocationsManager({ initial, stats }: Props) {
     setPhotoPublicId(null);
     setPhotoError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  function startEditing(loc: SavedLocation) {
+    setEditingId(loc.id);
+    setEditName(loc.name);
+    setEditLatLng({ lat: loc.lat, lng: loc.lng });
+    setEditHabitats([...loc.habitats]);
+    setEditError(null);
+    setEditPhotoPreview(loc.photoUrl);
+    setEditPhotoUrl(loc.photoUrl);
+    setEditPhotoPublicId(loc.photoPublicId);
+    setEditPhotoUploading(false);
+    setEditPhotoError(null);
+  }
+
+  function cancelEditing() {
+    setEditingId(null);
+    setEditError(null);
+    setEditPhotoPreview(null);
+    setEditPhotoUrl(null);
+    setEditPhotoPublicId(null);
+    setEditPhotoError(null);
+  }
+
+  async function handleEditPhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setEditPhotoError('Only image files are allowed.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setEditPhotoError('Image must be under 10 MB.');
+      return;
+    }
+    setEditPhotoPreview(URL.createObjectURL(file));
+    setEditPhotoUploading(true);
+    setEditPhotoError(null);
+    try {
+      const resized = await resizeImage(file);
+      const formData = new FormData();
+      formData.append('file', resized, 'location.jpg');
+      const timeout = new Promise<{ error: string }>((resolve) =>
+        setTimeout(() => resolve({ error: 'Upload timed out. Check your connection and try again.' }), 20000),
+      );
+      const result = await Promise.race([uploadLocationPhotoAction(formData), timeout]);
+      if ('error' in result) {
+        setEditPhotoError(result.error);
+        setEditPhotoPreview(null);
+        if (editFileInputRef.current) editFileInputRef.current.value = '';
+      } else {
+        setEditPhotoUrl(result.url);
+        setEditPhotoPublicId(result.publicId);
+      }
+    } catch {
+      setEditPhotoError('Upload failed. Please try again.');
+      setEditPhotoPreview(null);
+      if (editFileInputRef.current) editFileInputRef.current.value = '';
+    } finally {
+      setEditPhotoUploading(false);
+    }
+  }
+
+  function removeEditPhoto() {
+    setEditPhotoPreview(null);
+    setEditPhotoUrl(null);
+    setEditPhotoPublicId(null);
+    setEditPhotoError(null);
+    if (editFileInputRef.current) editFileInputRef.current.value = '';
+  }
+
+  function toggleEditHabitat(biome: Biome) {
+    setEditHabitats((prev) => {
+      if (prev.includes(biome)) return prev.filter((b) => b !== biome);
+      if (prev.length >= 3) return prev;
+      return [...prev, biome];
+    });
+  }
+
+  function handleEditSave(loc: SavedLocation) {
+    if (!editLatLng) { setEditError('Pick a point on the map.'); return; }
+    if (!editName.trim()) { setEditError('Enter a name.'); return; }
+    if (editPhotoUploading) { setEditError('Wait for photo upload to finish.'); return; }
+    setEditError(null);
+    startEditTransition(async () => {
+      const result = await updateLocationAction({
+        id: loc.id,
+        name: editName.trim(),
+        lat: editLatLng.lat,
+        lng: editLatLng.lng,
+        habitats: editHabitats,
+        oldName: loc.name,
+      });
+      if ('error' in result) {
+        setEditError(result.error);
+        return;
+      }
+
+      const photoChanged = editPhotoUrl !== loc.photoUrl;
+      if (photoChanged) {
+        const photoResult = await updateLocationPhotoAction({
+          id: loc.id,
+          photoUrl: editPhotoUrl,
+          photoPublicId: editPhotoPublicId,
+          oldPhotoPublicId: loc.photoPublicId,
+        });
+        if ('error' in photoResult) {
+          setEditError(photoResult.error);
+          return;
+        }
+      }
+
+      setLocations((prev) =>
+        prev.map((l) =>
+          l.id === loc.id
+            ? {
+                ...l,
+                name: editName.trim(),
+                lat: editLatLng.lat,
+                lng: editLatLng.lng,
+                habitats: editHabitats,
+                photoUrl: editPhotoUrl,
+                photoPublicId: editPhotoPublicId,
+              }
+            : l
+        )
+      );
+      setEditingId(null);
+    });
   }
 
   function handleAdd() {
@@ -359,6 +504,159 @@ export default function LocationsManager({ initial, stats }: Props) {
           <div className='flex flex-col gap-2'>
             {locations.map((loc) => {
               const locStats = stats[loc.name];
+              const isEditing = editingId === loc.id;
+
+              if (isEditing) {
+                return (
+                  <div key={loc.id} className='rounded-2xl border border-primary/30 bg-card p-5 flex flex-col gap-5'>
+                    <h2 className='text-sm font-semibold text-card-foreground'>Edit location</h2>
+
+                    <div>
+                      <label htmlFor={`edit-name-${loc.id}`} className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
+                        Name
+                      </label>
+                      <input
+                        id={`edit-name-${loc.id}`}
+                        type='text'
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary'
+                      />
+                    </div>
+
+                    <div>
+                      <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
+                        Location on the map
+                      </label>
+                      <p className='text-[11px] text-muted-foreground/60 mb-2'>
+                        Search for a place or click the map to move the pin.
+                      </p>
+                      <LocationPicker value={editLatLng} onChange={setEditLatLng} frameColor='#60a5fa' />
+                    </div>
+
+                    <div className='rounded-lg bg-muted/30 border border-border/50 px-3 py-2'>
+                      {editLatLng ? (
+                        <div>
+                          <p className='text-[10px] font-medium uppercase tracking-wider text-muted-foreground'>Selected point</p>
+                          <p className='text-sm font-mono text-foreground'>
+                            {editLatLng.lat.toFixed(4)}, {editLatLng.lng.toFixed(4)}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className='text-xs text-muted-foreground/60'>No point selected.</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
+                        Habitats (optional, up to 3)
+                      </label>
+                      <div className='flex flex-wrap gap-1.5'>
+                        {BIOMES.map((biome) => {
+                          const active = editHabitats.includes(biome);
+                          const disabled = !active && editHabitats.length >= 3;
+                          return (
+                            <button
+                              key={biome}
+                              type='button'
+                              onClick={() => toggleEditHabitat(biome)}
+                              disabled={disabled}
+                              aria-pressed={active}
+                              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-mono capitalize transition-all border ${
+                                active
+                                  ? 'border-primary bg-primary/10 text-primary'
+                                  : disabled
+                                    ? 'border-border/50 bg-muted/20 text-muted-foreground/30 cursor-not-allowed'
+                                    : 'border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                              }`}
+                            >
+                              <HexIcon imageSrc={biomeImage[biome]} label={undefined} size={20} />
+                              {biome}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Photo upload */}
+                    <div>
+                      <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
+                        Photo
+                      </label>
+                      {editPhotoError && (
+                        <div className='mb-2 flex items-start gap-1.5 rounded-md px-2.5 py-2 bg-destructive/10 border border-destructive/30 text-destructive text-[10px] font-mono'>
+                          <span className='shrink-0 mt-px'>&#9888;</span>
+                          <span>{editPhotoError}</span>
+                        </div>
+                      )}
+                      {editPhotoPreview ? (
+                        <div className='relative rounded-lg overflow-hidden'>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={editPhotoPreview} alt='Location preview' className='w-full max-h-40 object-cover' />
+                          {editPhotoUploading && (
+                            <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+                              <div className='w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin' />
+                            </div>
+                          )}
+                          {!editPhotoUploading && (
+                            <div className='absolute top-1.5 right-1.5 flex gap-1'>
+                              <button
+                                type='button'
+                                onClick={() => editFileInputRef.current?.click()}
+                                aria-label='Change photo'
+                                className='rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
+                              >
+                                <Images className='h-3 w-3' />
+                              </button>
+                              <button
+                                type='button'
+                                onClick={removeEditPhoto}
+                                aria-label='Remove photo'
+                                className='rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
+                              >
+                                <X className='h-3 w-3' />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          type='button'
+                          onClick={() => editFileInputRef.current?.click()}
+                          className='group flex w-full flex-col items-center justify-center gap-1.5 py-5 rounded-lg border-2 border-dashed border-border hover:border-muted-foreground/40 text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-all bg-muted/20 hover:bg-muted/30'
+                        >
+                          <Images className='h-5 w-5 transition-transform group-hover:scale-110 duration-150' />
+                          <span>Add a photo of this place</span>
+                        </button>
+                      )}
+                      <input
+                        ref={editFileInputRef}
+                        type='file'
+                        accept='image/*'
+                        className='hidden'
+                        onChange={handleEditPhotoChange}
+                        aria-label='Upload location photo'
+                      />
+                    </div>
+
+                    {editError && <p className='text-xs text-destructive'>{editError}</p>}
+
+                    <div className='flex justify-end gap-2'>
+                      <Button variant='ghost' size='sm' onClick={cancelEditing} disabled={editPending}>
+                        Cancel
+                      </Button>
+                      <Button
+                        size='sm'
+                        onClick={() => handleEditSave(loc)}
+                        disabled={editPending || !editName.trim() || !editLatLng}
+                      >
+                        {editPending ? 'Saving...' : 'Save changes'}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={loc.id}
@@ -409,6 +707,14 @@ export default function LocationsManager({ initial, stats }: Props) {
                       >
                         <Eye className='h-4 w-4' />
                       </Link>
+                      <button
+                        type='button'
+                        onClick={() => startEditing(loc)}
+                        aria-label={`Edit ${loc.name}`}
+                        className='p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors'
+                      >
+                        <Pencil className='h-4 w-4' />
+                      </button>
                       <button
                         type='button'
                         onClick={() => {

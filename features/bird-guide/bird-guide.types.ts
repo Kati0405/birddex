@@ -8,7 +8,7 @@ export interface ObservationSighting {
   seen: boolean;
   heard: boolean;
   photographed: boolean;
-  quality: 'bad' | 'good' | 'excellent' | null;
+  quality: 1 | 2 | 3 | 4 | 5 | null;
   notes: string | null;
   locationName: string | null;
 }

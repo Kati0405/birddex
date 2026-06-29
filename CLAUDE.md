@@ -8,6 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Write concise, clean code — no unnecessary boilerplate, comments, or abstractions
 - Use APIs that match the versions installed in package.json. When unsure, check the official docs or existing project patterns before introducing new APIs.
+- Keep files readable and focused. Avoid giant components that mix UI, business logic, helpers, icons, and data.
+- Prefer small named components when JSX becomes hard to scan.
+- Remove dead code, unused imports, unused variables, commented-out code, and abandoned branches before finishing.
+- Do not add abstractions just for aesthetics. Extract only when it improves readability, removes real duplication, or matches an existing project pattern.
 
 ## IMPORTANT: Documentation First
 
@@ -19,6 +23,28 @@ Key docs:
 - `docs/data-mutations.md` — **MUST read before any data mutations, Server Actions, or form handling**
 - `docs/authentication.md` — **MUST read before any auth, role, or session-related work**
 - `docs/app-guide.md` — user-facing app guide (also used as Ask Robin chat context)
+
+## Spec-Driven Development
+
+For medium or large features, write or update a short spec before coding. Tiny bug fixes or very small visual tweaks do not need a spec.
+
+Specs live in `docs/specs/`. Use `docs/specs/spec-template.md` as the format.
+
+Before implementation:
+
+1. Read relevant docs (`docs/data-fetching.md`, `docs/data-mutations.md`, `docs/authentication.md`, etc.)
+2. Write or update the feature spec, clarifying:
+   - **Scope** — what will change
+   - **Data changes** — tables, fields, migrations, validation
+   - **UI behavior** — states, empty/loading/error handling
+   - **Auth/security rules** — who can do what, server-side checks
+   - **Docs updates** — what documentation needs to change
+   - **Acceptance criteria** — concrete checklist to verify the feature works
+
+After implementation:
+
+- Verify the work against the acceptance criteria
+- Update the spec if the final implementation differs from the plan
 
 ## IMPORTANT: Keep App Guide Up to Date
 
@@ -43,6 +69,38 @@ npm run lint     # run ESLint
 This is a Next.js App Router project. All routes live under `app/`. The root layout (`app/layout.tsx`) sets up Geist fonts via `next/font/google` and applies base Tailwind classes. Pages are React Server Components by default; add `"use client"` only when needed.
 
 Styling uses Tailwind utility classes directly in JSX — no separate CSS modules. Global styles are in `app/globals.css`.
+
+## Component Organization
+
+Page files should mostly compose components and fetch/prepare data. They should not contain large blocks of UI, inline SVGs, helper functions, and business logic all mixed together.
+
+Prefer this structure when a feature grows:
+
+- page or route component: data loading, auth checks, high-level composition
+- feature component: owns the main UI flow
+- small child components: repeated or visually distinct UI pieces
+- hooks/helpers: only for logic that is reused or clearly improves readability
+- constants/data: separate from UI components
+
+Good component names describe the UI role:
+
+- `ObservationCard`
+- `ObservationCarousel`
+- `ObservationQualityStars`
+- `LocationPhotoPreview`
+- `BirdCardBack`
+- `CollectedBirdBack`
+- `UncollectedBirdBack`
+
+Avoid vague names like:
+
+- `Box`
+- `Thing`
+- `Section2`
+- `NewComponent`
+- `CardStuff`
+
+If a component grows large, do a cleanup pass and extract obvious pieces without changing behavior.
 
 ## Authentication
 
@@ -167,7 +225,32 @@ Important information should be scannable at a glance.
 
 Icons should be visually understandable, but must also include accessible labels, tooltips, or aria-labels where appropriate.
 
+## SVG and Icon Rules
+
+- Keep large SVGs in separate files or dedicated icon/illustration components.
+- Do not paste large inline SVG blocks directly into page files or complex feature components.
+- Prefer `lucide-react` or the existing icon system when suitable.
+- If a custom SVG is needed, place it in a clearly named component, for example:
+  - `BirdWingIcon.tsx`
+  - `EmptyObservationIllustration.tsx`
+  - `HabitatForestIcon.tsx`
+- Keep visual assets separate from business logic.
+- Icons must include accessible labels, tooltips, `aria-label`, or visually hidden text when the meaning is not obvious.
+
 ## Code rules
+
+Keep bird data separate from UI components.
+
+Do not hardcode bird-specific data inside components unless making a one-off mockup.
+
+Before finishing any implementation, do a cleanup pass:
+
+1. Extract oversized JSX into small named components.
+2. Move large SVGs/icons out of the main component.
+3. Delete dead code and unused imports.
+4. Remove commented-out code.
+5. Check that file names and component names are clear.
+6. Do not change behavior during cleanup.
 
 Use clean, typed components.
 
@@ -179,10 +262,6 @@ Prefer reusable components when the UI pattern appears more than once, such as:
 - `ObservationMonthsChart`
 - `SoundButton`
 - `FieldNote`
-
-Keep bird data separate from UI components.
-
-Do not hardcode bird-specific data inside components unless making a one-off mockup.
 
 ## Existing behavior preservation
 

@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { saveLocation, deleteLocation, updateLocationPhoto } from '@/features/locations/location-queries';
+import { saveLocation, deleteLocation, updateLocation, updateLocationPhoto } from '@/features/locations/location-queries';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { requireAuth } from '@/features/auth/auth-helpers';
 import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
@@ -28,6 +28,8 @@ type DeleteLocationInput = z.infer<typeof DeleteLocationSchema>;
 export async function saveLocationAction(
   input: SaveLocationInput
 ): Promise<{ success: true } | { error: string }> {
+  await requireAuth();
+
   const parsed = SaveLocationSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.flatten().toString() };
 
@@ -75,6 +77,42 @@ export async function deleteLocationAction(
 
   if (loc?.photo_public_id) {
     await cloudinary.uploader.destroy(loc.photo_public_id as string).catch(() => {});
+  }
+
+  revalidatePath('/locations');
+  return { success: true };
+}
+
+const UpdateLocationSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1).max(100),
+  lat: z.number(),
+  lng: z.number(),
+  habitats: z.array(z.enum(BIOMES as [string, ...string[]])).max(3).optional(),
+  oldName: z.string(),
+});
+
+type UpdateLocationInput = z.infer<typeof UpdateLocationSchema>;
+
+export async function updateLocationAction(
+  input: UpdateLocationInput
+): Promise<{ success: true } | { error: string }> {
+  const parsed = UpdateLocationSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.flatten().toString() };
+
+  try {
+    await updateLocation(
+      parsed.data.id,
+      {
+        name: parsed.data.name,
+        lat: parsed.data.lat,
+        lng: parsed.data.lng,
+        habitats: parsed.data.habitats ?? [],
+      },
+      parsed.data.oldName,
+    );
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
   revalidatePath('/locations');

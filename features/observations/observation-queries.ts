@@ -1,7 +1,7 @@
 import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 import { requireAuth } from '@/features/auth/auth-helpers';
 
-export type ObservationQuality = 'bad' | 'good' | 'excellent' | null;
+export type ObservationQuality = 1 | 2 | 3 | 4 | 5 | null;
 
 export interface ObservationData {
   birdId: number;
@@ -191,6 +191,66 @@ export interface ObservationPhoto {
   observedAt: string;
   birdId: number;
   birdNameEng: string;
+}
+
+export interface UserObservation {
+  id: string;
+  birdId: number;
+  birdName: string;
+  birdImageUrl: string | null;
+  observedAt: string;
+  seen: boolean;
+  heard: boolean;
+  photographed: boolean;
+  quality: ObservationQuality;
+  notes: string | null;
+  photoUrl: string | null;
+  locationName: string | null;
+}
+
+export async function getAllUserObservations(): Promise<UserObservation[]> {
+  const user = await requireAuth();
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from('observations')
+    .select('id, bird_id, observed_at, seen, heard, photographed, quality, notes, photo_url, location_name')
+    .eq('user_id', user.id)
+    .order('observed_at', { ascending: false });
+
+  const rows = data ?? [];
+  if (rows.length === 0) return [];
+
+  const birdIds = [...new Set(rows.map((r) => r.bird_id as number))];
+  const { data: birdsData } = await supabase
+    .from('birds')
+    .select('id, name_eng, image_url')
+    .in('id', birdIds);
+
+  const birdById: Record<number, { name: string; imageUrl: string | null }> = {};
+  for (const b of birdsData ?? []) {
+    birdById[b.id as number] = {
+      name: b.name_eng as string,
+      imageUrl: (b.image_url as string) ?? null,
+    };
+  }
+
+  return rows.map((row) => {
+    const bird = birdById[row.bird_id as number];
+    return {
+      id: row.id as string,
+      birdId: row.bird_id as number,
+      birdName: bird?.name ?? 'Unknown',
+      birdImageUrl: bird?.imageUrl ?? null,
+      observedAt: row.observed_at as string,
+      seen: row.seen as boolean,
+      heard: row.heard as boolean,
+      photographed: row.photographed as boolean,
+      quality: (row.quality as ObservationQuality) ?? null,
+      notes: (row.notes as string) ?? null,
+      photoUrl: (row.photo_url as string) ?? null,
+      locationName: (row.location_name as string) ?? null,
+    };
+  });
 }
 
 export async function getUserObservationPhotos(): Promise<ObservationPhoto[]> {

@@ -15,6 +15,7 @@ Once signed in you unlock personal features: observations, collection tracking, 
 The top header has links to all sections:
 
 - **Birds** — the main catalog of all bird cards
+- **Observations** — all your logged observations in one place (signed-in only)
 - **Locations** — your saved birding spots (signed-in only)
 - **Photos** — gallery of your observation photos (signed-in only)
 - **Ask Robin** — AI chat assistant for bird questions
@@ -97,11 +98,26 @@ The observation form lets you record:
 3. **Location** — two modes:
    - **Saved**: pick from your saved locations (if you have any)
    - **Map**: tap on the map to drop a pin at the exact spot
-4. **Quality** — rate your sighting: Brief glance, Good view, or Excellent
+4. **Observation quality** — rate how well you observed the bird using a 5-star picker: 1 (Brief glance), 2 (Partial view), 3 (Good view), 4 (Great view), 5 (Excellent encounter). Hover or tap stars to see the label and description. This rates the observation itself, not the photo or bird rarity.
 5. **Notes** — free-text field for what happened (handwriting-style font, up to 2000 characters)
 6. **Photo** — appears when "Photographed" is toggled on; upload a photo of your sighting (auto-resized for you)
 
 Tap **Save** to record the observation. You can edit observations later by opening the same bird's observation panel.
+
+---
+
+## Observations Page
+
+The Observations page (`/observations`) shows all your logged observations in one place, grouped by month. Each entry shows:
+
+- Bird photo thumbnail (or placeholder)
+- Bird name (linked to its detail page)
+- Date of observation
+- How observed icons (seen, heard, photographed)
+- Location name (if recorded)
+- Notes preview (truncated)
+
+The counter at the top shows your total number of observations. If you have no observations yet, a friendly empty state guides you to the bird catalog to log your first sighting.
 
 ---
 
@@ -125,6 +141,13 @@ To view a location:
 - The detail page (`/locations/[id]`) shows the full photo, coordinates, observation statistics (total observations, species count, last visit date, most seen bird, observation types), and a list of recent observations at that location
 - Each observation links to its bird detail page
 - You can also change or remove the location photo from the detail page
+
+To edit a location:
+- Tap the pencil icon on any saved location card
+- An inline edit form opens with the current name, map pin, and habitats pre-filled
+- Change any fields you want, then tap **Save changes**
+- If you rename a location, all your observations at that location are updated automatically
+- Tap **Cancel** to discard changes
 
 To delete a location:
 - Tap the trash icon on any saved location card, or use the Delete button on the detail page

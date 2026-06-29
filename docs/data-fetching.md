@@ -13,12 +13,12 @@ ALL data fetching MUST be done exclusively in **Server Components**.
 
 There are no exceptions to this rule.
 
-### 2. Use Helper Functions in `/data` — No Raw SQL
+### 2. Use Helper Functions in `features/*/queries` — No Raw SQL
 
-ALL database queries MUST go through helper functions defined in the `/data` directory.
+ALL database queries MUST go through helper functions defined in feature query files (e.g. `features/birds/bird-queries.ts`, `features/observations/observation-queries.ts`).
 
-- **NEVER** write raw SQL inline in components or anywhere outside `/data`
-- If a query does not have a helper function yet, create one in the appropriate `/data` file first, then call it
+- **NEVER** write raw SQL inline in components or anywhere outside query files
+- If a query does not have a helper function yet, create one in the appropriate `*-queries.ts` file first, then call it
 
 ### 3. Users Can Only Access Their Own Data
 
@@ -34,23 +34,26 @@ This is a security requirement. A breach here exposes other users' private data.
 ## Pattern to Follow
 
 ```ts
-// data/birds.ts — correct pattern
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+// features/birds/bird-queries.ts — correct pattern
+import { requireAuth } from "@/features/auth/auth-helpers";
+import { createSupabaseServerClient } from "@/shared/lib/supabase-server";
 
 export async function getUserBirds() {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const user = await requireAuth();
+  const supabase = await createSupabaseServerClient();
 
-  return db.bird.findMany({
-    where: { userId: session.user.id },
-  });
+  const { data } = await supabase
+    .from("birds")
+    .select("*")
+    .eq("user_id", user.id);
+
+  return data ?? [];
 }
 ```
 
 ```tsx
 // app/birds/page.tsx — correct pattern (Server Component)
-import { getUserBirds } from "@/data/birds";
+import { getUserBirds } from "@/features/birds/bird-queries";
 
 export default async function BirdsPage() {
   const birds = await getUserBirds();
@@ -62,16 +65,13 @@ export default async function BirdsPage() {
 
 ```ts
 // WRONG — raw SQL
-const birds = await db.$queryRaw`SELECT * FROM birds`;
+const { data } = await supabase.rpc("raw_query", { sql: "SELECT * FROM birds" });
 
 // WRONG — no user scoping
 export async function getBirds() {
-  return db.bird.findMany(); // returns ALL users' birds
-}
-
-// WRONG — trusting client-supplied userId
-export async function getBirds(userId: string) {
-  return db.bird.findMany({ where: { userId } }); // caller controls the filter
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.from("birds").select("*"); // returns ALL users' birds
+  return data;
 }
 
 // WRONG — fetching in a Client Component

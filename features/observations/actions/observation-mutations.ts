@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { addObservation, updateObservation, deleteObservation } from '@/features/observations/observation-queries';
+import { addObservation, updateObservation, deleteObservation, type ObservationQuality } from '@/features/observations/observation-queries';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { requireAuth } from '@/features/auth/auth-helpers';
 
@@ -15,7 +15,7 @@ const AddObservationSchema = z.object({
   seen: z.boolean().default(false),
   heard: z.boolean().default(false),
   photographed: z.boolean().default(false),
-  quality: z.enum(['bad', 'good', 'excellent']).nullable().optional(),
+  quality: z.number().int().min(1).max(5).nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
   photoUrl: z.union([z.string().url(), z.literal(''), z.null()]).optional(),
 });
@@ -40,7 +40,7 @@ export async function addObservationAction(
       seen: parsed.data.seen,
       heard: parsed.data.heard,
       photographed: parsed.data.photographed,
-      quality: parsed.data.quality ?? null,
+      quality: (parsed.data.quality ?? null) as ObservationQuality,
       notes: parsed.data.notes ?? null,
       photoUrl: parsed.data.photoUrl ?? null,
     });
@@ -62,7 +62,7 @@ const UpdateObservationSchema = z.object({
   seen: z.boolean().default(false),
   heard: z.boolean().default(false),
   photographed: z.boolean().default(false),
-  quality: z.enum(['bad', 'good', 'excellent']).nullable().optional(),
+  quality: z.number().int().min(1).max(5).nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
   photoUrl: z.union([z.string().url(), z.literal(''), z.null()]).optional(),
 });
@@ -86,7 +86,7 @@ export async function updateObservationAction(
       seen: parsed.data.seen,
       heard: parsed.data.heard,
       photographed: parsed.data.photographed,
-      quality: parsed.data.quality ?? null,
+      quality: (parsed.data.quality ?? null) as ObservationQuality,
       notes: parsed.data.notes ?? null,
       photoUrl: parsed.data.photoUrl ?? null,
     });

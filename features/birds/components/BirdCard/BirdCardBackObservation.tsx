@@ -37,11 +37,33 @@ interface Props {
   savedLocations?: SavedLocation[];
 }
 
-const QUALITY_OPTS = [
-  { value: 'bad', symbol: '○', label: 'Brief glance' },
-  { value: 'good', symbol: '◑', label: 'Good view' },
-  { value: 'excellent', symbol: '●', label: 'Excellent' },
-] as const;
+const QUALITY_LABELS: Record<number, string> = {
+  1: 'Brief glance',
+  2: 'Partial view',
+  3: 'Good view',
+  4: 'Great view',
+  5: 'Excellent encounter',
+};
+
+function QualityStars({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'xs' }) {
+  const s = size === 'sm' ? 'w-3 h-3 sm:w-2 sm:h-2' : 'w-2.5 h-2.5 sm:w-1.5 sm:h-1.5';
+  return (
+    <div className='flex gap-px' title={QUALITY_LABELS[rating]}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <svg key={i} viewBox='0 0 20 20' className={s} aria-hidden='true'>
+          <path
+            d='M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 14.24l-4.94 2.46.94-5.49-4-3.9 5.53-.8z'
+            fill={i <= rating ? 'currentColor' : 'transparent'}
+            stroke='currentColor'
+            strokeWidth='1.2'
+            strokeLinejoin='round'
+            style={{ opacity: i <= rating ? 1 : 0.3 }}
+          />
+        </svg>
+      ))}
+    </div>
+  );
+}
 
 /** Optimized observation photo — mirrors the Cloudinary pipeline used in BirdImage. */
 function ObservationImage({ url, alt }: { url: string; alt: string }) {
@@ -165,9 +187,7 @@ export default function BirdCardBackObservation({
     observations.length > 0 ? new Date(observations[0].observedAt) : null;
 
   const obs = observations[idx];
-  const quality = obs?.quality
-    ? QUALITY_OPTS.find((q) => q.value === obs.quality)
-    : null;
+  const qualityRating = obs?.quality ?? null;
   const evidence = [
     { Icon: Eye, label: 'Seen', active: obs?.seen },
     { Icon: Music, label: 'Heard', active: obs?.heard },
@@ -430,44 +450,20 @@ export default function BirdCardBackObservation({
                 </p>
               </div>
 
-              {/* quality pill, top-right */}
-              {quality && (
+              {/* quality stars, top-right */}
+              {qualityRating && (
                 <div
-                  className='absolute top-2 right-2 sm:top-1.5 sm:right-1.5 flex items-center gap-1 rounded-full px-2.5 sm:px-1.5 py-1 sm:py-0.5 backdrop-blur-sm'
+                  className='absolute top-2 right-2 sm:top-1.5 sm:right-1.5 flex items-center gap-1.5 sm:gap-1 rounded-full px-2.5 sm:px-1.5 py-1 sm:py-0.5 backdrop-blur-sm text-white'
                   style={{
                     background: 'rgba(0,0,0,0.4)',
                     border: '1px solid rgba(255,255,255,0.25)',
                   }}
-                  title={`Quality: ${quality.label}`}
+                  title={QUALITY_LABELS[qualityRating]}
                 >
-                  <span className='text-white text-sm sm:text-[9px] leading-none'>
-                    {quality.symbol}
-                  </span>
-                  <span className='text-white/90 font-mono text-[11px] sm:text-[6.5px] uppercase tracking-[0.1em]'>
-                    {quality.label}
-                  </span>
+                  <QualityStars rating={qualityRating} size='xs' />
                 </div>
               )}
 
-              {/* map button, top-left */}
-              {hasLocation && (
-                <button
-                  type='button'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMapOpen(true);
-                  }}
-                  title='Show on map'
-                  className='absolute top-2 left-2 sm:top-1.5 sm:left-1.5 flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full backdrop-blur-sm transition-transform active:scale-90'
-                  style={{
-                    background: 'rgba(0,0,0,0.4)',
-                    border: '1px solid rgba(255,255,255,0.25)',
-                    color: '#fff',
-                  }}
-                >
-                  <MapPin className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
-                </button>
-              )}
             </div>
 
             {/* Location + evidence strip */}
@@ -581,20 +577,23 @@ export default function BirdCardBackObservation({
                 type='button'
                 onClick={openEdit}
                 title='Edit this observation'
-                className='flex items-center gap-1.5 sm:gap-1 px-3 sm:px-2 py-2 sm:py-1 rounded-md text-[12px] sm:text-[7px] font-mono uppercase tracking-[0.12em] transition-colors'
+                className='flex items-center justify-center w-9 h-9 sm:w-5 sm:h-5 rounded-md transition-colors text-muted-foreground/60 hover:text-[var(--edit-color)] hover:bg-[var(--edit-bg)]'
                 style={{
-                  color: `${frameColor}dd`,
-                  background: `${frameColor}12`,
-                }}
+                  '--edit-color': `${frameColor}dd`,
+                  '--edit-bg': `${frameColor}12`,
+                } as React.CSSProperties}
               >
-                <Pencil className='h-3.5 w-3.5 sm:h-2 sm:w-2' />
-                Edit
+                <Pencil className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
               </button>
               <button
                 type='button'
                 onClick={openDeleteConfirm}
                 title='Delete this observation'
-                className='flex items-center justify-center w-9 h-9 sm:w-5 sm:h-5 rounded-md transition-colors text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10'
+                className='flex items-center justify-center w-9 h-9 sm:w-5 sm:h-5 rounded-md transition-colors text-muted-foreground/60 hover:text-[var(--del-color)] hover:bg-[var(--del-bg)]'
+                style={{
+                  '--del-color': `${frameColor}dd`,
+                  '--del-bg': `${frameColor}12`,
+                } as React.CSSProperties}
               >
                 <Trash2 className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
               </button>

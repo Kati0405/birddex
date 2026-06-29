@@ -102,6 +102,34 @@ export async function deleteLocation(id: number): Promise<void> {
   if (error) throw new Error(`deleteLocation(${id}): ${error.message}`);
 }
 
+export async function updateLocation(
+  id: number,
+  data: { name: string; lat: number; lng: number; habitats: string[] },
+  oldName: string,
+): Promise<void> {
+  const user = await requireAuth();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('saved_locations')
+    .update({
+      name: data.name,
+      lat: data.lat,
+      lng: data.lng,
+      habitats: data.habitats,
+    })
+    .eq('id', id)
+    .eq('user_id', user.id);
+  if (error) throw new Error(`updateLocation(${id}): ${error.message}`);
+
+  if (data.name !== oldName) {
+    await supabase
+      .from('observations')
+      .update({ location_name: data.name })
+      .eq('user_id', user.id)
+      .eq('location_name', oldName);
+  }
+}
+
 export interface LocationStats {
   observationCount: number;
   speciesCount: number;
