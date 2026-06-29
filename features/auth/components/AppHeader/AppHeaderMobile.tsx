@@ -8,12 +8,13 @@ import { logoutAction } from '@/app/(auth)/actions';
 
 type Props = {
   isAuthenticated: boolean;
+  isAdmin?: boolean;
   seenCount?: number;
   totalBirds?: number;
   userEmail?: string;
 };
 
-export default function AppHeaderMobile({ isAuthenticated, seenCount, totalBirds, userEmail }: Props) {
+export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, totalBirds, userEmail }: Props) {
   const [open, setOpen] = useState(false);
   const currentPath = usePathname();
 
@@ -68,8 +69,13 @@ export default function AppHeaderMobile({ isAuthenticated, seenCount, totalBirds
               {isAuthenticated ? (
                 <>
                   {userEmail && (
-                    <div className="font-mono text-[10px] text-muted-foreground mb-3 truncate">
-                      {userEmail}
+                    <div className="font-mono text-[10px] text-muted-foreground mb-3 truncate flex items-center gap-1.5">
+                      <span className="truncate">{userEmail}</span>
+                      {isAdmin && (
+                        <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-600 text-[9px] font-semibold uppercase tracking-wider">
+                          Admin
+                        </span>
+                      )}
                     </div>
                   )}
                   <form action={logoutAction}>

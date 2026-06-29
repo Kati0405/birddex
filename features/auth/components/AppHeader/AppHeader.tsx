@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getUser } from '@/features/auth/auth-helpers';
+import { getUser, getUserRole } from '@/features/auth/auth-helpers';
 import { getBirds } from '@/features/birds/bird-queries';
 import { getObservationCount } from '@/features/observations/observation-queries';
 import { logoutAction } from '@/app/(auth)/actions';
@@ -7,10 +7,11 @@ import AppHeaderMobile from './AppHeaderMobile';
 import AppHeaderNav from './AppHeaderNav';
 
 export default async function AppHeader() {
-  const [user, birds] = await Promise.all([getUser(), getBirds()]);
+  const [user, birds, role] = await Promise.all([getUser(), getBirds(), getUserRole()]);
   const seenCount = user ? await getObservationCount(user.id) : undefined;
   const totalBirds = birds.length;
   const isAuth = !!user;
+  const isAdmin = role === 'admin';
 
   return (
     <header className="sticky top-0 z-[100] bg-card border-b border-border shadow-[0_1px_12px_rgba(20,32,12,0.06)]">
@@ -65,7 +66,7 @@ export default async function AppHeader() {
                   </span>
                 </div>
               )}
-              <UserMenu email={user?.email} />
+              <UserMenu email={user?.email} isAdmin={isAdmin} />
             </>
           ) : (
             <Link
@@ -80,6 +81,7 @@ export default async function AppHeader() {
         <div className="sm:hidden ml-auto">
           <AppHeaderMobile
             isAuthenticated={isAuth}
+            isAdmin={isAdmin}
             seenCount={seenCount}
             totalBirds={totalBirds}
             userEmail={user?.email}
@@ -90,15 +92,24 @@ export default async function AppHeader() {
   );
 }
 
-function UserMenu({ email }: { email?: string }) {
+function UserMenu({ email, isAdmin }: { email?: string; isAdmin: boolean }) {
   const initial = email?.[0]?.toUpperCase() ?? '?';
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center shrink-0">
-        <span className="font-heading text-[13px] font-bold text-primary-foreground leading-none">
-          {initial}
-        </span>
+      <div className="relative">
+        <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center shrink-0">
+          <span className="font-heading text-[13px] font-bold text-primary-foreground leading-none">
+            {initial}
+          </span>
+        </div>
+        {isAdmin && (
+          <span className="absolute -top-1 -right-1 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-card">
+            <svg width="7" height="7" viewBox="0 0 7 7" fill="none" aria-label="Admin">
+              <path d="M3.5 0.5L4.3 2.3L6.3 2.5L4.8 3.9L5.2 5.9L3.5 4.9L1.8 5.9L2.2 3.9L0.7 2.5L2.7 2.3Z" fill="white" />
+            </svg>
+          </span>
+        )}
       </div>
 
       <form action={logoutAction}>
