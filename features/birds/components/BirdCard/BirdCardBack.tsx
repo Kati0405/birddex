@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { cn } from '@/shared/lib/cn';
 import type { Bird, Difficulty, BestTimeOfDay } from '@/entities/bird-domain';
 import ObservationMonthsChart from '@/shared/ui/ObservationMonthsChart/ObservationMonthsChart';
@@ -144,11 +143,9 @@ function BestTimeOfDayRow({
 function FieldGuideContent({
   bird,
   frameColor,
-  isAdmin,
 }: {
   bird: Bird;
   frameColor: string;
-  isAdmin: boolean;
 }) {
   const [fieldTab, setFieldTab] = useState<FieldTab>('tips');
 
@@ -260,22 +257,6 @@ function FieldGuideContent({
         </div>
       )}
 
-      {/* Admin edit link */}
-      {isAdmin && (
-        <div className='flex items-center justify-center'>
-          <Link
-            href={`/birds/${bird.id}/edit`}
-            onClick={(e) => e.stopPropagation()}
-            className='text-sm sm:text-xs px-3 sm:px-2.5 py-2 sm:py-1.5 rounded border transition-colors text-muted-foreground hover:text-foreground'
-            style={{
-              borderColor: `${frameColor}60`,
-              background: `${frameColor}12`,
-            }}
-          >
-            Edit
-          </Link>
-        </div>
-      )}
     </div>
   );
 }
@@ -283,7 +264,6 @@ function FieldGuideContent({
 export default function BirdCardBack({
   bird,
   frameColor,
-  isAdmin,
   isAuthenticated = false,
   isObserved = false,
   savedLocations = [],
@@ -355,7 +335,7 @@ export default function BirdCardBack({
 
       {/* Tab content */}
       {!isAuthenticated || mainTab === 'field-guide' ? (
-        <FieldGuideContent bird={bird} frameColor={frameColor} isAdmin={isAdmin} />
+        <FieldGuideContent bird={bird} frameColor={frameColor} />
       ) : (
         <BirdCardBackObservation
           bird={bird}
