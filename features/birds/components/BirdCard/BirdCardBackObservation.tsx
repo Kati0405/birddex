@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { createPortal } from 'react-dom';
+import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
 import { CldImage } from 'next-cloudinary';
 import { format } from 'date-fns';
 import {
@@ -211,8 +211,7 @@ export default function BirdCardBackObservation({
     setDeleteError(null);
   }
 
-  function handleDeleteConfirmed(e: React.MouseEvent) {
-    e.stopPropagation();
+  function handleDeleteConfirmed() {
     startDeleteTransition(async () => {
       const result = await deleteObservationAction({ id: obs.id });
       if ('error' in result) {
@@ -627,69 +626,21 @@ export default function BirdCardBackObservation({
         />
       )}
 
-      {confirmDelete &&
-        obs &&
-        createPortal(
-          <div
-            className='fixed inset-0 z-[110] flex items-center justify-center p-4'
-            style={{ background: 'rgba(0,0,0,0.55)' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!deletePending) setConfirmDelete(false);
-            }}
-          >
-            <div
-              className='w-full max-w-xs rounded-xl overflow-hidden bg-card flex flex-col'
-              style={{
-                border: '2px solid #fca5a5',
-                boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className='h-1 w-full shrink-0 bg-destructive' />
-              <div className='px-5 py-4 flex flex-col gap-3'>
-                <p className='text-[7px] uppercase tracking-[0.18em] font-mono text-muted-foreground'>
-                  Delete observation
-                </p>
-                <p className='text-sm text-card-foreground'>
-                  Delete this observation from{' '}
-                  <span className='font-semibold'>
-                    {format(new Date(obs.observedAt), 'd MMM yyyy')}
-                  </span>
-                  ? This cannot be undone.
-                </p>
-                {deleteError && (
-                  <p className='text-[10px] font-mono text-destructive'>
-                    ⚠ {deleteError}
-                  </p>
-                )}
-                <div className='flex gap-2 justify-end'>
-                  <button
-                    type='button'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setConfirmDelete(false);
-                    }}
-                    disabled={deletePending}
-                    className='px-3 py-1.5 rounded-md text-[10px] font-mono uppercase tracking-[0.1em] border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors disabled:opacity-50'
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type='button'
-                    onClick={handleDeleteConfirmed}
-                    disabled={deletePending}
-                    className='px-4 py-1.5 rounded-md text-[10px] font-mono uppercase tracking-[0.1em] transition-all active:scale-[0.97] disabled:opacity-60'
-                    style={{ background: '#dc2626', color: '#ffffff' }}
-                  >
-                    {deletePending ? 'Deleting…' : 'Delete'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
+      {confirmDelete && obs && (
+        <ConfirmDeleteModal
+          title='Delete observation'
+          error={deleteError}
+          pending={deletePending}
+          onConfirm={handleDeleteConfirmed}
+          onCancel={() => setConfirmDelete(false)}
+        >
+          Delete this observation from{' '}
+          <span className='font-semibold'>
+            {format(new Date(obs.observedAt), 'd MMM yyyy')}
+          </span>
+          ? This cannot be undone.
+        </ConfirmDeleteModal>
+      )}
     </>
   );
 }

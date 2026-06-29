@@ -14,7 +14,7 @@ Bird detail page (/birds/[id]): tap a card to see full info -- large photo, soun
 
 Logging observations: tap binoculars icon on a card. The form has: How observed (seen/heard/photographed toggles), Date (calendar picker, no future dates), Location (pick from saved locations or tap on map), Quality (brief glance / good view / excellent), Notes (free text up to 2000 chars), Photo (appears when "Photographed" is on; auto-resized). Tap Save. You can edit or delete observations later from the card's back side.
 
-Saved Locations (/locations): save birding spots you visit often. Add a name + pick coordinates on the map. Saved spots appear in the "Saved" tab when logging observations.
+Saved Locations (/locations): save birding spots you visit often. Cards show photo preview, name, coordinates, and observation stats. Tap "+ Add location" to open the form, name the place, search or click the map to drop a pin, optionally add a photo, then save. Tap the eye icon to open a location detail page (/locations/[id]) with full photo, stats (observations, species, last visit, most seen bird), and recent observations list. Change or remove photos from the detail page. Delete with the trash icon (confirmation required; observations keep their location data). Saved spots appear in the "Saved" tab when logging observations.
 
 Photo Gallery (/photos): all observation photos in one gallery.
 

@@ -109,10 +109,29 @@ Tap **Save** to record the observation. You can edit observations later by openi
 
 The Locations page (`/locations`) lets you save birding spots you visit often. This saves time when logging observations — instead of pinning a location on the map each time, you can just pick a saved spot.
 
+Your saved locations are shown as cards with a photo preview (if uploaded), location name, coordinates, and observation stats (how many observations and species you've logged there). If you have no saved locations, a friendly empty state guides you to add your first one.
+
 To add a location:
 - Go to the Locations page
-- Add a name and coordinates for your spot
-- It appears in the "Saved" tab when logging observations
+- Tap **+ Add location** (or "Add your first location" if you have none)
+- Enter a name for the place (e.g. "City park", "Backyard feeder")
+- Search for an address or click the map to drop a pin
+- The selected coordinates are shown below the map
+- Optionally upload a photo of the place
+- Tap **Save location** when both the name and pin are set
+
+To view a location:
+- Tap the eye icon on any saved location card to open its detail page
+- The detail page (`/locations/[id]`) shows the full photo, coordinates, observation statistics (total observations, species count, last visit date, most seen bird, observation types), and a list of recent observations at that location
+- Each observation links to its bird detail page
+- You can also change or remove the location photo from the detail page
+
+To delete a location:
+- Tap the trash icon on any saved location card, or use the Delete button on the detail page
+- Confirm the deletion in the confirmation prompt
+- Your observations will keep their location data
+
+Saved locations appear in the "Saved" tab when logging observations.
 
 ---
 

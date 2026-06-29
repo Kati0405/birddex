@@ -136,7 +136,7 @@ export default function LocationPicker({ value, onChange, frameColor }: Location
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          placeholder='Search…'
+          placeholder='Search address or place…'
           className='flex-1 rounded px-2 py-1 text-[10px] font-mono bg-background border border-border/50 focus:outline-none focus:border-border placeholder:text-muted-foreground/40'
         />
         <button
@@ -146,16 +146,17 @@ export default function LocationPicker({ value, onChange, frameColor }: Location
           className='rounded px-2 py-1 text-[10px] font-mono font-medium transition-colors'
           style={{ background: `${frameColor}30`, color: frameColor, border: `1px solid ${frameColor}50` }}
         >
-          {searching ? '…' : 'Go'}
+          {searching ? '…' : 'Search'}
         </button>
         <button
           type='button'
           onClick={handleGeolocate}
           disabled={locating}
           title='Use my current location'
-          className='rounded px-2 py-1 text-[11px] transition-colors border border-border/50 hover:bg-muted/40'
+          aria-label='Use my current location'
+          className='rounded px-2 py-1 text-[10px] font-mono font-medium transition-colors border border-border/50 hover:bg-muted/40'
         >
-          {locating ? '…' : '📍'}
+          {locating ? '…' : '📍 My location'}
         </button>
         {value && (
           <button
