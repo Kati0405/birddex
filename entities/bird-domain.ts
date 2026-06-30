@@ -32,6 +32,8 @@ import feederImg      from '@/components/icons/behaviour/feeder.svg';
 
 export type Rarity = 'Common' | 'Uncommon' | 'Rare' | 'Epic' | 'Legendary';
 
+export const RARITIES: Rarity[] = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+
 export type Difficulty = 'beginner' | 'easy' | 'moderate' | 'tricky' | 'good_luck';
 
 export interface BestTimeOfDay {

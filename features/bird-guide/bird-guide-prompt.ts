@@ -8,7 +8,7 @@ Signing in: tap "Log in" top-right, then "Continue with Google". Unlocks observa
 
 Bird Catalog (/birds): browse all bird cards in a grid. Search by English or Latin name. Tap "Filters" to filter by rarity, biome, food, observation status (all/observed/unobserved), or observation type (seen/heard/photographed). Combine multiple filters; badge shows active count. "Reset Filters" clears all.
 
-Bird cards show: photo, name, rarity frame, food & habitat icons, field note. Signed-in users see a checkmark on observed birds and a binoculars icon to log observations.
+Bird cards show: photo, name, rarity frame, food & habitat icons, field note. Signed-in users see a checkmark on observed birds and a binoculars icon to log observations. Admins see a "⋮" (three dots) menu next to the bird's name with Edit and Delete actions; Delete opens a confirmation modal, and is blocked with a message in that modal if the bird has logged observations.
 
 Bird detail page (/birds/[id]): tap a card to see full info -- large photo, sound button, food & habitat icons, field note, behaviour tags, best-months chart, wingspan. Signed-in users see a "+ Collect" button to add/remove from collection.
 
@@ -24,7 +24,9 @@ Ask Robin (/ask-robin): this AI chat. Type a question or tap a suggested questio
 
 Observation counter: header shows "X / Y" -- species observed vs. total catalog.
 
-Logging out: desktop -- "Log out" next to avatar. Mobile -- open menu, tap Log out.`;
+Logging out: desktop -- "Log out" next to avatar. Mobile -- open menu, tap Log out.
+
+Admin: Adding a bird (/admin/add-bird, linked from header with admin badge): type a bird name, tap "Draft with AI" to auto-fill all card fields via AI, review/edit the form, tap Save to create the catalog entry.`;
 
 export function buildSystemPrompt(userContext?: UserContext): string {
   const base = `You are Robin, an expert but friendly birding assistant inside the BirdDex app.

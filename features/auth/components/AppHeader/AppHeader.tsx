@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
+import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 import { getBirds } from '@/features/birds/bird-queries';
 import { getObservationCount } from '@/features/observations/observation-queries';
 import { logoutAction } from '@/app/(auth)/actions';
@@ -50,7 +51,7 @@ export default async function AppHeader() {
 
         <span className="w-1 h-1 rounded-full bg-border shrink-0" />
 
-        <AppHeaderNav isAuthenticated={isAuth} />
+        <AppHeaderNav isAuthenticated={isAuth} isAdmin={isAdmin} />
 
         <div className="hidden sm:flex items-center gap-3 shrink-0 ml-auto">
           {isAuth ? (
@@ -103,13 +104,7 @@ function UserMenu({ email, isAdmin }: { email?: string; isAdmin: boolean }) {
             {initial}
           </span>
         </div>
-        {isAdmin && (
-          <span className="absolute -top-1 -right-1 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-card">
-            <svg width="7" height="7" viewBox="0 0 7 7" fill="none" aria-label="Admin">
-              <path d="M3.5 0.5L4.3 2.3L6.3 2.5L4.8 3.9L5.2 5.9L3.5 4.9L1.8 5.9L2.2 3.9L0.7 2.5L2.7 2.3Z" fill="white" />
-            </svg>
-          </span>
-        )}
+        {isAdmin && <AdminBadge className="absolute -top-1 -right-1 border-2 border-card" />}
       </div>
 
       <form action={logoutAction}>

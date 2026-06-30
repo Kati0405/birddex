@@ -102,6 +102,23 @@ Avoid vague names like:
 
 If a component grows large, do a cleanup pass and extract obvious pieces without changing behavior.
 
+## Admin Badge Convention
+
+Any UI element that is only visible/usable by admins (nav links, buttons, icons, menus) must carry a small visual "admin badge" so it's clearly distinguishable from regular UI — not just an `aria-label`.
+
+Use the shared `AdminBadge` component at `shared/ui/AdminBadge/AdminBadge.tsx`:
+
+```tsx
+import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
+
+<AdminBadge />                    // amber star dot — inline next to a label
+<AdminBadge variant="pill" />     // "Admin" text pill — next to email/username
+<AdminBadge className="absolute -top-0.5 -right-0.5 w-3 h-3 border-2 border-card" />
+// ^ overlaid on an icon/avatar — pass className to position/size it
+```
+
+When adding any new admin-gated UI (`{isAdmin && ...}`), always include this badge — do not skip it even for small icons. Do not inline the badge SVG/markup again — always use `AdminBadge`.
+
 ## Authentication
 
 Auth uses Supabase Auth with Google OAuth. Two roles: `admin` (catalog editing) and `user` (collection tracking). See `docs/authentication.md` for the full reference.

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
 import { logoutAction } from '@/app/(auth)/actions';
+import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 
 type Props = {
   isAuthenticated: boolean;
@@ -61,6 +62,9 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
               <MobileNavLink href="/photos" label="My Photos" active={currentPath === '/photos'} onClick={() => setOpen(false)} />
             )}
             <MobileNavLink href="/ask-robin" label="Ask Robin" active={currentPath === '/ask-robin'} onClick={() => setOpen(false)} />
+            {isAdmin && (
+              <MobileNavLink href="/admin/add-bird" label="Add Bird" active={currentPath === '/admin/add-bird'} onClick={() => setOpen(false)} adminBadge />
+            )}
 
             {isAuthenticated && seenCount !== undefined && totalBirds !== undefined && (
               <div className="mt-4 px-4 py-3 bg-secondary rounded-lg font-mono text-[11px] text-primary tracking-wide">
@@ -74,11 +78,7 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
                   {userEmail && (
                     <div className="font-mono text-[10px] text-muted-foreground mb-3 truncate flex items-center gap-1.5">
                       <span className="truncate">{userEmail}</span>
-                      {isAdmin && (
-                        <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-600 text-[9px] font-semibold uppercase tracking-wider">
-                          Admin
-                        </span>
-                      )}
+                      {isAdmin && <AdminBadge variant="pill" />}
                     </div>
                   )}
                   <form action={logoutAction}>
@@ -107,17 +107,18 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
   );
 }
 
-function MobileNavLink({ href, label, active, onClick }: { href: string; label: string; active: boolean; onClick: () => void }) {
+function MobileNavLink({ href, label, active, onClick, adminBadge }: { href: string; label: string; active: boolean; onClick: () => void; adminBadge?: boolean }) {
   return (
     <Link
       href={href}
       onClick={onClick}
       className={cn(
-        'block font-heading text-[1.15rem] no-underline py-2.5 border-b border-border tracking-[-0.01em]',
+        'flex items-center gap-2 font-heading text-[1.15rem] no-underline py-2.5 border-b border-border tracking-[-0.01em]',
         active ? 'font-bold text-foreground' : 'font-normal text-muted-foreground',
       )}
     >
       {label}
+      {adminBadge && <AdminBadge variant="pill" />}
     </Link>
   );
 }

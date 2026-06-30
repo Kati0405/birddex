@@ -3,15 +3,20 @@
 import { useState } from 'react';
 import type React from 'react';
 import { updateBirdMetadataAction } from '@/features/birds/actions/bird-mutations';
-import { FOODS, foodImage, BIOMES, biomeImage, BEHAVIOURS, behaviourImage } from '@/entities/bird-domain';
-import type { Food, Biome, Behaviour } from '@/entities/bird-domain';
+import { draftBirdAction } from '@/features/birds/actions/ai-draft-bird';
+import { RARITIES, RARITY_COLOR, FOODS, foodImage, BIOMES, biomeImage, BEHAVIOURS, behaviourImage } from '@/entities/bird-domain';
+import type { Rarity, Food, Biome, Behaviour } from '@/entities/bird-domain';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
+import SoundUploader from '@/shared/ui/SoundUploader/SoundUploader';
 import type { StaticImageData } from 'next/image';
 
 const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 interface Props {
   birdId: number;
+  nameEng: string;
+  nameLatin: string;
+  currentRarity: Rarity;
   currentFood: Food[];
   currentBiomes: Biome[];
   currentBehaviour: Behaviour[];
@@ -19,6 +24,7 @@ interface Props {
   currentFieldNote: string;
   currentTipsToFind: string[];
   currentFieldMarks: string[];
+  currentSoundUrl?: string;
 }
 
 function ToggleChip<T extends string>({
@@ -49,6 +55,9 @@ function ToggleChip<T extends string>({
 
 export default function BirdMetadataEditor({
   birdId,
+  nameEng,
+  nameLatin,
+  currentRarity,
   currentFood,
   currentBiomes,
   currentBehaviour,
@@ -56,7 +65,9 @@ export default function BirdMetadataEditor({
   currentFieldNote,
   currentTipsToFind,
   currentFieldMarks,
+  currentSoundUrl,
 }: Props) {
+  const [rarity, setRarity] = useState<Rarity>(currentRarity);
   const [food, setFood] = useState<Food[]>(currentFood);
   const [biomes, setBiomes] = useState<Biome[]>(currentBiomes);
   const [behaviour, setBehaviour] = useState<Behaviour[]>(currentBehaviour);
@@ -69,6 +80,28 @@ export default function BirdMetadataEditor({
     currentFieldMarks.length > 0 ? currentFieldMarks : ['']
   );
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [drafting, setDrafting] = useState(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
+
+  async function handleDraft() {
+    setDrafting(true);
+    setDraftError(null);
+    const result = await draftBirdAction({ query: `${nameEng} (${nameLatin})` });
+    if ('error' in result) {
+      setDraftError(result.error);
+    } else {
+      const { draft } = result;
+      setRarity(draft.rarity);
+      setFood(draft.food);
+      setBiomes(draft.biomes);
+      setBehaviour(draft.behaviour);
+      setBestMonths(draft.best_months);
+      setFieldNote(draft.field_note);
+      setTips(draft.tips_to_find.length > 0 ? draft.tips_to_find : ['']);
+      setMarks(draft.field_marks.length > 0 ? draft.field_marks : ['']);
+    }
+    setDrafting(false);
+  }
 
   function toggle<T extends string>(
     arr: T[], set: React.Dispatch<React.SetStateAction<T[]>>, value: T, max: number
@@ -101,6 +134,7 @@ export default function BirdMetadataEditor({
     setStatus('saving');
     const result = await updateBirdMetadataAction({
       birdId,
+      rarity,
       food,
       biomes,
       behaviour,
@@ -120,7 +154,34 @@ export default function BirdMetadataEditor({
 
   return (
     <div className="space-y-6 rounded-xl border border-border bg-card p-6">
-      <h2 className="text-base font-bold">Edit metadata</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-base font-bold">Edit metadata</h2>
+        <button
+          type="button"
+          disabled={drafting}
+          onClick={handleDraft}
+          className="shrink-0 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {drafting ? 'Drafting…' : 'Draft with AI'}
+        </button>
+      </div>
+      {draftError && <p className="text-sm text-red-500">{draftError}</p>}
+
+      <SoundUploader birdId={birdId} currentSoundUrl={currentSoundUrl} />
+
+      <section className="space-y-2">
+        {sectionLabel('Rarity')}
+        <select
+          value={rarity}
+          onChange={(e) => setRarity(e.target.value as Rarity)}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+          style={{ color: RARITY_COLOR[rarity] }}
+        >
+          {RARITIES.map((r) => (
+            <option key={r} value={r} style={{ color: RARITY_COLOR[r] }}>{r}</option>
+          ))}
+        </select>
+      </section>
 
       <section className="space-y-2">
         {sectionLabel('Food', '(1–3)')}

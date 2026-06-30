@@ -58,6 +58,13 @@ Each card in the grid shows:
 
 If you're signed in, observed birds show a checkmark. You can also tap the binoculars icon on a card to log an observation directly from the catalog.
 
+### Admin: Editing and Deleting Birds
+
+Admins see a small **"⋮" (three dots)** icon next to the bird's name on each card. Tapping it opens a menu with:
+
+- **Edit** — opens the bird's edit page to update its details
+- **Delete** — opens a confirmation modal asking you to confirm the deletion. Confirming removes the bird from the catalog. If the bird has observations logged against it, deletion is blocked and the modal shows a message asking you to remove those observations first.
+
 ### Infinite Scroll
 
 The catalog loads 20 birds at a time. Scroll down and more birds load automatically.
@@ -208,3 +215,18 @@ When signed in, the header shows your progress: how many species you've observed
 
 On desktop: tap **Log out** next to your avatar in the header.
 On mobile: open the menu and tap Log out.
+
+---
+
+## Admin: Adding a New Bird
+
+Admins see an **"Add Bird"** link in the header (marked with an admin badge), linking to `/admin/add-bird`.
+
+To add a bird:
+
+1. Type the bird's name (English or Latin) into the search field
+2. Tap **Draft with AI** — this calls AI to draft all card fields: English name, Latin name, rarity, food, habitats, behaviour, field note, best months, wingspan, etc.
+3. Review and edit any field in the form — nothing is saved yet
+4. Tap **Save** to create the new catalog entry
+
+The new bird then appears in the main catalog immediately.

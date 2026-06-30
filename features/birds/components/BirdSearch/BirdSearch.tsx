@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { SlidersHorizontal, X } from 'lucide-react';
 import FilterRow from './FilterRow';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
+import { shuffle } from '@/shared/lib/shuffle';
 
 const PAGE_SIZE = 20;
 const RARITIES: Rarity[] = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
@@ -32,6 +33,11 @@ export default function BirdSearch({
   savedLocations?: SavedLocation[];
   collectionDataByBirdId?: Record<number, CollectionCardData>;
 }) {
+  const [shuffledBirds, setShuffledBirds] = useState(birds);
+  useEffect(() => {
+    setShuffledBirds(shuffle(birds));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [query, setQuery] = useState('');
   const [selectedRarities, setSelectedRarities] = useState<Set<Rarity>>(new Set());
   const [selectedBiomes, setSelectedBiomes] = useState<Set<Biome>>(new Set());
@@ -75,7 +81,7 @@ export default function BirdSearch({
 
   const filtered = useMemo(
     () =>
-      birds.filter((b) => {
+      shuffledBirds.filter((b) => {
         const matchesQuery =
           query === '' ||
           b.name_eng.toLowerCase().includes(query.toLowerCase()) ||
@@ -104,7 +110,7 @@ export default function BirdSearch({
 
         return matchesQuery && matchesRarity && matchesBiome && matchesFood && matchesObservation;
       }),
-    [birds, query, selectedRarities, selectedBiomes, selectedFoods, observationFilter, observationTypeFilter, observedSet, collectionDataByBirdId, isAuthenticated],
+    [shuffledBirds, query, selectedRarities, selectedBiomes, selectedFoods, observationFilter, observationTypeFilter, observedSet, collectionDataByBirdId, isAuthenticated],
   );
 
   const loadMore = useCallback(() => {

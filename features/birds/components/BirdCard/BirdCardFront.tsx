@@ -6,6 +6,7 @@ import BirdImage from '@/features/birds/components/BirdImage/BirdImage';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import ObservationButton from '@/features/observations/components/ObservationButton/ObservationButton';
 import SoundButton from '@/shared/ui/SoundButton/SoundButton';
+import BirdCardMenu from './BirdCardMenu';
 import type { SavedLocation } from '@/features/locations/location-queries';
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
 export default function BirdCardFront({
   bird,
   frameColor,
+  isAdmin,
   isAuthenticated,
   isObserved,
   savedLocations = [],
@@ -68,6 +70,7 @@ export default function BirdCardFront({
             <div className='shrink-0' onClick={(e) => e.stopPropagation()}>
               <SoundButton soundUrl={bird.sound_url} />
             </div>
+            {isAdmin && <BirdCardMenu birdId={bird.id} birdName={bird.name_eng} />}
           </div>
           <p className='text-sm sm:text-[10px] italic mt-0.5 truncate text-muted-foreground'>
             {bird.name_latin}

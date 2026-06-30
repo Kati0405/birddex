@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 import { requireAuth } from '@/features/auth/auth-helpers';
+import { isCloudinaryUrl, cloudinaryThumbnail } from '@/shared/lib/cloudinary-utils';
 
 export type ObservationQuality = 1 | 2 | 3 | 4 | 5 | null;
 
@@ -198,6 +199,7 @@ export interface UserObservation {
   birdId: number;
   birdName: string;
   birdImageUrl: string | null;
+  birdRarity: string;
   observedAt: string;
   seen: boolean;
   heard: boolean;
@@ -205,6 +207,9 @@ export interface UserObservation {
   quality: ObservationQuality;
   notes: string | null;
   photoUrl: string | null;
+  photoThumbUrl: string | null;
+  lat: number | null;
+  lng: number | null;
   locationName: string | null;
 }
 
@@ -213,7 +218,7 @@ export async function getAllUserObservations(): Promise<UserObservation[]> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from('observations')
-    .select('id, bird_id, observed_at, seen, heard, photographed, quality, notes, photo_url, location_name')
+    .select('id, bird_id, observed_at, seen, heard, photographed, quality, notes, photo_url, lat, lng, location_name')
     .eq('user_id', user.id)
     .order('observed_at', { ascending: false });
 
@@ -223,31 +228,41 @@ export async function getAllUserObservations(): Promise<UserObservation[]> {
   const birdIds = [...new Set(rows.map((r) => r.bird_id as number))];
   const { data: birdsData } = await supabase
     .from('birds')
-    .select('id, name_eng, image_url')
+    .select('id, name_eng, image_url, selected_image, rarity')
     .in('id', birdIds);
 
-  const birdById: Record<number, { name: string; imageUrl: string | null }> = {};
+  const birdById: Record<number, { name: string; imageUrl: string | null; rarity: string }> = {};
   for (const b of birdsData ?? []) {
+    const selectedImage = b.selected_image as { imageUrl?: string; thumbnailUrl?: string } | null;
+    const fullImageUrl = selectedImage?.imageUrl ?? (b.image_url as string) ?? null;
+    const thumbUrl = selectedImage?.thumbnailUrl
+      ?? (fullImageUrl && isCloudinaryUrl(fullImageUrl) ? cloudinaryThumbnail(fullImageUrl, 64) : fullImageUrl);
     birdById[b.id as number] = {
       name: b.name_eng as string,
-      imageUrl: (b.image_url as string) ?? null,
+      imageUrl: thumbUrl,
+      rarity: b.rarity as string,
     };
   }
 
   return rows.map((row) => {
     const bird = birdById[row.bird_id as number];
+    const rawPhotoUrl = (row.photo_url as string) ?? null;
     return {
       id: row.id as string,
       birdId: row.bird_id as number,
       birdName: bird?.name ?? 'Unknown',
       birdImageUrl: bird?.imageUrl ?? null,
+      birdRarity: bird?.rarity ?? 'Common',
       observedAt: row.observed_at as string,
       seen: row.seen as boolean,
       heard: row.heard as boolean,
       photographed: row.photographed as boolean,
       quality: (row.quality as ObservationQuality) ?? null,
       notes: (row.notes as string) ?? null,
-      photoUrl: (row.photo_url as string) ?? null,
+      photoUrl: rawPhotoUrl,
+      photoThumbUrl: rawPhotoUrl && isCloudinaryUrl(rawPhotoUrl) ? cloudinaryThumbnail(rawPhotoUrl, 64) : rawPhotoUrl,
+      lat: (row.lat as number) ?? null,
+      lng: (row.lng as number) ?? null,
       locationName: (row.location_name as string) ?? null,
     };
   });

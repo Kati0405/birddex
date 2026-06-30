@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getBirdById } from '@/features/birds/bird-queries';
 import WikimediaImagePicker from '@/features/birds/components/WikimediaImagePicker/WikimediaImagePicker';
 import CloudinaryImagePicker from '@/features/birds/components/CloudinaryImagePicker/CloudinaryImagePicker';
+import XenoCantoSoundPicker, { type XenoCantoResult } from '@/features/birds/components/XenoCantoSoundPicker/XenoCantoSoundPicker';
 import BirdMetadataEditor from '@/features/birds/components/BirdMetadataEditor/BirdMetadataEditor';
 import type { WikimediaImage } from '@/entities/bird-domain';
 import { requireAdmin } from '@/features/auth/auth-helpers';
@@ -72,6 +73,55 @@ async function fetchWikimediaImages(query: string): Promise<WikimediaResult[]> {
     .filter((r): r is WikimediaResult => r !== null);
 }
 
+function parseLengthToSeconds(length: string): number {
+  const parts = length.split(':').map(Number);
+  if (parts.some(Number.isNaN)) return Infinity;
+  return parts.reduce((total, part) => total * 60 + part, 0);
+}
+
+async function fetchXenoCantoRecordings(nameLatin: string): Promise<XenoCantoResult[]> {
+  const apiKey = process.env.XENO_CANTO_API_KEY;
+  if (!apiKey) return [];
+
+  const params = new URLSearchParams({
+    query: `sp:"${nameLatin}" len:"<30"`,
+    key: apiKey,
+    per_page: '20',
+  });
+
+  const res = await fetch(
+    `https://xeno-canto.org/api/3/recordings?${params}`,
+    { next: { revalidate: 3600 } }
+  );
+
+  if (!res.ok) return [];
+
+  const data = await res.json();
+  const recordings: unknown[] = data?.recordings ?? [];
+
+  return recordings
+    .map((rec) => {
+      const r = rec as {
+        id: string; file: string; url: string; type: string; q: string;
+        length: string; rec: string; cnt: string; lic: string;
+        sono?: { small?: string | null };
+      };
+      return {
+        id: r.id,
+        fileUrl: r.file,
+        pageUrl: r.url,
+        type: r.type || 'call',
+        quality: r.q || '?',
+        length: r.length,
+        recordist: r.rec,
+        country: r.cnt,
+        sonogramUrl: r.sono?.small ?? null,
+        license: r.lic,
+      };
+    })
+    .filter((r) => parseLengthToSeconds(r.length) <= 30);
+}
+
 export default async function BirdEditPage({
   params,
   searchParams,
@@ -89,6 +139,7 @@ export default async function BirdEditPage({
 
   const query = q ?? bird.name_latin;
   const results = await fetchWikimediaImages(query);
+  const soundResults = await fetchXenoCantoRecordings(bird.name_latin);
 
   return (
     <main className="min-h-screen bg-background px-4 py-12 sm:px-8">
@@ -134,8 +185,23 @@ export default async function BirdEditPage({
           currentImage={bird.selected_image}
         />
 
+        <div className="relative flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">find sound — xeno-canto</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <XenoCantoSoundPicker
+          birdId={bird.id}
+          results={soundResults}
+          currentSoundUrl={bird.sound_url}
+        />
+
         <BirdMetadataEditor
           birdId={bird.id}
+          nameEng={bird.name_eng}
+          nameLatin={bird.name_latin}
+          currentRarity={bird.rarity}
           currentFood={bird.food}
           currentBiomes={bird.biomes}
           currentBehaviour={bird.behaviour}
@@ -143,6 +209,7 @@ export default async function BirdEditPage({
           currentFieldNote={bird.field_note ?? ''}
           currentTipsToFind={bird.tips_to_find ?? []}
           currentFieldMarks={bird.field_marks ?? []}
+          currentSoundUrl={bird.sound_url}
         />
       </div>
     </main>
