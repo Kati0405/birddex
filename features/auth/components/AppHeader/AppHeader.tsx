@@ -4,13 +4,18 @@ import { getUser, getUserRole } from '@/features/auth/auth-helpers';
 import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 import { getBirds } from '@/features/birds/bird-queries';
 import { getObservationCount } from '@/features/observations/observation-queries';
+import { getSavedLocations } from '@/features/locations/location-queries';
 import { logoutAction } from '@/app/(auth)/actions';
 import AppHeaderMobile from './AppHeaderMobile';
 import AppHeaderNav from './AppHeaderNav';
+import QuickAddObservationButton from '@/features/observations/components/QuickAddObservation/QuickAddObservationButton';
 
 export default async function AppHeader() {
   const [user, birds, role] = await Promise.all([getUser(), getBirds(), getUserRole()]);
-  const seenCount = user ? await getObservationCount(user.id) : undefined;
+  const [seenCount, savedLocations] = await Promise.all([
+    user ? getObservationCount(user.id) : Promise.resolve(undefined),
+    user ? getSavedLocations(user.id) : Promise.resolve([]),
+  ]);
   const totalBirds = birds.length;
   const isAuth = !!user;
   const isAdmin = role === 'admin';
@@ -52,7 +57,8 @@ export default async function AppHeader() {
                   </span>
                 </div>
               )}
-              <UserMenu email={user?.email} isAdmin={isAdmin} />
+              <QuickAddObservationButton savedLocations={savedLocations} />
+              <UserMenu email={user?.email} avatarUrl={user?.user_metadata?.avatar_url} isAdmin={isAdmin} />
             </>
           ) : (
             <Link
@@ -64,7 +70,8 @@ export default async function AppHeader() {
           )}
         </div>
 
-        <div className="sm:hidden ml-auto">
+        <div className="sm:hidden ml-auto flex items-center gap-2">
+          {isAuth && <QuickAddObservationButton savedLocations={savedLocations} />}
           <AppHeaderMobile
             isAuthenticated={isAuth}
             isAdmin={isAdmin}
@@ -78,17 +85,28 @@ export default async function AppHeader() {
   );
 }
 
-function UserMenu({ email, isAdmin }: { email?: string; isAdmin: boolean }) {
+function UserMenu({ email, avatarUrl, isAdmin }: { email?: string; avatarUrl?: string; isAdmin: boolean }) {
   const initial = email?.[0]?.toUpperCase() ?? '?';
 
   return (
     <div className="flex items-center gap-2">
       <div className="relative">
-        <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center shrink-0">
-          <span className="font-heading text-[13px] font-bold text-primary-foreground leading-none">
-            {initial}
-          </span>
-        </div>
+        {avatarUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={avatarUrl}
+            alt=""
+            width={30}
+            height={30}
+            className="w-[30px] h-[30px] rounded-full object-cover shrink-0"
+          />
+        ) : (
+          <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center shrink-0">
+            <span className="font-heading text-[13px] font-bold text-primary-foreground leading-none">
+              {initial}
+            </span>
+          </div>
+        )}
         {isAdmin && <AdminBadge className="absolute -top-1 -right-1 border-2 border-card" />}
       </div>
 

@@ -81,7 +81,7 @@ export default function ObservationList({ observations: initialObservations }: P
                 key={o.id}
                 className='flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors group first:rounded-t-xl last:rounded-b-xl'
               >
-                <Link href={`/birds/${o.birdId}`} className='flex items-center gap-3 min-w-0 flex-1'>
+                <Link href={`/birds/${o.birdId}?obs=${o.id}&flipped=1`} className='flex items-center gap-3 min-w-0 flex-1'>
                   {(o.photoThumbUrl || o.birdImageUrl) ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img

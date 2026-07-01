@@ -16,6 +16,8 @@ export default function BirdCard({
   isAuthenticated = false,
   savedLocations = [],
   collectionData,
+  initialFlipped = false,
+  initialObsId,
 }: {
   bird: Bird;
   isAdmin?: boolean;
@@ -23,8 +25,10 @@ export default function BirdCard({
   isAuthenticated?: boolean;
   savedLocations?: SavedLocation[];
   collectionData?: CollectionCardData;
+  initialFlipped?: boolean;
+  initialObsId?: string;
 }) {
-  const [flipped, setFlipped] = useState(false);
+  const [flipped, setFlipped] = useState(initialFlipped);
   const frameColor = RARITY_COLOR[bird.rarity];
 
   // Each face owns a background click handler that flips the card. Interactive
@@ -63,6 +67,7 @@ export default function BirdCard({
           collectionData={collectionData}
           onFlip={flip}
           active={flipped}
+          initialObsId={initialObsId}
         />
       </div>
     </div>

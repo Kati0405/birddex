@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 const MONTHS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
 
 interface Props {
@@ -11,7 +9,6 @@ interface Props {
 
 export default function ObservationMonthsChart({ bestMonths = [], frameColor = '#5a7a3a' }: Props) {
   const BASE = frameColor;
-  const [hovered, setHovered] = useState<number | null>(null);
 
   const activeSet = new Set(bestMonths);
   const count = activeSet.size;
@@ -30,7 +27,6 @@ export default function ObservationMonthsChart({ bestMonths = [], frameColor = '
         const month = i + 1;
         const active = activeSet.has(month);
         const peak = isPeak(month);
-        const isHovered = hovered === month;
 
         const barH = peak ? 14 : active ? 10 : 4;
 
@@ -44,16 +40,13 @@ export default function ObservationMonthsChart({ bestMonths = [], frameColor = '
           <div
             key={i}
             className='flex flex-col items-center gap-[3px] flex-1 cursor-default'
-            onMouseEnter={() => setHovered(month)}
-            onMouseLeave={() => setHovered(null)}
           >
             <div
               style={{
-                height: barH + (isHovered && active ? 2 : 0),
-                background: isHovered && active ? `${BASE}ee` : bg,
+                height: barH,
+                background: bg,
                 borderRadius: peak ? '3px 3px 2px 2px' : '2px 2px 1px 1px',
                 width: '100%',
-                transition: 'height 0.15s ease, background 0.15s ease',
                 boxShadow: peak ? `0 -1px 4px ${BASE}40` : undefined,
                 outline: active && !peak ? `1px dotted ${BASE}35` : undefined,
                 outlineOffset: -1,

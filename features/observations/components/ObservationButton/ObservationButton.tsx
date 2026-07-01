@@ -38,7 +38,7 @@ export default function ObservationButton({
         onClick={handleClick}
         title='Log observation'
         aria-label='Log observation'
-        className='relative flex items-center gap-1 rounded-full px-2 transition-all'
+        className='relative flex items-center gap-1 rounded-full px-2 transition-all cursor-pointer hover:brightness-90'
         style={{
           height: 28,
           background: observed ? `${frameColor}22` : 'rgba(250,246,237,0.85)',

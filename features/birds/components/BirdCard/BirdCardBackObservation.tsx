@@ -35,6 +35,7 @@ interface Props {
   frameColor: string;
   collectionData?: CollectionCardData;
   savedLocations?: SavedLocation[];
+  initialObsId?: string;
 }
 
 const QUALITY_LABELS: Record<number, string> = {
@@ -169,11 +170,16 @@ export default function BirdCardBackObservation({
   frameColor,
   collectionData,
   savedLocations = [],
+  initialObsId,
 }: Props) {
   const [observations, setObservations] = useState<ObservationEntry[]>(
     collectionData?.observations ?? [],
   );
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(() => {
+    if (!initialObsId) return 0;
+    const i = (collectionData?.observations ?? []).findIndex((o) => o.id === initialObsId);
+    return i >= 0 ? i : 0;
+  });
   const [editingObs, setEditingObs] = useState<ObservationEntry | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);

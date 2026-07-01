@@ -23,10 +23,14 @@ export async function generateMetadata({
 
 export default async function BirdPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ flipped?: string; obs?: string }>;
 }) {
-  const { id } = await params;
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
+  const initialFlipped = sp.flipped === '1';
+  const initialObsId = sp.obs ?? undefined;
   const [bird, user, role] = await Promise.all([
     getBirdById(Number(id)),
     getUser(),
@@ -47,12 +51,6 @@ export default async function BirdPage({
   return (
     <main className='min-h-screen bg-background px-4 py-12 sm:px-8'>
       <div className='mx-auto max-w-sm'>
-        <Link
-          href='/birds'
-          className='mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors'
-        >
-          &larr; Back to catalog
-        </Link>
         <div className='aspect-[3/4]'>
           <BirdCard
             bird={bird}
@@ -61,6 +59,8 @@ export default async function BirdPage({
             isObserved={isObserved}
             savedLocations={savedLocations}
             collectionData={collectionData}
+            initialFlipped={initialFlipped}
+            initialObsId={initialObsId}
           />
         </div>
       </div>

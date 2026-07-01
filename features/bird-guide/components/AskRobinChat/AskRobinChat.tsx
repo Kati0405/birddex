@@ -24,10 +24,11 @@ export default function AskRobinChat() {
   const hasConversation = messages.length > 0;
 
   const modal = open ? (
-    <div className="fixed inset-0 z-50 pointer-events-none">
+    <div className="fixed inset-0 z-50" onClick={() => setOpen(false)}>
       <div
-        className="absolute bottom-24 right-6 w-[380px] max-h-[560px] flex flex-col rounded-2xl border border-border bg-background shadow-2xl pointer-events-auto overflow-hidden"
+        className="absolute bottom-24 right-6 w-[380px] max-h-[560px] flex flex-col rounded-2xl border border-border bg-background shadow-2xl overflow-hidden"
         style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.18)' }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
           <div className="flex items-center gap-2">
@@ -91,7 +92,7 @@ export default function AskRobinChat() {
   return (
     <>
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
         aria-label="Open Ask Robin"
       >

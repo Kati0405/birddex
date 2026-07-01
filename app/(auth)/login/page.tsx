@@ -15,7 +15,7 @@ export default function LoginPage() {
       <form action={signInWithGoogleAction}>
         <button
           type="submit"
-          className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-semibold bg-background text-foreground border border-border transition-all hover:opacity-90"
+          className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-semibold bg-background text-foreground border border-border transition-all hover:opacity-90 cursor-pointer"
         >
           <GoogleIcon />
           Continue with Google

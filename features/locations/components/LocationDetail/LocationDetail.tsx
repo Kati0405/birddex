@@ -27,6 +27,7 @@ import {
   updateLocationPhotoAction,
 } from '@/features/locations/actions/location-mutations';
 import type { SavedLocation, LocationDetailStats, LocationObservation } from '@/features/locations/location-queries';
+import QuickAddObservationButton from '@/features/observations/components/QuickAddObservation/QuickAddObservationButton';
 
 interface Props {
   location: SavedLocation;
@@ -254,12 +255,15 @@ export default function LocationDetail({ location, stats, observations }: Props)
             </div>
           )}
           <div className='flex items-center gap-2 mt-3'>
-            <Link href='/birds'>
-              <Button size='sm'>
-                <Plus className='h-3.5 w-3.5' />
-                Add observation
-              </Button>
-            </Link>
+            <QuickAddObservationButton
+              variant='inline'
+              initialLocation={{
+                lat: location.lat,
+                lng: location.lng,
+                locationName: location.name,
+                savedLocationId: location.id,
+              }}
+            />
             <Button
               variant='ghost'
               size='icon-sm'
@@ -338,7 +342,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
             {observations.map((obs) => (
               <Link
                 key={obs.id}
-                href={`/birds/${obs.birdId}`}
+                href={`/birds/${obs.birdId}?obs=${obs.id}&flipped=1`}
                 className='flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors group first:rounded-t-xl last:rounded-b-xl'
               >
                 {(obs.photoThumbUrl || obs.birdImageUrl) ? (

@@ -26,6 +26,7 @@ interface Props {
   collectionData?: CollectionCardData;
   onFlip?: () => void;
   active?: boolean;
+  initialObsId?: string;
 }
 
 type MainTab = 'field-guide' | 'my-observations';
@@ -270,6 +271,7 @@ export default function BirdCardBack({
   collectionData,
   onFlip,
   active = true,
+  initialObsId,
 }: Props) {
   const defaultTab: MainTab =
     isAuthenticated && isObserved ? 'my-observations' : 'field-guide';
@@ -342,6 +344,7 @@ export default function BirdCardBack({
           frameColor={frameColor}
           collectionData={collectionData}
           savedLocations={savedLocations}
+          initialObsId={initialObsId}
         />
       )}
     </div>

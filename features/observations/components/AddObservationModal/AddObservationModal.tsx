@@ -38,6 +38,7 @@ interface AddObservationModalProps {
   frameColor: string;
   savedLocations?: SavedLocation[];
   initialData?: ObservationInitialData;
+  initialSelectedLocationId?: number;
   onClose: () => void;
   onSaved: (updated?: ObservationInitialData) => void;
 }
@@ -48,6 +49,7 @@ export default function AddObservationModal({
   frameColor,
   savedLocations = [],
   initialData,
+  initialSelectedLocationId,
   onClose,
   onSaved,
 }: AddObservationModalProps) {
@@ -62,7 +64,7 @@ export default function AddObservationModal({
       ? { lat: initialData.lat, lng: initialData.lng, locationName: initialData.locationName ?? undefined }
       : null
   );
-  const [selectedSavedId, setSelectedSavedId] = useState<number | null>(null);
+  const [selectedSavedId, setSelectedSavedId] = useState<number | null>(initialSelectedLocationId ?? null);
   const [seen, setSeen] = useState(initialData?.seen ?? false);
   const [heard, setHeard] = useState(initialData?.heard ?? false);
   const [photographed, setPhotographed] = useState(initialData?.photographed ?? false);
