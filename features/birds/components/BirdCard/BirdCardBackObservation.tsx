@@ -45,8 +45,15 @@ const QUALITY_LABELS: Record<number, string> = {
   5: 'Excellent encounter',
 };
 
-function QualityStars({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'xs' }) {
-  const s = size === 'sm' ? 'w-3 h-3 sm:w-2 sm:h-2' : 'w-2.5 h-2.5 sm:w-1.5 sm:h-1.5';
+function QualityStars({
+  rating,
+  size = 'sm',
+}: {
+  rating: number;
+  size?: 'sm' | 'xs';
+}) {
+  const s =
+    size === 'sm' ? 'w-3 h-3 sm:w-2 sm:h-2' : 'w-2.5 h-2.5 sm:w-1.5 sm:h-1.5';
   return (
     <div className='flex gap-px' title={QUALITY_LABELS[rating]}>
       {[1, 2, 3, 4, 5].map((i) => (
@@ -414,14 +421,14 @@ export default function BirdCardBackObservation({
 
             {/* Hero photo with overlaid date + quality */}
             <div
-              className='relative rounded-lg overflow-hidden shrink-0 bg-secondary h-[30vh] sm:h-[16vh]'
+              className='relative rounded-lg overflow-hidden shrink-0 bg-secondary h-[30vh] xs:h-[16vh]'
               style={{ boxShadow: `inset 0 0 0 1px ${frameColor}1f` }}
             >
               {obs.photoUrl ? (
                 <ObservationImage url={obs.photoUrl} alt='Observation photo' />
               ) : (
                 <div
-                  className='absolute inset-0 flex flex-col items-center justify-center gap-2 sm:gap-1'
+                  className='absolute inset-0 flex flex-col items-center justify-center gap-2 xs:gap-1'
                   style={{ background: `${frameColor}0a` }}
                 >
                   <ImageOff
@@ -463,7 +470,6 @@ export default function BirdCardBackObservation({
                   <QualityStars rating={qualityRating} size='xs' />
                 </div>
               )}
-
             </div>
 
             {/* Location + evidence strip */}
@@ -578,10 +584,12 @@ export default function BirdCardBackObservation({
                 onClick={openEdit}
                 title='Edit this observation'
                 className='flex items-center justify-center w-9 h-9 sm:w-5 sm:h-5 rounded-md transition-colors text-muted-foreground/60 hover:text-[var(--edit-color)] hover:bg-[var(--edit-bg)]'
-                style={{
-                  '--edit-color': `${frameColor}dd`,
-                  '--edit-bg': `${frameColor}12`,
-                } as React.CSSProperties}
+                style={
+                  {
+                    '--edit-color': `${frameColor}dd`,
+                    '--edit-bg': `${frameColor}12`,
+                  } as React.CSSProperties
+                }
               >
                 <Pencil className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
               </button>
@@ -590,10 +598,12 @@ export default function BirdCardBackObservation({
                 onClick={openDeleteConfirm}
                 title='Delete this observation'
                 className='flex items-center justify-center w-9 h-9 sm:w-5 sm:h-5 rounded-md transition-colors text-muted-foreground/60 hover:text-[var(--del-color)] hover:bg-[var(--del-bg)]'
-                style={{
-                  '--del-color': `${frameColor}dd`,
-                  '--del-bg': `${frameColor}12`,
-                } as React.CSSProperties}
+                style={
+                  {
+                    '--del-color': `${frameColor}dd`,
+                    '--del-bg': `${frameColor}12`,
+                  } as React.CSSProperties
+                }
               >
                 <Trash2 className='h-4 w-4 sm:h-2.5 sm:w-2.5' />
               </button>
