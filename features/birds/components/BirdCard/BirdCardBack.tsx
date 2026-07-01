@@ -294,7 +294,7 @@ export default function BirdCardBack({
       />
 
       {/* Name */}
-      <div className='text-center pt-4 sm:pt-3 pb-2 sm:pb-1.5 px-5'>
+      <div className='text-center pt-4 sm:pt-2 pb-2 sm:pb-1 px-5'>
         <p className='text-xl sm:text-xs font-semibold text-card-foreground leading-tight'>
           {bird.name_eng}
         </p>
@@ -303,7 +303,7 @@ export default function BirdCardBack({
       {/* Main tab bar — only shown for authenticated users */}
       {isAuthenticated && (
         <div
-          className='flex shrink-0 mx-4 sm:mx-3 rounded-t-lg overflow-hidden mb-3 sm:mb-2'
+          className='flex shrink-0 mx-4 sm:mx-3 rounded-t-lg overflow-hidden mb-3 sm:mb-1.5'
           style={{ background: `${frameColor}08`, borderBottom: `1px solid ${frameColor}22` }}
         >
           <button

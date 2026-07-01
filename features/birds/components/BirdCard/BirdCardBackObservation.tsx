@@ -293,7 +293,7 @@ export default function BirdCardBackObservation({
       <div className='flex flex-col flex-1 min-h-0 overflow-hidden'>
         {/* ════════ SUMMARY HEADER ════════ */}
         <div
-          className='px-5 sm:px-3.5 pt-2 sm:pt-1.5 pb-3 sm:pb-2 shrink-0 flex flex-col gap-2 sm:gap-1.5'
+          className='px-5 sm:px-3.5 pt-2 sm:pt-1 pb-2 sm:pb-1.5 shrink-0 flex flex-col gap-1.5 sm:gap-1'
           style={{
             background: `linear-gradient(180deg, ${frameColor}10, transparent)`,
           }}
@@ -301,7 +301,7 @@ export default function BirdCardBackObservation({
           {/* Count + evidence row */}
           <div className='flex items-center gap-3 sm:gap-2'>
             <span
-              className='text-[42px] sm:text-[28px] font-bold tabular-nums leading-none'
+              className='text-[36px] sm:text-[24px] font-bold tabular-nums leading-none'
               style={{ color: frameColor }}
             >
               {totalCount}
@@ -370,7 +370,7 @@ export default function BirdCardBackObservation({
 
         {/* ════════ ENCOUNTER ════════ */}
         {obs && (
-          <div className='flex flex-col flex-1 min-h-0 px-5 sm:px-3 pb-4 sm:pb-2.5'>
+          <div className='flex flex-col flex-1 min-h-0 px-5 sm:px-3 pb-3 sm:pb-2'>
             {deleteError && (
               <p className='text-[10px] font-mono text-destructive shrink-0 mb-1.5'>
                 ⚠ {deleteError}
@@ -378,13 +378,13 @@ export default function BirdCardBackObservation({
             )}
 
             {/* Pager */}
-            <div className='flex items-center justify-between shrink-0 mb-2 sm:mb-1.5'>
+            <div className='flex items-center justify-between shrink-0 mb-1.5 sm:mb-1'>
               <button
                 type='button'
                 onClick={prev}
                 disabled={observations.length <= 1 || idx === 0}
                 title='Previous observation'
-                className='flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full transition-opacity disabled:opacity-20 hover:bg-[var(--hover)]'
+                className='flex items-center justify-center w-7 h-7 sm:w-5 sm:h-5 rounded-full transition-opacity disabled:opacity-20 hover:bg-[var(--hover)]'
                 style={
                   {
                     color: frameColor,
@@ -392,7 +392,7 @@ export default function BirdCardBackObservation({
                   } as React.CSSProperties
                 }
               >
-                <ChevronLeft className='h-5 w-5 sm:h-3 sm:w-3' />
+                <ChevronLeft className='h-4 w-4 sm:h-3 sm:w-3' />
               </button>
               <span
                 className='text-[11px] sm:text-[6.5px] uppercase tracking-[0.2em] font-mono tabular-nums'
@@ -407,7 +407,7 @@ export default function BirdCardBackObservation({
                   observations.length <= 1 || idx === observations.length - 1
                 }
                 title='Next observation'
-                className='flex items-center justify-center w-8 h-8 sm:w-5 sm:h-5 rounded-full transition-opacity disabled:opacity-20 hover:bg-[var(--hover)]'
+                className='flex items-center justify-center w-7 h-7 sm:w-5 sm:h-5 rounded-full transition-opacity disabled:opacity-20 hover:bg-[var(--hover)]'
                 style={
                   {
                     color: frameColor,
@@ -415,13 +415,13 @@ export default function BirdCardBackObservation({
                   } as React.CSSProperties
                 }
               >
-                <ChevronRight className='h-5 w-5 sm:h-3 sm:w-3' />
+                <ChevronRight className='h-4 w-4 sm:h-3 sm:w-3' />
               </button>
             </div>
 
             {/* Hero photo with overlaid date + quality */}
             <div
-              className='relative rounded-lg overflow-hidden shrink-0 bg-secondary h-[30vh] xs:h-[16vh]'
+              className='relative rounded-lg overflow-hidden bg-secondary flex-[3] min-h-0'
               style={{ boxShadow: `inset 0 0 0 1px ${frameColor}1f` }}
             >
               {obs.photoUrl ? (
@@ -473,7 +473,7 @@ export default function BirdCardBackObservation({
             </div>
 
             {/* Location + evidence strip */}
-            <div className='flex items-center justify-between gap-2 shrink-0 mt-2 sm:mt-1.5 min-w-0'>
+            <div className='flex items-center justify-between gap-2 shrink-0 mt-1.5 sm:mt-1 min-w-0'>
               {hasLocation && obs.lat !== null && obs.lng !== null ? (
                 <button
                   type='button'
@@ -533,7 +533,7 @@ export default function BirdCardBackObservation({
             </div>
 
             {/* Handwritten note */}
-            <div className='flex-1 min-h-0 mt-2 sm:mt-1 sm:min-h-[3rem]'>
+            <div className='flex-[2] min-h-0 mt-2 sm:mt-1 overflow-hidden'>
               {obs.notes ? (
                 <div
                   className='relative h-full rounded-lg px-4 sm:px-3 py-2.5 sm:py-2 overflow-auto'
@@ -546,7 +546,7 @@ export default function BirdCardBackObservation({
                   }}
                 >
                   <p
-                    className='leading-snug text-xl sm:text-[13px]'
+                    className='leading-snug text-lg sm:text-[12px]'
                     style={{
                       fontFamily: 'var(--font-handwritten)',
                       color: '#3a2e1e',
@@ -565,7 +565,7 @@ export default function BirdCardBackObservation({
                   }}
                 >
                   <p
-                    className='text-lg sm:text-[10px] italic'
+                    className='text-base sm:text-[10px] italic'
                     style={{
                       fontFamily: 'var(--font-handwritten)',
                       color: '#a89880',
@@ -578,7 +578,7 @@ export default function BirdCardBackObservation({
             </div>
 
             {/* Edit / Delete */}
-            <div className='flex items-center justify-end gap-2 sm:gap-1.5 shrink-0 mt-2 sm:mt-1.5'>
+            <div className='flex items-center justify-end gap-2 sm:gap-1.5 shrink-0 mt-1.5 sm:mt-1'>
               <button
                 type='button'
                 onClick={openEdit}
