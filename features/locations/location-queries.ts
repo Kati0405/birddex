@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 import { requireAuth } from '@/features/auth/auth-helpers';
+import { isCloudinaryUrl, cloudinaryThumbnail } from '@/shared/lib/cloudinary-utils';
 import type { Biome } from '@/entities/bird-domain';
 
 export interface SavedLocation {
@@ -180,6 +181,8 @@ export interface LocationObservation {
   photographed: boolean;
   notes: string | null;
   photoUrl: string | null;
+  photoThumbUrl: string | null;
+  birdImageUrl: string | null;
 }
 
 export async function getLocationDetailStats(
@@ -265,23 +268,32 @@ export async function getLocationObservations(
   const birdIds = [...new Set(rows.map((r) => r.bird_id as number))];
   const { data: birdsData } = await supabase
     .from('birds')
-    .select('id, name_eng')
+    .select('id, name_eng, image_url, selected_image')
     .in('id', birdIds);
 
-  const birdNameById: Record<number, string> = {};
+  const birdById: Record<number, { name: string; imageUrl: string | null }> = {};
   for (const b of birdsData ?? []) {
-    birdNameById[b.id as number] = b.name_eng as string;
+    const selectedImage = b.selected_image as { imageUrl?: string; thumbnailUrl?: string } | null;
+    const fullImageUrl = selectedImage?.imageUrl ?? (b.image_url as string) ?? null;
+    const thumbUrl = selectedImage?.thumbnailUrl
+      ?? (fullImageUrl && isCloudinaryUrl(fullImageUrl) ? cloudinaryThumbnail(fullImageUrl, 64) : fullImageUrl);
+    birdById[b.id as number] = { name: b.name_eng as string, imageUrl: thumbUrl };
   }
 
-  return rows.map((row) => ({
-    id: row.id as string,
-    birdId: row.bird_id as number,
-    birdName: birdNameById[row.bird_id as number] ?? 'Unknown',
-    observedAt: row.observed_at as string,
-    seen: row.seen as boolean,
-    heard: row.heard as boolean,
-    photographed: row.photographed as boolean,
-    notes: (row.notes as string) ?? null,
-    photoUrl: (row.photo_url as string) ?? null,
-  }));
+  return rows.map((row) => {
+    const rawPhotoUrl = (row.photo_url as string) ?? null;
+    return {
+      id: row.id as string,
+      birdId: row.bird_id as number,
+      birdName: birdById[row.bird_id as number]?.name ?? 'Unknown',
+      observedAt: row.observed_at as string,
+      seen: row.seen as boolean,
+      heard: row.heard as boolean,
+      photographed: row.photographed as boolean,
+      notes: (row.notes as string) ?? null,
+      photoUrl: rawPhotoUrl,
+      photoThumbUrl: rawPhotoUrl && isCloudinaryUrl(rawPhotoUrl) ? cloudinaryThumbnail(rawPhotoUrl, 64) : rawPhotoUrl,
+      birdImageUrl: birdById[row.bird_id as number]?.imageUrl ?? null,
+    };
+  });
 }

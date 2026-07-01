@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Image from 'next/image';
+import { Pause } from 'lucide-react';
 import soundWaveImg from '@/components/icons/ui/sound-wave.png';
 
 interface Props {
@@ -58,13 +59,17 @@ export default function SoundButton({ soundUrl }: Props) {
         }}
         aria-label={playing ? 'Stop bird call' : 'Play bird call'}
       >
-        <Image
-          src={soundWaveImg}
-          alt=""
-          width={imgSize}
-          height={imgSize}
-          className={`brightness-0 ${playing ? 'opacity-100' : 'opacity-55'}`}
-        />
+        {playing ? (
+          <Pause size={imgSize} className="brightness-0 opacity-100 fill-current" strokeWidth={0} />
+        ) : (
+          <Image
+            src={soundWaveImg}
+            alt=""
+            width={imgSize}
+            height={imgSize}
+            className="brightness-0 opacity-55"
+          />
+        )}
       </button>
       <span className="pointer-events-none absolute top-full mt-1.5 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-foreground/80 text-background text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20">
         {playing ? 'Stop' : 'Play call'}

@@ -341,10 +341,10 @@ export default function LocationDetail({ location, stats, observations }: Props)
                 href={`/birds/${obs.birdId}`}
                 className='flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors group first:rounded-t-xl last:rounded-b-xl'
               >
-                {obs.photoUrl ? (
+                {(obs.photoThumbUrl || obs.birdImageUrl) ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={obs.photoUrl}
+                    src={(obs.photoThumbUrl ?? obs.birdImageUrl)!}
                     alt={obs.birdName}
                     className='h-9 w-9 rounded-lg object-cover shrink-0'
                   />

@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Bird, Biome, Food, Rarity } from '@/entities/bird-domain';
-import { BIOMES, FOODS, RARITY_COLOR, biomeImage, biomeIcon, BIOME_FALLBACK_ICON, foodImage, foodIcon, FOOD_FALLBACK_ICON } from '@/entities/bird-domain';
+import type { Bird, Biome, Behaviour, Food, Rarity } from '@/entities/bird-domain';
+import { BIOMES, BEHAVIOURS, FOODS, RARITY_COLOR, biomeImage, biomeIcon, BIOME_FALLBACK_ICON, behaviourImage, foodImage, foodIcon, FOOD_FALLBACK_ICON } from '@/entities/bird-domain';
 import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { CollectionCardData } from '@/features/observations/observation-queries';
@@ -41,6 +41,7 @@ export default function BirdSearch({
   const [query, setQuery] = useState('');
   const [selectedRarities, setSelectedRarities] = useState<Set<Rarity>>(new Set());
   const [selectedBiomes, setSelectedBiomes] = useState<Set<Biome>>(new Set());
+  const [selectedBehaviours, setSelectedBehaviours] = useState<Set<Behaviour>>(new Set());
   const [selectedFoods, setSelectedFoods] = useState<Set<Food>>(new Set());
   const [observationFilter, setObservationFilter] = useState<ObservationFilter>('all');
   const [observationTypeFilter, setObservationTypeFilter] = useState<ObservationTypeFilter>(new Set());
@@ -52,6 +53,10 @@ export default function BirdSearch({
 
   const availableBiomes = useMemo(
     () => BIOMES.filter((b) => birds.some((bird) => bird.biomes.includes(b))),
+    [birds],
+  );
+  const availableBehaviours = useMemo(
+    () => BEHAVIOURS.filter((b) => birds.some((bird) => bird.behaviour.includes(b))),
     [birds],
   );
   const availableFoods = useMemo(
@@ -66,6 +71,10 @@ export default function BirdSearch({
   const biomeCounts = useMemo(
     () => Object.fromEntries(availableBiomes.map((b) => [b, birds.filter((bird) => bird.biomes.includes(b)).length])),
     [birds, availableBiomes],
+  );
+  const behaviourCounts = useMemo(
+    () => Object.fromEntries(availableBehaviours.map((b) => [b, birds.filter((bird) => bird.behaviour.includes(b)).length])),
+    [birds, availableBehaviours],
   );
   const foodCounts = useMemo(
     () => Object.fromEntries(availableFoods.map((f) => [f, birds.filter((bird) => bird.food.includes(f)).length])),
@@ -88,6 +97,7 @@ export default function BirdSearch({
           b.name_latin.toLowerCase().includes(query.toLowerCase());
         const matchesRarity = selectedRarities.size === 0 || selectedRarities.has(b.rarity);
         const matchesBiome = selectedBiomes.size === 0 || b.biomes.some((bm) => selectedBiomes.has(bm));
+        const matchesBehaviour = selectedBehaviours.size === 0 || b.behaviour.some((bh) => selectedBehaviours.has(bh));
         const matchesFood = selectedFoods.size === 0 || b.food.some((f) => selectedFoods.has(f));
 
         let matchesObservation = true;
@@ -108,9 +118,9 @@ export default function BirdSearch({
           }
         }
 
-        return matchesQuery && matchesRarity && matchesBiome && matchesFood && matchesObservation;
+        return matchesQuery && matchesRarity && matchesBiome && matchesBehaviour && matchesFood && matchesObservation;
       }),
-    [shuffledBirds, query, selectedRarities, selectedBiomes, selectedFoods, observationFilter, observationTypeFilter, observedSet, collectionDataByBirdId, isAuthenticated],
+    [shuffledBirds, query, selectedRarities, selectedBiomes, selectedBehaviours, selectedFoods, observationFilter, observationTypeFilter, observedSet, collectionDataByBirdId, isAuthenticated],
   );
 
   const loadMore = useCallback(() => {
@@ -137,7 +147,7 @@ export default function BirdSearch({
 
   const visibleBirds = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
 
-  const baseActiveCount = selectedRarities.size + selectedBiomes.size + selectedFoods.size;
+  const baseActiveCount = selectedRarities.size + selectedBiomes.size + selectedBehaviours.size + selectedFoods.size;
   const obsActiveCount = (observationFilter !== 'all' ? 1 : 0) + observationTypeFilter.size;
   const activeCount = baseActiveCount + obsActiveCount;
   const hasActiveFilters = activeCount > 0;
@@ -145,6 +155,7 @@ export default function BirdSearch({
   function handleReset() {
     setSelectedRarities(new Set());
     setSelectedBiomes(new Set());
+    setSelectedBehaviours(new Set());
     setSelectedFoods(new Set());
     setObservationFilter('all');
     setObservationTypeFilter(new Set());
@@ -323,6 +334,19 @@ export default function BirdSearch({
                         ? <HexIcon imageSrc={biomeImage[b]} size={24} />
                         : <span className='text-base leading-none'>{biomeIcon[b] ?? BIOME_FALLBACK_ICON}</span>
                     }
+                  />
+                ))}
+              </FilterSection>
+
+              <FilterSection label='Behaviour'>
+                {availableBehaviours.map((b) => (
+                  <FilterRow
+                    key={b}
+                    active={selectedBehaviours.has(b)}
+                    onClick={() => { setSelectedBehaviours(toggle(selectedBehaviours, b)); setVisibleCount(PAGE_SIZE); }}
+                    count={behaviourCounts[b] ?? 0}
+                    label={b}
+                    icon={<HexIcon imageSrc={behaviourImage[b]} size={24} />}
                   />
                 ))}
               </FilterSection>

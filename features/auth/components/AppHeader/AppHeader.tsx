@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Bird } from 'lucide-react';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
 import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 import { getBirds } from '@/features/birds/bird-queries';
@@ -21,23 +22,7 @@ export default async function AppHeader() {
       <div className="max-w-[1280px] mx-auto px-3 sm:px-[clamp(1rem,4vw,3rem)] h-[60px] flex items-center gap-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 no-underline shrink-0">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-            <path
-              d="M4 18 C6 14 9 10 14 6 C17 4 20 3 20 3 C20 3 19 6 17 9 C13 14 9 16 6 18 Z"
-              fill="currentColor"
-              className="text-primary"
-              opacity="0.9"
-            />
-            <path
-              d="M4 18 C7 15 11 12 16 8"
-              stroke="currentColor"
-              className="text-primary/70"
-              strokeWidth="0.8"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <path d="M4 18 L5 20" stroke="currentColor" className="text-primary" strokeWidth="1.2" strokeLinecap="round" />
-          </svg>
+          <Bird size={22} className="text-primary" aria-hidden="true" />
 
           <span className="flex items-baseline gap-px">
             <span className="font-heading text-[1.45rem] font-black text-foreground tracking-[-0.03em] leading-none">
