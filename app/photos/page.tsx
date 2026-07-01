@@ -8,7 +8,7 @@ export default async function PhotosPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="px-0 md:px-6 py-5">
+      <div className="px-4 md:px-6 py-5">
         <p className="mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono">
           {photos.length === 0
             ? 'No photos yet'

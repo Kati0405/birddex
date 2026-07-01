@@ -213,7 +213,7 @@ function FieldGuideContent({
               key={t}
               type='button'
               onClick={(e) => { e.stopPropagation(); setFieldTab(t); }}
-              className='flex-1 py-2 sm:py-1 text-[11px] sm:text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
+              className='flex-1 py-2 sm:py-0.5 text-[11px] sm:text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
               style={{
                 color: fieldTab === t ? frameColor : `${frameColor}55`,
                 background: fieldTab === t ? `${frameColor}16` : 'transparent',
@@ -295,7 +295,7 @@ export default function BirdCardBack({
 
       {/* Name */}
       <div className='text-center pt-4 sm:pt-3 pb-2 sm:pb-1.5 px-5'>
-        <p className='text-xl sm:text-sm font-semibold text-card-foreground leading-tight'>
+        <p className='text-xl sm:text-xs font-semibold text-card-foreground leading-tight'>
           {bird.name_eng}
         </p>
       </div>
@@ -309,7 +309,7 @@ export default function BirdCardBack({
           <button
             type='button'
             onClick={(e) => { e.stopPropagation(); setMainTab('field-guide'); }}
-            className='flex-1 py-2 sm:py-1 text-[11px] sm:text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
+            className='flex-1 py-2 sm:py-0.5 text-[11px] sm:text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
             style={{
               color: mainTab === 'field-guide' ? frameColor : `${frameColor}55`,
               background: mainTab === 'field-guide' ? `${frameColor}16` : 'transparent',
@@ -321,7 +321,7 @@ export default function BirdCardBack({
           <button
             type='button'
             onClick={(e) => { e.stopPropagation(); setMainTab('my-observations'); }}
-            className='flex-1 py-2 sm:py-1 text-[11px] sm:text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
+            className='flex-1 py-2 sm:py-0.5 text-[11px] sm:text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
             style={{
               color: mainTab === 'my-observations' ? frameColor : `${frameColor}55`,
               background: mainTab === 'my-observations' ? `${frameColor}16` : 'transparent',

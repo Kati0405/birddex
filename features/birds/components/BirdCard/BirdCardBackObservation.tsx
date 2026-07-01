@@ -414,7 +414,7 @@ export default function BirdCardBackObservation({
 
             {/* Hero photo with overlaid date + quality */}
             <div
-              className='relative rounded-lg overflow-hidden shrink-0 bg-secondary h-[30vh] sm:h-[24vh]'
+              className='relative rounded-lg overflow-hidden shrink-0 bg-secondary h-[30vh] sm:h-[16vh]'
               style={{ boxShadow: `inset 0 0 0 1px ${frameColor}1f` }}
             >
               {obs.photoUrl ? (
@@ -527,7 +527,7 @@ export default function BirdCardBackObservation({
             </div>
 
             {/* Handwritten note */}
-            <div className='flex-1 min-h-0 mt-2 sm:mt-1.5'>
+            <div className='flex-1 min-h-0 mt-2 sm:mt-1 sm:min-h-[3rem]'>
               {obs.notes ? (
                 <div
                   className='relative h-full rounded-lg px-4 sm:px-3 py-2.5 sm:py-2 overflow-auto'

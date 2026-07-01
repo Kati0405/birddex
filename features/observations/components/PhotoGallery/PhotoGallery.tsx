@@ -160,9 +160,11 @@ export default function PhotoGallery({ photos }: Props) {
     <>
       <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-2">
         {photos.map((photo) => (
-          <div
+          <button
             key={photo.observationId}
-            className="break-inside-avoid mb-2 group relative overflow-hidden rounded-md bg-secondary"
+            onClick={() => setExpanded(photo)}
+            className="break-inside-avoid mb-2 group relative overflow-hidden rounded-md bg-secondary w-full text-left cursor-pointer"
+            aria-label={`Expand photo of ${photo.birdNameEng}`}
           >
             <div className="relative w-full">
               {isCloudinaryUrl(photo.photoUrl) ? (
@@ -187,17 +189,13 @@ export default function PhotoGallery({ photos }: Props) {
               )}
             </div>
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200" />
 
-            <button
-              onClick={() => setExpanded(photo)}
-              className="absolute top-2 right-2 p-1.5 rounded-full bg-black/40 text-white/70 hover:text-white hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-200"
-              aria-label={`Expand photo of ${photo.birdNameEng}`}
-            >
-              <Expand size={14} />
-            </button>
+            <div className="absolute top-2 right-2 p-1.5 rounded-full bg-black/40 text-white/70 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200">
+              <Expand size={14} aria-hidden="true" />
+            </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-2.5 translate-y-full group-hover:translate-y-0 transition-transform duration-200">
+            <div className="absolute bottom-0 left-0 right-0 p-2.5 translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-200">
               <p className="font-mono text-[11px] text-white tracking-wide">
                 {photo.birdNameEng}
               </p>
@@ -205,7 +203,7 @@ export default function PhotoGallery({ photos }: Props) {
                 {formatDate(photo.observedAt)}
               </p>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
