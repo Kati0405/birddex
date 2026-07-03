@@ -74,8 +74,8 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
     throw err;
   }
 
-  revalidatePath(`/birds/${birdId}`);
-  redirect(`/birds/${birdId}`);
+  revalidatePath('/[locale]/birds/[id]', 'page');
+  redirect(`/en/birds/${birdId}`);
 }
 
 const MAX_SOUND_BYTES = 10 * 1024 * 1024;
@@ -141,8 +141,8 @@ export async function updateBirdSoundUrlAction(input: UpdateBirdSoundUrlInput) {
     throw err;
   }
 
-  revalidatePath(`/birds/${birdId}`);
-  revalidatePath(`/birds/${birdId}/edit`);
+  revalidatePath('/[locale]/birds/[id]', 'page');
+  revalidatePath('/[locale]/birds/[id]/edit', 'page');
   return { success: true, soundUrl: uploaded.secure_url };
 }
 
@@ -177,8 +177,8 @@ export async function updateBirdSoundFileAction(formData: FormData) {
     throw err;
   }
 
-  revalidatePath(`/birds/${birdId}`);
-  revalidatePath(`/birds/${birdId}/edit`);
+  revalidatePath('/[locale]/birds/[id]', 'page');
+  revalidatePath('/[locale]/birds/[id]/edit', 'page');
   return { success: true, soundUrl: uploaded.secure_url };
 }
 
@@ -211,7 +211,7 @@ export async function updateBirdMetadataAction(input: UpdateBirdMetadataInput) {
 
   const { birdId, ...data } = parsed.data;
   await updateBirdMetadata(birdId, data);
-  revalidatePath(`/birds/${birdId}`);
-  revalidatePath('/');
+  revalidatePath('/[locale]/birds/[id]', 'page');
+  revalidatePath('/[locale]/birds', 'page');
   return { success: true };
 }

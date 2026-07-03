@@ -36,6 +36,6 @@ export async function deleteBirdAction(input: DeleteBirdInput) {
     await cloudinary.uploader.destroy(cloudinaryPublicId(imageUrl)).catch(() => {});
   }
 
-  revalidatePath('/birds');
+  revalidatePath('/[locale]/birds', 'page');
   return { success: true };
 }

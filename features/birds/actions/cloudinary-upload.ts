@@ -45,6 +45,6 @@ export async function uploadBirdImageAction(formData: FormData) {
     throw err;
   }
 
-  revalidatePath(`/birds/${birdId}`);
-  redirect(`/birds/${birdId}`);
+  revalidatePath('/[locale]/birds/[id]', 'page');
+  redirect(`/en/birds/${birdId}`);
 }

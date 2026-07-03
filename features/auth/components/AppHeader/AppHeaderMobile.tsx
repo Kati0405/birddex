@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/shared/lib/cn';
-import { logoutAction } from '@/app/(auth)/actions';
+import { logoutAction } from '@/app/[locale]/(auth)/actions';
 import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 
 type Props = {
@@ -51,7 +50,7 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
               ×
             </button>
 
-            <MobileNavLink href="/birds" label="Birds" active={currentPath === '/birds' || currentPath === '/' || currentPath === '/collection'} onClick={() => setOpen(false)} />
+            <MobileNavLink href="/birds" label="Birds" active={currentPath === '/birds'} onClick={() => setOpen(false)} />
             {isAuthenticated && (
               <MobileNavLink href="/observations" label="My Observations" active={currentPath === '/observations'} onClick={() => setOpen(false)} />
             )}

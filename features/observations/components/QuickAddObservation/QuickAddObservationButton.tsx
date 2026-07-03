@@ -18,7 +18,11 @@ interface Props {
   variant?: 'header' | 'inline';
 }
 
-export default function QuickAddObservationButton({ savedLocations = [], initialLocation, variant = 'header' }: Props) {
+export default function QuickAddObservationButton({
+  savedLocations = [],
+  initialLocation,
+  variant = 'header',
+}: Props) {
   const [open, setOpen] = useState(false);
 
   if (variant === 'inline') {
@@ -51,7 +55,7 @@ export default function QuickAddObservationButton({ savedLocations = [], initial
         className='flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold font-mono tracking-wide bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all cursor-pointer shadow-sm'
       >
         <Plus className='h-3.5 w-3.5' />
-        Log sighting
+        Spotted it!
       </button>
       {open && (
         <QuickAddObservationModal

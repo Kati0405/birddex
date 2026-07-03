@@ -1,7 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/shared/lib/cn';
 import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 
@@ -15,48 +14,19 @@ export default function AppHeaderNav({ isAuthenticated, isAdmin }: Props) {
 
   return (
     <nav className='hidden sm:flex items-center gap-1 flex-1'>
-      <NavLink
-        href='/birds'
-        label='Birds'
-        active={
-          pathname === '/birds' ||
-          pathname === '/' ||
-          pathname === '/collection'
-        }
-      />
+      <NavLink href='/birds' label='Birds' active={pathname === '/birds'} />
       {isAuthenticated && (
-        <NavLink
-          href='/observations'
-          label='Observations'
-          active={pathname === '/observations'}
-        />
+        <NavLink href='/observations' label='Observations' active={pathname === '/observations'} />
       )}
       {isAuthenticated && (
-        <NavLink
-          href='/locations'
-          label='Locations'
-          active={pathname === '/locations'}
-        />
+        <NavLink href='/locations' label='Locations' active={pathname === '/locations'} />
       )}
       {isAuthenticated && (
-        <NavLink
-          href='/photos'
-          label='Photos'
-          active={pathname === '/photos'}
-        />
+        <NavLink href='/photos' label='Photos' active={pathname === '/photos'} />
       )}
-      <NavLink
-        href='/ask-robin'
-        label='Ask Robin'
-        active={pathname === '/ask-robin'}
-      />
+      <NavLink href='/ask-robin' label='Ask Robin' active={pathname === '/ask-robin'} />
       {isAdmin && (
-        <NavLink
-          href='/admin/add-bird'
-          label='Add Bird'
-          active={pathname === '/admin/add-bird'}
-          adminBadge
-        />
+        <NavLink href='/admin/add-bird' label='Add Bird' active={pathname === '/admin/add-bird'} adminBadge />
       )}
     </nav>
   );

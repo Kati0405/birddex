@@ -11,8 +11,8 @@ export async function toggleCollectedAction(
 
   try {
     const result = await toggleCollected(user.id, birdId);
-    revalidatePath('/');
-    revalidatePath(`/birds/${birdId}`);
+    revalidatePath('/[locale]/birds', 'page');
+    revalidatePath('/[locale]/birds/[id]', 'page');
     return result;
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Unknown error' };

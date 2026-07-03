@@ -23,6 +23,7 @@ Key docs:
 - `docs/data-mutations.md` — **MUST read before any data mutations, Server Actions, or form handling**
 - `docs/authentication.md` — **MUST read before any auth, role, or session-related work**
 - `docs/app-guide.md` — user-facing app guide (also used as Ask Robin chat context)
+- `docs/i18n.md` — **MUST read before any translation, locale-routing, or `app/[locale]` work**
 
 ## Spec-Driven Development
 

@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Bird, Maximize2, Trash2 } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { useAskRobinChat } from '@/features/bird-guide/components/AskRobinChatProvider/AskRobinChatProvider';
 import { useScrollToBottom } from '@/features/bird-guide/hooks/useScrollToBottom';
 import AskRobinChatMessage from './AskRobinChatMessage';

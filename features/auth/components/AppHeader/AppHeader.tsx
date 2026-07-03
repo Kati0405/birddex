@@ -1,14 +1,15 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Bird } from 'lucide-react';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
 import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 import { getBirds } from '@/features/birds/bird-queries';
 import { getObservationCount } from '@/features/observations/observation-queries';
 import { getSavedLocations } from '@/features/locations/location-queries';
-import { logoutAction } from '@/app/(auth)/actions';
+import { logoutAction } from '@/app/[locale]/(auth)/actions';
 import AppHeaderMobile from './AppHeaderMobile';
 import AppHeaderNav from './AppHeaderNav';
 import QuickAddObservationButton from '@/features/observations/components/QuickAddObservation/QuickAddObservationButton';
+import LanguageSwitcher from '@/shared/ui/LanguageSwitcher/LanguageSwitcher';
 
 export default async function AppHeader() {
   const [user, birds, role] = await Promise.all([getUser(), getBirds(), getUserRole()]);
@@ -26,18 +27,21 @@ export default async function AppHeader() {
 
       <div className="max-w-[1280px] mx-auto px-3 sm:px-[clamp(1rem,4vw,3rem)] h-[60px] flex items-center gap-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 no-underline shrink-0">
-          <Bird size={22} className="text-primary" aria-hidden="true" />
+        <div className="flex flex-col gap-0.5 shrink-0">
+          <Link href="/" className="flex items-center gap-2 no-underline">
+            <Bird size={22} className="text-primary" aria-hidden="true" />
 
-          <span className="flex items-baseline gap-px">
-            <span className="font-heading text-[1.45rem] font-black text-foreground tracking-[-0.03em] leading-none">
-              Bird
+            <span className="flex items-baseline gap-px">
+              <span className="font-heading text-[1.45rem] font-black text-foreground tracking-[-0.03em] leading-none">
+                Bird
+              </span>
+              <em className="font-heading text-[1.45rem] font-bold italic text-primary tracking-[-0.03em] leading-none">
+                Dex
+              </em>
             </span>
-            <em className="font-heading text-[1.45rem] font-bold italic text-primary tracking-[-0.03em] leading-none">
-              Dex
-            </em>
-          </span>
-        </Link>
+          </Link>
+          <LanguageSwitcher />
+        </div>
 
         <span className="w-1 h-1 rounded-full bg-border shrink-0" />
 

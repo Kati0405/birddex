@@ -48,8 +48,7 @@ export async function addObservationAction(
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
-  revalidatePath('/');
-  revalidatePath('/collection');
+  revalidatePath('/[locale]/birds', 'page');
   return { success: true };
 }
 
@@ -94,7 +93,7 @@ export async function updateObservationAction(
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
-  revalidatePath('/collection');
+  revalidatePath('/[locale]/birds', 'page');
   return { success: true };
 }
 
@@ -116,8 +115,7 @@ export async function deleteObservationAction(
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
-  revalidatePath('/');
-  revalidatePath('/collection');
+  revalidatePath('/[locale]/birds', 'page');
   return { success: true };
 }
 

@@ -24,14 +24,14 @@ export async function getUserRole(): Promise<'admin' | 'user' | null> {
 
 export async function requireAuth(): Promise<User> {
   const user = await getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/en/login');
   return user;
 }
 
 export async function requireAdmin(): Promise<User> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/en/login');
 
   const { data } = await supabase
     .from('profiles')
@@ -39,6 +39,6 @@ export async function requireAdmin(): Promise<User> {
     .eq('id', user.id)
     .single();
 
-  if (data?.role !== 'admin') redirect('/');
+  if (data?.role !== 'admin') redirect('/en/birds');
   return user;
 }

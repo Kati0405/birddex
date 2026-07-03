@@ -38,6 +38,6 @@ export async function createBirdAction(input: CreateBirdInput) {
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
-  revalidatePath('/birds');
-  redirect(`/birds/${birdId}/edit`);
+  revalidatePath('/[locale]/birds', 'page');
+  redirect(`/en/birds/${birdId}/edit`);
 }

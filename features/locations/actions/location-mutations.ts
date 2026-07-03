@@ -49,7 +49,7 @@ export async function saveLocationAction(
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
-  revalidatePath('/locations');
+  revalidatePath('/[locale]/locations', 'page');
   return { success: true };
 }
 
@@ -79,7 +79,7 @@ export async function deleteLocationAction(
     await cloudinary.uploader.destroy(loc.photo_public_id as string).catch(() => {});
   }
 
-  revalidatePath('/locations');
+  revalidatePath('/[locale]/locations', 'page');
   return { success: true };
 }
 
@@ -115,7 +115,7 @@ export async function updateLocationAction(
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
-  revalidatePath('/locations');
+  revalidatePath('/[locale]/locations', 'page');
   return { success: true };
 }
 
@@ -178,6 +178,6 @@ export async function updateLocationPhotoAction(
     await cloudinary.uploader.destroy(parsed.data.oldPhotoPublicId).catch(() => {});
   }
 
-  revalidatePath('/locations');
+  revalidatePath('/[locale]/locations', 'page');
   return { success: true };
 }

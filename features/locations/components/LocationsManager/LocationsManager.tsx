@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Trash2, MapPin, Plus, ChevronUp, MapPinned, Images, X, Eye, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
