@@ -32,6 +32,14 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
     startLoad(async () => {
       const list = await getBirdsForSearch();
       setBirds(list);
+      // Preload the first 8 thumbnails immediately after the list arrives
+      list.slice(0, 8).forEach((b) => {
+        const src = b.selected_image?.thumbnailUrl ?? b.image_url;
+        if (src) {
+          const img = new Image();
+          img.src = src;
+        }
+      });
     });
     setTimeout(() => inputRef.current?.focus(), 50);
   }, []);
@@ -139,9 +147,9 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
                       className='w-8 h-8 rounded-md overflow-hidden shrink-0 flex items-center justify-center'
                       style={{ background: `${color}18`, border: `1px solid ${color}40` }}
                     >
-                      {bird.image_url ? (
+                      {(bird.selected_image?.thumbnailUrl ?? bird.image_url) ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={bird.image_url} alt='' className='w-full h-full object-cover' />
+                        <img src={(bird.selected_image?.thumbnailUrl ?? bird.image_url)!} alt='' className='w-full h-full object-cover' loading='eager' decoding='async' />
                       ) : (
                         <Bird size={14} style={{ color }} />
                       )}
