@@ -1,7 +1,9 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
+import { redirect as redirectExternal } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
+import { redirect } from '@/i18n/navigation';
 import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 
 export async function signInWithGoogleAction(): Promise<void> {
@@ -19,13 +21,18 @@ export async function signInWithGoogleAction(): Promise<void> {
     },
   });
 
-  if (error || !data.url) redirect('/en/login?error=oauth');
+  if (error || !data.url) {
+    const locale = await getLocale();
+    redirect({ href: '/login?error=oauth', locale });
+    return;
+  }
 
-  redirect(data.url);
+  redirectExternal(data.url);
 }
 
 export async function logoutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
-  redirect('/en/login');
+  const locale = await getLocale();
+  redirect({ href: '/login', locale });
 }

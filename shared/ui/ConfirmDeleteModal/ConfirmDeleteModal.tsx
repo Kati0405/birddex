@@ -1,6 +1,7 @@
 'use client';
 
 import { createPortal } from 'react-dom';
+import { useTranslations } from 'next-intl';
 
 interface ConfirmDeleteModalProps {
   title: string;
@@ -19,6 +20,8 @@ export default function ConfirmDeleteModal({
   onConfirm,
   onCancel,
 }: ConfirmDeleteModalProps) {
+  const t = useTranslations('Common');
+
   return createPortal(
     <div
       className='fixed inset-0 z-[110] flex items-center justify-center p-4'
@@ -55,7 +58,7 @@ export default function ConfirmDeleteModal({
               disabled={pending}
               className='px-3 py-1.5 rounded-md text-[10px] font-mono uppercase tracking-[0.1em] border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors disabled:opacity-50'
             >
-              Cancel
+              {t('cancel')}
             </button>
             <button
               type='button'
@@ -67,7 +70,7 @@ export default function ConfirmDeleteModal({
               className='px-4 py-1.5 rounded-md text-[10px] font-mono uppercase tracking-[0.1em] transition-all active:scale-[0.97] disabled:opacity-60'
               style={{ background: '#dc2626', color: '#ffffff' }}
             >
-              {pending ? 'Deleting…' : 'Delete'}
+              {pending ? t('deleting') : t('delete')}
             </button>
           </div>
         </div>

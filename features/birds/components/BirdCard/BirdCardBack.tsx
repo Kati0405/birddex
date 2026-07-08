@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/lib/cn';
 import type { Bird, Difficulty, BestTimeOfDay } from '@/entities/bird-domain';
 import ObservationMonthsChart from '@/shared/ui/ObservationMonthsChart/ObservationMonthsChart';
@@ -39,12 +40,12 @@ const DIFFICULTY_LEVELS: Difficulty[] = [
   'tricky',
   'good_luck',
 ];
-const DIFFICULTY_LABEL: Record<Difficulty, string> = {
-  beginner: 'Beginner',
-  easy: 'Easy',
-  moderate: 'Moderate',
-  tricky: 'Tricky',
-  good_luck: 'Good Luck',
+const DIFFICULTY_LABEL_KEY: Record<Difficulty, string> = {
+  beginner: 'difficultyBeginner',
+  easy: 'difficultyEasy',
+  moderate: 'difficultyModerate',
+  tricky: 'difficultyTricky',
+  good_luck: 'difficultyGoodLuck',
 };
 
 function ObservationDifficulty({
@@ -54,6 +55,7 @@ function ObservationDifficulty({
   difficulty: Difficulty;
   frameColor: string;
 }) {
+  const t = useTranslations('BirdCard');
   const level = DIFFICULTY_LEVELS.indexOf(difficulty) + 1;
   return (
     <div className='flex flex-col gap-1'>
@@ -61,7 +63,7 @@ function ObservationDifficulty({
         className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono'
         style={{ color: `${frameColor}bb` }}
       >
-        Finding difficulty
+        {t('findingDifficulty')}
       </p>
       <div className='flex lg:flex-col items-center lg:items-start gap-1.5 sm:gap-1 lg:gap-0.5'>
         <div className='flex gap-1 sm:gap-0.5'>
@@ -83,7 +85,7 @@ function ObservationDifficulty({
           className='text-[11px] sm:text-[7px] font-mono tracking-[0.04em]'
           style={{ color: `${frameColor}88` }}
         >
-          {DIFFICULTY_LABEL[difficulty]}
+          {t(DIFFICULTY_LABEL_KEY[difficulty])}
         </span>
       </div>
     </div>
@@ -92,13 +94,13 @@ function ObservationDifficulty({
 
 const TIME_SLOTS: {
   key: keyof BestTimeOfDay;
-  label: string;
+  labelKey: string;
   img: StaticImageData;
 }[] = [
-  { key: 'dawn', label: 'Dawn', img: dawnImg },
-  { key: 'day', label: 'Day', img: dayImg },
-  { key: 'dusk', label: 'Dusk', img: duskImg },
-  { key: 'night', label: 'Night', img: nightImg },
+  { key: 'dawn', labelKey: 'timeDawn', img: dawnImg },
+  { key: 'day', labelKey: 'timeDay', img: dayImg },
+  { key: 'dusk', labelKey: 'timeDusk', img: duskImg },
+  { key: 'night', labelKey: 'timeNight', img: nightImg },
 ];
 
 function BestTimeOfDayRow({
@@ -110,16 +112,17 @@ function BestTimeOfDayRow({
   frameColor: string;
   iconSize?: number;
 }) {
+  const t = useTranslations('BirdCard');
   return (
     <div className='flex flex-col gap-1 shrink-0'>
       <p
         className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono self-end'
         style={{ color: `${frameColor}bb` }}
       >
-        Best time
+        {t('bestTime')}
       </p>
       <div className='flex gap-1'>
-        {TIME_SLOTS.map(({ key, label, img }) => {
+        {TIME_SLOTS.map(({ key, labelKey, img }) => {
           const active = times[key];
           return (
             <div
@@ -129,7 +132,7 @@ function BestTimeOfDayRow({
             >
               <HexIcon
                 imageSrc={img}
-                label={label}
+                label={t(labelKey)}
                 size={iconSize}
                 bgColor={active ? `${frameColor}28` : 'rgba(42,24,8,0.07)'}
               />
@@ -148,6 +151,7 @@ function FieldGuideContent({
   bird: Bird;
   frameColor: string;
 }) {
+  const t = useTranslations('BirdCard');
   const [fieldTab, setFieldTab] = useState<FieldTab>('tips');
 
   const hasDifficulty = !!bird.difficulty;
@@ -169,7 +173,7 @@ function FieldGuideContent({
             className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono mb-1.5 sm:mb-1'
             style={{ color: `${frameColor}bb` }}
           >
-            Signature behavior
+            {t('signatureBehavior')}
           </p>
           <p
             className='italic leading-snug text-sm sm:text-[9.5px]'
@@ -195,7 +199,7 @@ function FieldGuideContent({
           className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] mb-2 sm:mb-1.5 font-mono'
           style={{ color: `${frameColor}bb` }}
         >
-          Best months to observe
+          {t('bestMonthsToObserve')}
         </p>
         <ObservationMonthsChart bestMonths={bird.best_months ?? []} frameColor={frameColor} />
       </div>
@@ -209,22 +213,22 @@ function FieldGuideContent({
           className='flex shrink-0 rounded-t-lg overflow-hidden'
           style={{ background: `${frameColor}08` }}
         >
-          {(['tips', 'marks'] as FieldTab[]).map((t) => (
+          {(['tips', 'marks'] as FieldTab[]).map((tab) => (
             <button
-              key={t}
+              key={tab}
               type='button'
-              onClick={(e) => { e.stopPropagation(); setFieldTab(t); }}
+              onClick={(e) => { e.stopPropagation(); setFieldTab(tab); }}
               className='flex-1 py-2 sm:py-0.5 text-[11px] sm:text-[7px] uppercase tracking-[0.16em] font-mono transition-colors duration-150'
               style={{
-                color: fieldTab === t ? frameColor : `${frameColor}55`,
-                background: fieldTab === t ? `${frameColor}16` : 'transparent',
+                color: fieldTab === tab ? frameColor : `${frameColor}55`,
+                background: fieldTab === tab ? `${frameColor}16` : 'transparent',
                 borderBottom:
-                  fieldTab === t
+                  fieldTab === tab
                     ? `1.5px solid ${frameColor}`
                     : `1.5px solid transparent`,
               }}
             >
-              {t === 'marks' ? 'Field Marks' : 'How to Find'}
+              {tab === 'marks' ? t('fieldMarksTab') : t('howToFindTab')}
             </button>
           ))}
         </div>
@@ -273,6 +277,7 @@ export default function BirdCardBack({
   active = true,
   initialObsId,
 }: Props) {
+  const t = useTranslations('BirdCard');
   const defaultTab: MainTab =
     isAuthenticated && isObserved ? 'my-observations' : 'field-guide';
   const [mainTab, setMainTab] = useState<MainTab>(defaultTab);
@@ -318,7 +323,7 @@ export default function BirdCardBack({
               borderBottom: mainTab === 'field-guide' ? `1.5px solid ${frameColor}` : '1.5px solid transparent',
             }}
           >
-            Field Guide
+            {t('fieldGuideTab')}
           </button>
           <button
             type='button'
@@ -330,7 +335,7 @@ export default function BirdCardBack({
               borderBottom: mainTab === 'my-observations' ? `1.5px solid ${frameColor}` : '1.5px solid transparent',
             }}
           >
-            My Observations
+            {t('myObservationsTab')}
           </button>
         </div>
       )}

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Bird } from 'lucide-react';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
@@ -20,6 +21,7 @@ export default async function AppHeader() {
   const totalBirds = birds.length;
   const isAuth = !!user;
   const isAdmin = role === 'admin';
+  const tAuth = await getTranslations('Auth');
 
   return (
     <header className="sticky top-0 z-[100] bg-card border-b border-border shadow-[0_1px_12px_rgba(20,32,12,0.06)]">
@@ -62,14 +64,14 @@ export default async function AppHeader() {
                 </div>
               )}
               <QuickAddObservationButton savedLocations={savedLocations} />
-              <UserMenu email={user?.email} avatarUrl={user?.user_metadata?.avatar_url} isAdmin={isAdmin} />
+              <UserMenu email={user?.email} avatarUrl={user?.user_metadata?.avatar_url} isAdmin={isAdmin} logOutLabel={tAuth('logOut')} />
             </>
           ) : (
             <Link
               href="/login"
               className="font-mono text-[10px] tracking-[0.15em] uppercase text-primary-foreground bg-primary px-4 py-2 rounded-md no-underline font-medium hover:bg-primary/90 transition-colors"
             >
-              Log in
+              {tAuth('logIn')}
             </Link>
           )}
         </div>
@@ -89,7 +91,7 @@ export default async function AppHeader() {
   );
 }
 
-function UserMenu({ email, avatarUrl, isAdmin }: { email?: string; avatarUrl?: string; isAdmin: boolean }) {
+function UserMenu({ email, avatarUrl, isAdmin, logOutLabel }: { email?: string; avatarUrl?: string; isAdmin: boolean; logOutLabel: string }) {
   const initial = email?.[0]?.toUpperCase() ?? '?';
 
   return (
@@ -119,7 +121,7 @@ function UserMenu({ email, avatarUrl, isAdmin }: { email?: string; avatarUrl?: s
           type="submit"
           className="font-mono text-[9px] tracking-[0.15em] uppercase text-muted-foreground bg-transparent border-0 cursor-pointer p-1 hover:text-foreground transition-colors"
         >
-          Log out
+          {logOutLabel}
         </button>
       </form>
     </div>

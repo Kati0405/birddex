@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -15,6 +16,7 @@ interface Props {
 
 export default function BirdCardMenu({ birdId, birdName }: Props) {
   const router = useRouter();
+  const t = useTranslations('BirdCard');
   const [open, setOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export default function BirdCardMenu({ birdId, birdName }: Props) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         onClick={(e) => e.stopPropagation()}
-        aria-label={`Admin actions for ${birdName}`}
+        aria-label={t('adminActionsFor', { name: birdName })}
         className="relative shrink-0 flex items-center justify-center w-6 h-6 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
       >
         <MoreVertical size={16} aria-hidden="true" />
@@ -60,7 +62,7 @@ export default function BirdCardMenu({ birdId, birdName }: Props) {
           className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-sm text-foreground hover:bg-secondary/60 transition-colors no-underline"
         >
           <Pencil size={14} aria-hidden="true" />
-          Edit
+          {t('editAction')}
         </Link>
         <button
           type="button"
@@ -68,19 +70,22 @@ export default function BirdCardMenu({ birdId, birdName }: Props) {
           className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-md text-sm text-destructive hover:bg-destructive/10 transition-colors"
         >
           <Trash2 size={14} aria-hidden="true" />
-          Delete
+          {t('deleteAction')}
         </button>
       </PopoverContent>
 
       {confirmDelete && (
         <ConfirmDeleteModal
-          title="Delete bird"
+          title={t('deleteBirdTitle')}
           error={deleteError}
           pending={deletePending}
           onConfirm={handleDeleteConfirmed}
           onCancel={() => setConfirmDelete(false)}
         >
-          Delete <span className="font-semibold">{birdName}</span> from the catalog? This cannot be undone.
+          {t.rich('deleteBirdConfirm', {
+            name: birdName,
+            b: (chunks) => <span className="font-semibold">{chunks}</span>,
+          })}
         </ConfirmDeleteModal>
       )}
     </Popover>

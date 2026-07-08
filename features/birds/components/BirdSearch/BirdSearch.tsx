@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { Bird, Biome, Behaviour, Food, Rarity } from '@/entities/bird-domain';
 import { BIOMES, BEHAVIOURS, FOODS, RARITY_COLOR, biomeImage, biomeIcon, BIOME_FALLBACK_ICON, behaviourImage, foodImage, foodIcon, FOOD_FALLBACK_ICON } from '@/entities/bird-domain';
 import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
@@ -33,6 +34,7 @@ export default function BirdSearch({
   savedLocations?: SavedLocation[];
   collectionDataByBirdId?: Record<number, CollectionCardData>;
 }) {
+  const t = useTranslations('BirdsPage');
   const [shuffledBirds, setShuffledBirds] = useState(birds);
   useEffect(() => {
     setShuffledBirds(shuffle(birds));
@@ -168,18 +170,18 @@ export default function BirdSearch({
       <div className='md:hidden fixed top-[62px] left-0 right-0 z-30 bg-card border-b border-border px-4 py-2 flex items-center gap-2'>
         <Input
           type='text'
-          placeholder='Search birds...'
+          placeholder={t('searchPlaceholder')}
           value={query}
           onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }}
           className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 flex-1'
         />
         <button
           onClick={() => setFiltersOpen(true)}
-          aria-label={hasActiveFilters ? `Filters, ${activeCount} active` : 'Filters'}
+          aria-label={hasActiveFilters ? t('filtersActive', { count: activeCount }) : t('filters')}
           className={`relative flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium border transition-colors shrink-0 ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-foreground'}`}
         >
           <SlidersHorizontal size={15} />
-          Filters
+          {t('filters')}
           {hasActiveFilters && (
             <span aria-hidden='true' className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
               {activeCount}
@@ -194,18 +196,18 @@ export default function BirdSearch({
         <div className='hidden md:flex items-center gap-2 mb-4'>
           <Input
             type='text'
-            placeholder='Search birds...'
+            placeholder={t('searchPlaceholder')}
             value={query}
             onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }}
             className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 max-w-xs'
           />
           <button
             onClick={() => setFiltersOpen(true)}
-            aria-label={hasActiveFilters ? `Filters, ${activeCount} active` : 'Filters'}
+            aria-label={hasActiveFilters ? t('filtersActive', { count: activeCount }) : t('filters')}
             className={`relative flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium border transition-colors shrink-0 ${hasActiveFilters ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background text-foreground hover:bg-muted/40'}`}
           >
             <SlidersHorizontal size={15} />
-            Filters
+            {t('filters')}
             {hasActiveFilters && (
               <span aria-hidden='true' className='absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center'>
                 {activeCount}
@@ -215,7 +217,7 @@ export default function BirdSearch({
         </div>
 
         <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
-          {filtered.length} species found
+          {t('speciesFound', { count: filtered.length })}
         </p>
         <BirdGrid
           birds={visibleBirds}
@@ -228,7 +230,7 @@ export default function BirdSearch({
         <div ref={sentinelRef} className='h-8' />
         {visibleCount < filtered.length && (
           <p className='py-4 text-center text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
-            Loading…
+            {t('loadingMore')}
           </p>
         )}
       </div>
@@ -244,10 +246,10 @@ export default function BirdSearch({
             className='relative bg-card rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col'
           >
             <div className='flex items-center justify-between px-5 py-4 border-b border-border'>
-              <span id='filters-dialog-title' className='text-sm font-semibold tracking-wide'>Filters</span>
+              <span id='filters-dialog-title' className='text-sm font-semibold tracking-wide'>{t('filters')}</span>
               <button
                 onClick={() => setFiltersOpen(false)}
-                aria-label='Close filters'
+                aria-label={t('closeFilters')}
                 className='p-1 text-muted-foreground hover:text-foreground'
               >
                 <X size={18} />
@@ -257,7 +259,7 @@ export default function BirdSearch({
             <div className='overflow-y-auto flex-1 px-5 py-4 space-y-6'>
               {/* Observation filters — authenticated only */}
               {isAuthenticated && (
-                <FilterSection label='My Collection'>
+                <FilterSection label={t('myCollection')}>
                   {(['all', 'observed', 'unobserved'] as ObservationFilter[]).map((f) => (
                     <button
                       key={f}
@@ -267,7 +269,7 @@ export default function BirdSearch({
                       <span className='flex h-6 w-6 items-center justify-center shrink-0 text-base'>
                         {f === 'all' ? '🐦' : f === 'observed' ? '✓' : '○'}
                       </span>
-                      <span className='flex-1 capitalize'>{f === 'all' ? 'All birds' : f === 'observed' ? 'Observed' : 'Not yet observed'}</span>
+                      <span className='flex-1 capitalize'>{f === 'all' ? t('allBirds') : f === 'observed' ? t('observed') : t('notYetObserved')}</span>
                       {f === 'all' && <span className='text-xs tabular-nums text-muted-foreground'>{birds.length}</span>}
                       {f === 'observed' && <span className='text-xs tabular-nums text-muted-foreground'>{observedIds.length}</span>}
                       {f === 'unobserved' && <span className='text-xs tabular-nums text-muted-foreground'>{birds.length - observedIds.length}</span>}
@@ -277,20 +279,20 @@ export default function BirdSearch({
               )}
 
               {isAuthenticated && (
-                <FilterSection label='Observed as'>
-                  {(['seen', 'heard', 'photographed'] as const).map((t) => {
+                <FilterSection label={t('observedAs')}>
+                  {(['seen', 'heard', 'photographed'] as const).map((obsType) => {
                     const count = Object.values(collectionDataByBirdId).filter((d) =>
-                      t === 'seen' ? d.seenCount > 0 : t === 'heard' ? d.heardCount > 0 : d.photographedCount > 0
+                      obsType === 'seen' ? d.seenCount > 0 : obsType === 'heard' ? d.heardCount > 0 : d.photographedCount > 0
                     ).length;
-                    const icon = t === 'seen' ? '👁' : t === 'heard' ? '👂' : '📷';
+                    const icon = obsType === 'seen' ? '👁' : obsType === 'heard' ? '👂' : '📷';
                     return (
                       <button
-                        key={t}
-                        onClick={() => { setObservationTypeFilter(toggle(observationTypeFilter, t)); setVisibleCount(PAGE_SIZE); }}
-                        className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors ${observationTypeFilter.has(t) ? 'bg-muted/60 text-foreground' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'}`}
+                        key={obsType}
+                        onClick={() => { setObservationTypeFilter(toggle(observationTypeFilter, obsType)); setVisibleCount(PAGE_SIZE); }}
+                        className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors ${observationTypeFilter.has(obsType) ? 'bg-muted/60 text-foreground' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'}`}
                       >
                         <span className='flex h-6 w-6 items-center justify-center shrink-0 text-base'>{icon}</span>
-                        <span className='flex-1 capitalize'>{t}</span>
+                        <span className='flex-1 capitalize'>{t(obsType)}</span>
                         <span className='text-xs tabular-nums text-muted-foreground'>{count}</span>
                       </button>
                     );
@@ -298,7 +300,7 @@ export default function BirdSearch({
                 </FilterSection>
               )}
 
-              <FilterSection label='Rarity'>
+              <FilterSection label={t('rarity')}>
                 {RARITIES.map((r) => (
                   <FilterRow
                     key={r}
@@ -321,7 +323,7 @@ export default function BirdSearch({
                 ))}
               </FilterSection>
 
-              <FilterSection label='Biome'>
+              <FilterSection label={t('biome')}>
                 {availableBiomes.map((b) => (
                   <FilterRow
                     key={b}
@@ -338,7 +340,7 @@ export default function BirdSearch({
                 ))}
               </FilterSection>
 
-              <FilterSection label='Behaviour'>
+              <FilterSection label={t('behaviour')}>
                 {availableBehaviours.map((b) => (
                   <FilterRow
                     key={b}
@@ -351,7 +353,7 @@ export default function BirdSearch({
                 ))}
               </FilterSection>
 
-              <FilterSection label='Food'>
+              <FilterSection label={t('food')}>
                 {availableFoods.map((f) => (
                   <FilterRow
                     key={f}
@@ -375,7 +377,7 @@ export default function BirdSearch({
                   onClick={handleReset}
                   className='w-full rounded-md px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground'
                 >
-                  Reset Filters
+                  {t('resetFilters')}
                 </button>
               </div>
             )}

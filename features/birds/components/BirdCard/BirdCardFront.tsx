@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/lib/cn';
 import { biomeImage, foodImage, behaviourImage } from '@/entities/bird-domain';
 import type { Bird } from '@/entities/bird-domain';
@@ -30,6 +33,8 @@ export default function BirdCardFront({
   onFlip,
   active = true,
 }: Props) {
+  const t = useTranslations('BirdCard');
+
   return (
     <div
       className={cn(
@@ -105,7 +110,7 @@ export default function BirdCardFront({
             className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono'
             style={{ color: 'rgba(120,95,60,0.5)' }}
           >
-            Food
+            {t('food')}
           </p>
           <div className='flex gap-1.5 sm:gap-1 scale-75 origin-left -mb-3 sm:-mb-2 lg:scale-75 lg:origin-left lg:-mb-3'>
             {bird.food.slice(0, 3).map((f) => (
@@ -124,7 +129,7 @@ export default function BirdCardFront({
             className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono'
             style={{ color: 'rgba(120,95,60,0.5)' }}
           >
-            Habitat
+            {t('habitat')}
           </p>
           <div className='flex gap-1.5 sm:gap-1 scale-75 origin-right -mb-3 sm:-mb-2 lg:scale-75 lg:origin-right lg:-mb-3'>
             {bird.biomes.slice(0, 3).map((b) => (
@@ -177,7 +182,7 @@ export default function BirdCardFront({
             className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono'
             style={{ color: 'rgba(120,95,60,0.5)' }}
           >
-            Behaviour
+            {t('behaviour')}
           </p>
           <div className='flex flex-wrap gap-1.5 sm:gap-1'>
             {bird.behaviour.map((b) => (

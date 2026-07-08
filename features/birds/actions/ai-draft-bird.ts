@@ -4,6 +4,7 @@ import { z } from 'zod';
 import OpenAI from 'openai';
 import { requireAdmin } from '@/features/auth/auth-helpers';
 import { RARITIES, FOODS, BIOMES, BEHAVIOURS, type Rarity, type Food, type Biome, type Behaviour } from '@/entities/bird-domain';
+import { localizedZodMessage } from '@/shared/lib/zod-locale';
 
 const DraftBirdSchema = z.object({
   name_eng: z.string().min(1).max(100),
@@ -109,7 +110,7 @@ export async function draftBirdAction(
 
   const parsed = DraftBirdQuerySchema.safeParse(input);
   if (!parsed.success) {
-    return { error: parsed.error.issues.map((i) => i.message).join(', ') };
+    return { error: await localizedZodMessage(parsed.error) };
   }
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -145,7 +146,7 @@ export async function draftBirdAction(
 
   const draftParsed = DraftBirdSchema.safeParse(rawArgs);
   if (!draftParsed.success) {
-    return { error: `AI draft failed validation: ${draftParsed.error.issues.map((i) => i.message).join(', ')}` };
+    return { error: `AI draft failed validation: ${await localizedZodMessage(draftParsed.error)}` };
   }
 
   return { draft: draftParsed.data };

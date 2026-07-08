@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
 import { CldImage } from 'next-cloudinary';
 import { format } from 'date-fns';
@@ -38,12 +39,12 @@ interface Props {
   initialObsId?: string;
 }
 
-const QUALITY_LABELS: Record<number, string> = {
-  1: 'Brief glance',
-  2: 'Partial view',
-  3: 'Good view',
-  4: 'Great view',
-  5: 'Excellent encounter',
+const QUALITY_LABEL_KEY: Record<number, string> = {
+  1: 'qualityBriefGlance',
+  2: 'qualityPartialView',
+  3: 'qualityGoodView',
+  4: 'qualityGreatView',
+  5: 'qualityExcellentEncounter',
 };
 
 function QualityStars({
@@ -53,10 +54,11 @@ function QualityStars({
   rating: number;
   size?: 'sm' | 'xs';
 }) {
+  const t = useTranslations('BirdCard');
   const s =
     size === 'sm' ? 'w-3 h-3 sm:w-2 sm:h-2' : 'w-2.5 h-2.5 sm:w-1.5 sm:h-1.5';
   return (
-    <div className='flex gap-px' title={QUALITY_LABELS[rating]}>
+    <div className='flex gap-px' title={t(QUALITY_LABEL_KEY[rating])}>
       {[1, 2, 3, 4, 5].map((i) => (
         <svg key={i} viewBox='0 0 20 20' className={s} aria-hidden='true'>
           <path
@@ -107,6 +109,7 @@ function AddFirstObservation({
   frameColor: string;
   savedLocations: SavedLocation[];
 }) {
+  const t = useTranslations('BirdCard');
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
@@ -125,10 +128,10 @@ function AddFirstObservation({
       </div>
       <div className='text-center'>
         <p className='text-sm sm:text-[9px] font-semibold text-card-foreground leading-snug'>
-          Not spotted yet
+          {t('notSpottedYet')}
         </p>
         <p className='text-[12px] sm:text-[8px] text-muted-foreground mt-1 sm:mt-0.5 font-mono leading-snug'>
-          Log your first encounter with {bird.name_eng}
+          {t('logFirstEncounter', { name: bird.name_eng })}
         </p>
       </div>
       <button
@@ -145,7 +148,7 @@ function AddFirstObservation({
         }}
       >
         <Camera className='h-3.5 w-3.5 sm:h-2.5 sm:w-2.5' />
-        Add first observation
+        {t('addFirstObservation')}
       </button>
 
       {modalOpen && (
@@ -172,6 +175,7 @@ export default function BirdCardBackObservation({
   savedLocations = [],
   initialObsId,
 }: Props) {
+  const t = useTranslations('BirdCard');
   const [observations, setObservations] = useState<ObservationEntry[]>(
     collectionData?.observations ?? [],
   );
@@ -202,9 +206,9 @@ export default function BirdCardBackObservation({
   const obs = observations[idx];
   const qualityRating = obs?.quality ?? null;
   const evidence = [
-    { Icon: Eye, label: 'Seen', active: obs?.seen },
-    { Icon: Music, label: 'Heard', active: obs?.heard },
-    { Icon: Camera, label: 'Photographed', active: obs?.photographed },
+    { Icon: Eye, label: t('seen'), active: obs?.seen },
+    { Icon: Music, label: t('heard'), active: obs?.heard },
+    { Icon: Camera, label: t('photographed'), active: obs?.photographed },
   ];
   const hasLocation = obs?.lat !== null && obs?.lng !== null;
 
@@ -317,7 +321,7 @@ export default function BirdCardBackObservation({
                 className='text-[9px] sm:text-[6px] uppercase tracking-[0.2em] font-mono leading-none'
                 style={{ color: `${frameColor}88` }}
               >
-                {totalCount === 1 ? 'encounter' : 'encounters'}
+                {t('encounterCount', { count: totalCount })}
               </span>
               <div className='flex items-center gap-2 sm:gap-1.5 mt-0.5'>
                 {seenCount > 0 && (
@@ -349,7 +353,7 @@ export default function BirdCardBackObservation({
                     className='uppercase tracking-[0.16em] text-[8px] sm:text-[5.5px]'
                     style={{ color: frameColor }}
                   >
-                    First{' '}
+                    {t('firstDate')}{' '}
                   </span>
                   <span className='text-card-foreground'>
                     {format(firstSeenDate, 'd MMM yyyy')}
@@ -362,7 +366,7 @@ export default function BirdCardBackObservation({
                       className='uppercase tracking-[0.16em] text-[8px] sm:text-[5.5px]'
                       style={{ color: frameColor }}
                     >
-                      Last{' '}
+                      {t('lastDate')}{' '}
                     </span>
                     <span className='text-card-foreground'>
                       {format(lastSeenDate, 'd MMM yyyy')}
@@ -389,7 +393,7 @@ export default function BirdCardBackObservation({
                 type='button'
                 onClick={prev}
                 disabled={observations.length <= 1 || idx === 0}
-                title='Previous observation'
+                title={t('previousObservation')}
                 className='flex items-center justify-center w-7 h-7 sm:w-5 sm:h-5 rounded-full transition-opacity disabled:opacity-20 hover:bg-[var(--hover)]'
                 style={
                   {
@@ -404,7 +408,7 @@ export default function BirdCardBackObservation({
                 className='text-[11px] sm:text-[6.5px] uppercase tracking-[0.2em] font-mono tabular-nums'
                 style={{ color: `${frameColor}aa` }}
               >
-                Encounter {idx + 1} / {observations.length}
+                {t('encounterPager', { current: idx + 1, total: observations.length })}
               </span>
               <button
                 type='button'
@@ -412,7 +416,7 @@ export default function BirdCardBackObservation({
                 disabled={
                   observations.length <= 1 || idx === observations.length - 1
                 }
-                title='Next observation'
+                title={t('nextObservation')}
                 className='flex items-center justify-center w-7 h-7 sm:w-5 sm:h-5 rounded-full transition-opacity disabled:opacity-20 hover:bg-[var(--hover)]'
                 style={
                   {
@@ -431,7 +435,7 @@ export default function BirdCardBackObservation({
               style={{ boxShadow: `inset 0 0 0 1px ${frameColor}1f` }}
             >
               {obs.photoUrl ? (
-                <ObservationImage url={obs.photoUrl} alt='Observation photo' />
+                <ObservationImage url={obs.photoUrl} alt={t('observationPhoto')} />
               ) : (
                 <div
                   className='absolute inset-0 flex flex-col items-center justify-center gap-2 xs:gap-1'
@@ -445,7 +449,7 @@ export default function BirdCardBackObservation({
                     className='text-[11px] sm:text-[6.5px] font-mono uppercase tracking-[0.12em]'
                     style={{ color: `${frameColor}55` }}
                   >
-                    No photo
+                    {t('noPhoto')}
                   </span>
                 </div>
               )}
@@ -471,7 +475,7 @@ export default function BirdCardBackObservation({
                     background: 'rgba(0,0,0,0.4)',
                     border: '1px solid rgba(255,255,255,0.25)',
                   }}
-                  title={QUALITY_LABELS[qualityRating]}
+                  title={t(QUALITY_LABEL_KEY[qualityRating])}
                 >
                   <QualityStars rating={qualityRating} size='xs' />
                 </div>
@@ -487,7 +491,7 @@ export default function BirdCardBackObservation({
                     e.stopPropagation();
                     setMapOpen(true);
                   }}
-                  title='Show on map'
+                  title={t('showOnMap')}
                   className='flex items-center gap-1.5 sm:gap-1 min-w-0 group'
                 >
                   <MapPin
@@ -511,7 +515,7 @@ export default function BirdCardBackObservation({
                 </button>
               ) : (
                 <span className='text-[11px] sm:text-[7px] font-mono text-muted-foreground/50 italic'>
-                  No location
+                  {t('noLocation')}
                 </span>
               )}
 
@@ -577,7 +581,7 @@ export default function BirdCardBackObservation({
                       color: '#a89880',
                     }}
                   >
-                    No note written
+                    {t('noNoteWritten')}
                   </p>
                 </div>
               )}
@@ -588,7 +592,7 @@ export default function BirdCardBackObservation({
               <button
                 type='button'
                 onClick={openEdit}
-                title='Edit this observation'
+                title={t('editThisObservation')}
                 className='flex items-center justify-center w-9 h-9 sm:w-5 sm:h-5 rounded-md transition-colors text-muted-foreground/60 hover:text-[var(--edit-color)] hover:bg-[var(--edit-bg)]'
                 style={
                   {
@@ -602,7 +606,7 @@ export default function BirdCardBackObservation({
               <button
                 type='button'
                 onClick={openDeleteConfirm}
-                title='Delete this observation'
+                title={t('deleteThisObservation')}
                 className='flex items-center justify-center w-9 h-9 sm:w-5 sm:h-5 rounded-md transition-colors text-muted-foreground/60 hover:text-[var(--del-color)] hover:bg-[var(--del-bg)]'
                 style={
                   {
@@ -643,17 +647,16 @@ export default function BirdCardBackObservation({
 
       {confirmDelete && obs && (
         <ConfirmDeleteModal
-          title='Delete observation'
+          title={t('deleteObservationTitle')}
           error={deleteError}
           pending={deletePending}
           onConfirm={handleDeleteConfirmed}
           onCancel={() => setConfirmDelete(false)}
         >
-          Delete this observation from{' '}
-          <span className='font-semibold'>
-            {format(new Date(obs.observedAt), 'd MMM yyyy')}
-          </span>
-          ? This cannot be undone.
+          {t.rich('deleteObservationConfirm', {
+            date: format(new Date(obs.observedAt), 'd MMM yyyy'),
+            b: (chunks) => <span className='font-semibold'>{chunks}</span>,
+          })}
         </ConfirmDeleteModal>
       )}
     </>

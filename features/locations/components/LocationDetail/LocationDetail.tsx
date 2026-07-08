@@ -1,8 +1,10 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { format } from 'date-fns';
+import { enUS, uk } from 'date-fns/locale';
 import {
   MapPin,
   Eye,
@@ -58,6 +60,9 @@ function resizeImage(file: File, maxPx = 1920, quality = 0.8): Promise<Blob> {
 
 export default function LocationDetail({ location, stats, observations }: Props) {
   const router = useRouter();
+  const t = useTranslations('LocationDetail');
+  const locale = useLocale();
+  const dateFnsLocale = locale === 'uk' ? uk : enUS;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletePending, startDeleteTransition] = useTransition();
@@ -83,11 +88,11 @@ export default function LocationDetail({ location, stats, observations }: Props)
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setPhotoError('Only image files are allowed.');
+      setPhotoError(t('onlyImageFiles'));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setPhotoError('Image must be under 10 MB.');
+      setPhotoError(t('imageTooLarge'));
       return;
     }
     setPhotoUploading(true);
@@ -117,7 +122,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
         setPhotoPublicId(uploadResult.publicId);
       }
     } catch {
-      setPhotoError('Upload failed. Please try again.');
+      setPhotoError(t('uploadFailed'));
     } finally {
       setPhotoUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -171,7 +176,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
                 type='button'
                 onClick={() => fileInputRef.current?.click()}
                 disabled={photoUploading}
-                aria-label='Change photo'
+                aria-label={t('changePhoto')}
                 className='rounded-full p-1.5 bg-black/50 text-white hover:bg-black/70 transition-colors'
               >
                 <Images className='h-3.5 w-3.5' />
@@ -180,7 +185,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
                 type='button'
                 onClick={handleRemovePhoto}
                 disabled={photoUploading}
-                aria-label='Remove photo'
+                aria-label={t('removePhoto')}
                 className='rounded-full p-1.5 bg-black/50 text-white hover:bg-black/70 transition-colors'
               >
                 <X className='h-3.5 w-3.5' />
@@ -201,7 +206,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
           >
             <Camera className='h-6 w-6' />
             <span className='text-[10px] font-mono uppercase tracking-wider'>
-              {photoUploading ? 'Uploading...' : 'Add location photo'}
+              {photoUploading ? t('uploading') : t('addLocationPhoto')}
             </span>
             {photoUploading && (
               <div className='absolute inset-0 flex items-center justify-center bg-black/10'>
@@ -216,7 +221,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
           accept='image/*'
           className='hidden'
           onChange={handlePhotoChange}
-          aria-label='Upload location photo'
+          aria-label={t('uploadLocationPhoto')}
         />
 
         {/* Location info bar */}
@@ -270,7 +275,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
                 setConfirmDelete(true);
                 setDeleteError(null);
               }}
-              aria-label='Delete location'
+              aria-label={t('deleteLocation')}
               className='text-muted-foreground hover:text-destructive'
             >
               <Trash2 className='h-3.5 w-3.5' />
@@ -286,19 +291,19 @@ export default function LocationDetail({ location, stats, observations }: Props)
           <div className='grid grid-cols-3 gap-2'>
             <PrimaryStat
               icon={<Eye className='h-4 w-4' />}
-              label='Observations'
+              label={t('observations')}
               value={String(stats.observationCount)}
             />
             <PrimaryStat
               icon={<Bird className='h-4 w-4' />}
-              label='Species'
+              label={t('species')}
               value={String(stats.speciesCount)}
             />
             <PrimaryStat
               icon={<Calendar className='h-4 w-4' />}
-              label='Last visit'
+              label={t('lastVisit')}
               value={stats.lastObservationDate
-                ? format(new Date(stats.lastObservationDate), 'd MMM')
+                ? format(new Date(stats.lastObservationDate), 'd MMM', { locale: dateFnsLocale })
                 : '—'}
             />
           </div>
@@ -313,17 +318,17 @@ export default function LocationDetail({ location, stats, observations }: Props)
               )}
               {stats.seenCount > 0 && (
                 <Chip icon={<Eye className='h-3 w-3' />}>
-                  Seen {stats.seenCount}
+                  {t('seenCount', { count: stats.seenCount })}
                 </Chip>
               )}
               {stats.heardCount > 0 && (
                 <Chip icon={<Music className='h-3 w-3' />}>
-                  Heard {stats.heardCount}
+                  {t('heardCount', { count: stats.heardCount })}
                 </Chip>
               )}
               {stats.photographedCount > 0 && (
                 <Chip icon={<Camera className='h-3 w-3' />}>
-                  Photos {stats.photographedCount}
+                  {t('photosCount', { count: stats.photographedCount })}
                 </Chip>
               )}
             </div>
@@ -334,7 +339,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
       {/* Recent observations */}
       <div>
         <h2 className='text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2'>
-          Recent observations
+          {t('recentObservations')}
         </h2>
         {observations.length > 0 ? (
           <div className='rounded-xl border border-border bg-card divide-y divide-border'>
@@ -362,7 +367,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
                   </p>
                   <div className='flex items-center gap-2 mt-0.5'>
                     <span className='text-[11px] text-muted-foreground'>
-                      {format(new Date(obs.observedAt), 'd MMM yyyy')}
+                      {format(new Date(obs.observedAt), 'd MMM yyyy', { locale: dateFnsLocale })}
                     </span>
                     <span className='flex items-center gap-1 text-muted-foreground/50'>
                       {obs.seen && <Eye className='h-3 w-3' />}
@@ -382,14 +387,14 @@ export default function LocationDetail({ location, stats, observations }: Props)
         ) : (
           <div className='rounded-xl border border-dashed border-border bg-card/50 px-6 py-8 text-center'>
             <Bird className='h-8 w-8 text-muted-foreground/20 mx-auto mb-2' />
-            <p className='text-sm font-medium text-card-foreground'>No observations yet</p>
+            <p className='text-sm font-medium text-card-foreground'>{t('emptyTitle')}</p>
             <p className='text-xs text-muted-foreground mt-1'>
-              Find a bird in the catalog and log your first sighting here.
+              {t('emptyDescription')}
             </p>
             <Link href='/birds' className='inline-block mt-3'>
               <Button size='sm' variant='outline'>
                 <Plus className='h-3.5 w-3.5' />
-                Browse birds
+                {t('browseBirds')}
               </Button>
             </Link>
           </div>
@@ -399,7 +404,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
       {/* Delete confirmation */}
       {confirmDelete && (
         <ConfirmDeleteModal
-          title='Delete location'
+          title={t('deleteLocation')}
           error={deleteError}
           pending={deletePending}
           onConfirm={handleDeleteConfirmed}
@@ -408,7 +413,10 @@ export default function LocationDetail({ location, stats, observations }: Props)
             setDeleteError(null);
           }}
         >
-          Delete <span className='font-semibold'>{location.name}</span>? This will remove it from your saved places. Your observations will keep their location data.
+          {t.rich('deleteLocationConfirm', {
+            name: location.name,
+            b: (chunks) => <span className='font-semibold'>{chunks}</span>,
+          })}
         </ConfirmDeleteModal>
       )}
     </div>

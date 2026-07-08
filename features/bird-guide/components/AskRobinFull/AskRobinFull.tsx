@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useAskRobinChat } from '@/features/bird-guide/components/AskRobinChatProvider/AskRobinChatProvider';
 import { useScrollToBottom } from '@/features/bird-guide/hooks/useScrollToBottom';
 import { Trash2 } from 'lucide-react';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function AskRobinFull({ userContext }: Props) {
+  const t = useTranslations('AskRobinPage');
   const { messages, input, isStreaming, streamingContent, error, setInput, send, suggest, clear } =
     useAskRobinChat();
 
@@ -22,10 +24,10 @@ export default function AskRobinFull({ userContext }: Props) {
     <div className="flex flex-col flex-1 min-h-0 max-w-2xl mx-auto w-full px-4">
       <div className="py-6 shrink-0 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Ask Robin</h1>
+          <h1 className="text-2xl font-semibold">{t('title')}</h1>
           {userContext && (
             <p className="text-sm text-muted-foreground mt-1">
-              Answering based on your {userContext.observedCount} observed species.
+              {t('answeringBasedOn', { count: userContext.observedCount })}
             </p>
           )}
         </div>
@@ -33,10 +35,10 @@ export default function AskRobinFull({ userContext }: Props) {
           <button
             onClick={clear}
             className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Clear conversation"
+            aria-label={t('clearConversation')}
           >
             <Trash2 size={13} />
-            Clear
+            {t('clear')}
           </button>
         )}
       </div>
@@ -45,7 +47,7 @@ export default function AskRobinFull({ userContext }: Props) {
         {messages.length === 0 && !isStreaming && (
           <div className="pt-4">
             <p className="text-sm text-muted-foreground mb-4">
-              Ask anything about birds — or pick a question to get started:
+              {t('askAnything')}
             </p>
             <AskRobinSuggestions userContext={userContext} onSuggest={suggest} />
           </div>

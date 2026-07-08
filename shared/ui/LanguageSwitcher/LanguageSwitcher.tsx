@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { locales, defaultLocale, type Locale } from '@/i18n/locales';
+import { useLocale, useTranslations } from 'next-intl';
+import { Link, usePathname } from '@/i18n/navigation';
+import { locales, type Locale } from '@/i18n/locales';
 import { cn } from '@/shared/lib/cn';
 
 const localeLabels: Record<Locale, string> = {
@@ -10,28 +10,22 @@ const localeLabels: Record<Locale, string> = {
   uk: 'UA',
 };
 
-function splitLocaleFromPathname(pathname: string): { locale: Locale | null; rest: string } {
-  const [, first, ...restParts] = pathname.split('/');
-  if (locales.includes(first as Locale)) {
-    return { locale: first as Locale, rest: `/${restParts.join('/')}` };
-  }
-  return { locale: null, rest: pathname };
-}
-
 export default function LanguageSwitcher() {
   const pathname = usePathname();
-  const { locale: activeLocale, rest } = splitLocaleFromPathname(pathname);
+  const activeLocale = useLocale();
+  const t = useTranslations('Navigation');
 
   return (
-    <nav aria-label="Language" className="flex items-center gap-1 text-xs font-mono">
+    <nav aria-label={t('language')} className="flex items-center gap-1 text-xs font-mono">
       {locales.map((locale) => (
         <Link
           key={locale}
-          href={activeLocale ? `/${locale}${rest === '/' ? '' : rest}` : `/${locale}`}
-          aria-current={locale === (activeLocale ?? defaultLocale) ? 'true' : undefined}
+          href={pathname}
+          locale={locale}
+          aria-current={locale === activeLocale ? 'true' : undefined}
           className={cn(
             'px-1.5 py-0.5 rounded uppercase tracking-wider transition-colors',
-            locale === (activeLocale ?? defaultLocale)
+            locale === activeLocale
               ? 'bg-foreground/10 text-foreground'
               : 'text-foreground/50 hover:text-foreground',
           )}

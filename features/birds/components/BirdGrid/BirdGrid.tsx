@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import type { Bird } from '@/entities/bird-domain';
 import BirdCard from '@/features/birds/components/BirdCard/BirdCard';
 import type { SavedLocation } from '@/features/locations/location-queries';
@@ -20,10 +23,12 @@ export default function BirdGrid({
   savedLocations = [],
   collectionDataByBirdId,
 }: BirdGridProps) {
+  const t = useTranslations('BirdsPage');
+
   if (birds.length === 0) {
     return (
       <p className='col-span-full text-center text-muted-foreground py-16'>
-        No birds match your search.
+        {t('noResults')}
       </p>
     );
   }

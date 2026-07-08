@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { format } from 'date-fns';
+import { enUS, uk, type Locale as DateFnsLocale } from 'date-fns/locale';
 import {
   Eye,
   Music,
@@ -26,6 +28,9 @@ interface Props {
 
 export default function ObservationList({ observations: initialObservations }: Props) {
   const router = useRouter();
+  const t = useTranslations('ObservationsPage');
+  const locale = useLocale();
+  const dateFnsLocale = locale === 'uk' ? uk : enUS;
   const [observations, setObservations] = useState(initialObservations);
   const [editing, setEditing] = useState<UserObservation | null>(null);
   const [deleting, setDeleting] = useState<UserObservation | null>(null);
@@ -51,21 +56,21 @@ export default function ObservationList({ observations: initialObservations }: P
     return (
       <div className='rounded-xl border border-dashed border-border bg-card/50 px-6 py-8 text-center'>
         <Bird className='h-8 w-8 text-muted-foreground/20 mx-auto mb-2' />
-        <p className='text-sm font-medium text-card-foreground'>No observations yet</p>
+        <p className='text-sm font-medium text-card-foreground'>{t('emptyTitle')}</p>
         <p className='text-xs text-muted-foreground mt-1'>
-          Find a bird in the catalog and log your first sighting.
+          {t('emptyDescription')}
         </p>
         <Link href='/birds' className='inline-block mt-3'>
           <Button size='sm' variant='outline'>
             <Plus className='h-3.5 w-3.5' />
-            Browse birds
+            {t('browseBirds')}
           </Button>
         </Link>
       </div>
     );
   }
 
-  const grouped = groupByDate(observations);
+  const grouped = groupByDate(observations, dateFnsLocale);
 
   return (
     <div className='flex flex-col gap-5'>
@@ -99,7 +104,7 @@ export default function ObservationList({ observations: initialObservations }: P
                     </p>
                     <div className='flex items-center gap-2 mt-0.5'>
                       <span className='text-[11px] text-muted-foreground'>
-                        {format(new Date(o.observedAt), 'd MMM yyyy')}
+                        {format(new Date(o.observedAt), 'd MMM yyyy', { locale: dateFnsLocale })}
                       </span>
                       <span className='flex items-center gap-1 text-muted-foreground/50'>
                         {o.seen && <Eye className='h-3 w-3' />}
@@ -143,8 +148,8 @@ export default function ObservationList({ observations: initialObservations }: P
                   <button
                     type='button'
                     onClick={() => setEditing(o)}
-                    aria-label={`Edit observation of ${o.birdName}`}
-                    title='Edit observation'
+                    aria-label={t('editObservationOf', { name: o.birdName })}
+                    title={t('editObservation')}
                     className='flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors'
                   >
                     <Pencil className='h-3.5 w-3.5' />
@@ -152,8 +157,8 @@ export default function ObservationList({ observations: initialObservations }: P
                   <button
                     type='button'
                     onClick={() => { setDeleteError(null); setDeleting(o); }}
-                    aria-label={`Delete observation of ${o.birdName}`}
-                    title='Delete observation'
+                    aria-label={t('deleteObservationOf', { name: o.birdName })}
+                    title={t('deleteObservation')}
                     className='flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors'
                   >
                     <Trash2 className='h-3.5 w-3.5' />
@@ -212,25 +217,28 @@ export default function ObservationList({ observations: initialObservations }: P
 
       {deleting && (
         <ConfirmDeleteModal
-          title='Delete observation'
+          title={t('deleteObservation')}
           error={deleteError}
           pending={deletePending}
           onConfirm={handleDeleteConfirmed}
           onCancel={() => setDeleting(null)}
         >
-          Delete this observation of <span className='font-semibold'>{deleting.birdName}</span>? This cannot be undone.
+          {t.rich('deleteObservationConfirm', {
+            name: deleting.birdName,
+            b: (chunks) => <span className='font-semibold'>{chunks}</span>,
+          })}
         </ConfirmDeleteModal>
       )}
     </div>
   );
 }
 
-function groupByDate(observations: UserObservation[]) {
+function groupByDate(observations: UserObservation[], dateFnsLocale: DateFnsLocale) {
   const groups: { label: string; observations: UserObservation[] }[] = [];
   const map = new Map<string, UserObservation[]>();
 
   for (const obs of observations) {
-    const label = format(new Date(obs.observedAt), 'MMMM yyyy');
+    const label = format(new Date(obs.observedAt), 'MMMM yyyy', { locale: dateFnsLocale });
     const existing = map.get(label);
     if (existing) {
       existing.push(obs);

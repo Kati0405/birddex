@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   RARITIES, FOODS, foodImage, BIOMES, biomeImage, BEHAVIOURS, behaviourImage,
 } from '@/entities/bird-domain';
@@ -9,9 +10,10 @@ import { draftBirdAction, type DraftedBird } from '@/features/birds/actions/ai-d
 import { createBirdAction } from '@/features/birds/actions/create-bird-mutation';
 import BirdChipPicker from './BirdChipPicker';
 
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_KEYS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 
 export default function AddBirdForm() {
+  const t = useTranslations('AddBirdPage');
   const [query, setQuery] = useState('');
   const [drafting, setDrafting] = useState(false);
   const [draftError, setDraftError] = useState<string | null>(null);
@@ -34,14 +36,14 @@ export default function AddBirdForm() {
     <div className="space-y-6">
       <section className="space-y-2 rounded-xl border border-border bg-card p-6">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Identify bird
+          {t('identifyBird')}
         </p>
         <div className="flex gap-2">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g. European Robin"
+            placeholder={t('identifyPlaceholder')}
             className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <button
@@ -50,7 +52,7 @@ export default function AddBirdForm() {
             onClick={handleDraft}
             className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {drafting ? 'Drafting…' : 'Draft with AI'}
+            {drafting ? t('drafting') : t('draftWithAi')}
           </button>
         </div>
         {draftError && <p className="text-sm text-red-500">{draftError}</p>}
@@ -62,6 +64,8 @@ export default function AddBirdForm() {
 }
 
 function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) {
+  const t = useTranslations('AddBirdPage');
+  const tMonths = useTranslations('Months');
   const [nameEng, setNameEng] = useState(initialDraft.name_eng);
   const [nameLatin, setNameLatin] = useState(initialDraft.name_latin);
   const [rarity, setRarity] = useState<Rarity>(initialDraft.rarity);
@@ -141,11 +145,11 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
 
   return (
     <div className="space-y-6 rounded-xl border border-border bg-card p-6">
-      <h2 className="text-base font-bold">Review &amp; edit draft</h2>
+      <h2 className="text-base font-bold">{t('reviewEditDraft')}</h2>
 
       <section className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">English name</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('englishName')}</p>
           <input
             type="text"
             value={nameEng}
@@ -155,7 +159,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
           />
         </div>
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Latin name</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('latinName')}</p>
           <input
             type="text"
             value={nameLatin}
@@ -168,7 +172,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
 
       <section className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rarity</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('rarity')}</p>
           <select
             value={rarity}
             onChange={(e) => setRarity(e.target.value as Rarity)}
@@ -180,7 +184,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
           </select>
         </div>
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Wingspan (cm)</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('wingspan')}</p>
           <input
             type="number"
             value={wingspan}
@@ -192,19 +196,19 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
         </div>
       </section>
 
-      <BirdChipPicker label="Food" values={FOODS} imageFor={foodImage} selected={food} max={3}
+      <BirdChipPicker label={t('food')} values={FOODS} imageFor={foodImage} selected={food} max={3}
         onToggle={(v) => toggle(food, setFood, v, 3)} />
-      <BirdChipPicker label="Biome" values={BIOMES} imageFor={biomeImage} selected={biomes} max={3}
+      <BirdChipPicker label={t('biome')} values={BIOMES} imageFor={biomeImage} selected={biomes} max={3}
         onToggle={(v) => toggle(biomes, setBiomes, v, 3)} />
-      <BirdChipPicker label="Behaviour" values={BEHAVIOURS} imageFor={behaviourImage} selected={behaviour} max={3}
+      <BirdChipPicker label={t('behaviour')} values={BEHAVIOURS} imageFor={behaviourImage} selected={behaviour} max={3}
         onToggle={(v) => toggle(behaviour, setBehaviour, v, 3)} />
 
       <section className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Best months to observe
+          {t('bestMonthsToObserve')}
         </p>
         <div className="flex flex-wrap gap-1.5">
-          {MONTH_LABELS.map((label, i) => {
+          {MONTH_KEYS.map((key, i) => {
             const m = i + 1;
             const active = bestMonths.includes(m);
             return (
@@ -218,7 +222,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
                     : 'border-border bg-background text-muted-foreground hover:border-primary'
                 }`}
               >
-                {label}
+                {tMonths(key)}
               </button>
             );
           })}
@@ -226,13 +230,13 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
       </section>
 
       <section className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Field note</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('fieldNote')}</p>
         <textarea
           value={fieldNote}
           onChange={(e) => setFieldNote(e.target.value)}
           maxLength={300}
           rows={3}
-          placeholder="Short humorous field note…"
+          placeholder={t('fieldNotePlaceholder')}
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
         />
         <p className="text-xs text-muted-foreground text-right">{fieldNote.length}/300</p>
@@ -240,7 +244,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
 
       <section className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          How to find <span className="normal-case font-normal ml-1">({tips.length}/4)</span>
+          {t('howToFind')} <span className="normal-case font-normal ml-1">({tips.length}/4)</span>
         </p>
         <div className="space-y-1.5">
           {tips.map((tip, i) => (
@@ -250,7 +254,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
                 value={tip}
                 onChange={(e) => setTip(i, e.target.value)}
                 maxLength={200}
-                placeholder={`Tip ${i + 1}…`}
+                placeholder={t('tipPlaceholder', { number: i + 1 })}
                 className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <button
@@ -264,7 +268,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
           ))}
           {tips.length < 4 && (
             <button type="button" onClick={() => setTips((prev) => [...prev, ''])} className="text-xs text-primary hover:underline">
-              + Add tip
+              {t('addTip')}
             </button>
           )}
         </div>
@@ -272,7 +276,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
 
       <section className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Field marks <span className="normal-case font-normal ml-1">({marks.length}/4)</span>
+          {t('fieldMarks')} <span className="normal-case font-normal ml-1">({marks.length}/4)</span>
         </p>
         <div className="space-y-1.5">
           {marks.map((mark, i) => (
@@ -282,7 +286,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
                 value={mark}
                 onChange={(e) => setMark(i, e.target.value)}
                 maxLength={200}
-                placeholder={`Mark ${i + 1}…`}
+                placeholder={t('markPlaceholder', { number: i + 1 })}
                 className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <button
@@ -296,7 +300,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
           ))}
           {marks.length < 4 && (
             <button type="button" onClick={() => setMarks((prev) => [...prev, ''])} className="text-xs text-primary hover:underline">
-              + Add mark
+              {t('addMark')}
             </button>
           )}
         </div>
@@ -309,7 +313,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
           onClick={handleSave}
           className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {status === 'saving' ? 'Saving…' : 'Save bird'}
+          {status === 'saving' ? t('saving') : t('saveBird')}
         </button>
         {status === 'error' && <span className="text-sm text-red-500">{saveError}</span>}
       </div>

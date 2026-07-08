@@ -1,17 +1,22 @@
 'use client';
 
-import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+
+function MapLoading() {
+  const t = useTranslations('LocationMapPopover');
+  return (
+    <div className='w-full h-full flex items-center justify-center text-[9px] font-mono text-muted-foreground'>
+      {t('loadingMap')}
+    </div>
+  );
+}
 
 const MapView = dynamic(() => import('./MapView'), {
   ssr: false,
-  loading: () => (
-    <div className='w-full h-full flex items-center justify-center text-[9px] font-mono text-muted-foreground'>
-      Loading map…
-    </div>
-  ),
+  loading: () => <MapLoading />,
 });
 
 interface Props {

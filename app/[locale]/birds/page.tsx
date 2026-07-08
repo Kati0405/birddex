@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getBirds } from '@/features/birds/bird-queries';
 import BirdSearch from '@/features/birds/components/BirdSearch/BirdSearch';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
@@ -7,13 +7,21 @@ import { getObservedBirdIds, getCollectionCardDataByBirdIds } from '@/features/o
 import { getSavedLocations } from '@/features/locations/location-queries';
 import { locales, type Locale } from '@/i18n/locales';
 
-export const metadata: Metadata = {
-  title: 'BirdDex — Birds',
-  description: 'A collectible field guide to birds, each with a personality.',
-};
-
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'BirdsPage' });
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  };
 }
 
 export default async function BirdsPage({

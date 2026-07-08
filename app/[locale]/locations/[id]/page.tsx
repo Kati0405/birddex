@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { requireAuth } from '@/features/auth/auth-helpers';
 import {
   getSavedLocationById,
@@ -18,11 +18,12 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: Locale; id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: 'LocationDetail' });
   const location = await getSavedLocationById(Number(id)).catch(() => null);
-  if (!location) return { title: 'Location not found — BirdDex' };
+  if (!location) return { title: t('locationNotFound') };
   return { title: `${location.name} — BirdDex` };
 }
 
@@ -33,6 +34,7 @@ export default async function LocationPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations('LocationDetail');
 
   const user = await requireAuth();
   const location = await getSavedLocationById(Number(id));
@@ -50,7 +52,7 @@ export default async function LocationPage({
           href='/locations'
           className='inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4'
         >
-          &larr; Back to locations
+          &larr; {t('backToLocations')}
         </Link>
         <LocationDetail
           location={location}

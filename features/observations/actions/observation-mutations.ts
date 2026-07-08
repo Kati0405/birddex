@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { addObservation, updateObservation, deleteObservation, type ObservationQuality } from '@/features/observations/observation-queries';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { requireAuth } from '@/features/auth/auth-helpers';
+import { localizedZodMessage } from '@/shared/lib/zod-locale';
 
 const AddObservationSchema = z.object({
   birdId: z.number().int().positive(),
@@ -28,7 +29,7 @@ export async function addObservationAction(
   await requireAuth();
 
   const parsed = AddObservationSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') };
+  if (!parsed.success) return { error: await localizedZodMessage(parsed.error) };
 
   try {
     await addObservation({
@@ -74,7 +75,7 @@ export async function updateObservationAction(
   await requireAuth();
 
   const parsed = UpdateObservationSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues.map((i) => `${i.path.join('.') || 'root'}: ${i.message}`).join(', ') };
+  if (!parsed.success) return { error: await localizedZodMessage(parsed.error) };
 
   try {
     await updateObservation(parsed.data.id, {
@@ -107,7 +108,7 @@ export async function deleteObservationAction(
   await requireAuth();
 
   const parsed = DeleteObservationSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') };
+  if (!parsed.success) return { error: await localizedZodMessage(parsed.error) };
 
   try {
     await deleteObservation(parsed.data.id);

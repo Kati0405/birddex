@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import { format } from 'date-fns';
@@ -53,6 +54,9 @@ export default function AddObservationModal({
   onClose,
   onSaved,
 }: AddObservationModalProps) {
+  const t = useTranslations('AddObservationModal');
+  const tCard = useTranslations('BirdCard');
+  const tCommon = useTranslations('Common');
   const isEdit = !!initialData;
 
   const [date, setDate] = useState<Date>(initialData?.date ?? new Date());
@@ -126,7 +130,7 @@ export default function AddObservationModal({
         setPhotoUrl(result.url);
       }
     } catch {
-      setPhotoError('Upload failed. Please try again.');
+      setPhotoError(t('uploadFailed'));
       setPhotoPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     } finally {
@@ -183,19 +187,19 @@ export default function AddObservationModal({
   }
 
   const evidence = [
-    { key: 'seen',         Icon: Eye,    label: 'Seen',         value: seen,         toggle: () => setSeen(!seen) },
-    { key: 'heard',        Icon: Music,  label: 'Heard',        value: heard,        toggle: () => setHeard(!heard) },
-    { key: 'photographed', Icon: Camera, label: 'Photographed', value: photographed, toggle: () => setPhotographed(!photographed) },
+    { key: 'seen',         Icon: Eye,    label: tCard('seen'),         value: seen,         toggle: () => setSeen(!seen) },
+    { key: 'heard',        Icon: Music,  label: tCard('heard'),        value: heard,        toggle: () => setHeard(!heard) },
+    { key: 'photographed', Icon: Camera, label: tCard('photographed'), value: photographed, toggle: () => setPhotographed(!photographed) },
   ];
 
   const [hoverStar, setHoverStar] = useState<number | null>(null);
 
   const qualityLevels: { stars: 1 | 2 | 3 | 4 | 5; label: string; description: string }[] = [
-    { stars: 1, label: 'Brief glance',       description: 'Saw it quickly, uncertain details' },
-    { stars: 2, label: 'Partial view',        description: 'Recognized it, but not clearly' },
-    { stars: 3, label: 'Good view',           description: 'Clear enough to identify confidently' },
-    { stars: 4, label: 'Great view',          description: 'Close, clear, or long observation' },
-    { stars: 5, label: 'Excellent encounter', description: 'Memorable, with strong details' },
+    { stars: 1, label: tCard('qualityBriefGlance'),       description: tCard('qualityBriefGlanceDescription') },
+    { stars: 2, label: tCard('qualityPartialView'),        description: tCard('qualityPartialViewDescription') },
+    { stars: 3, label: tCard('qualityGoodView'),           description: tCard('qualityGoodViewDescription') },
+    { stars: 4, label: tCard('qualityGreatView'),          description: tCard('qualityGreatViewDescription') },
+    { stars: 5, label: tCard('qualityExcellentEncounter'), description: tCard('qualityExcellentEncounterDescription') },
   ];
 
   return createPortal(
@@ -217,7 +221,7 @@ export default function AddObservationModal({
         <button
           type='button'
           onClick={onClose}
-          aria-label='Close'
+          aria-label={t('close')}
           className='absolute top-3 right-3 rounded-full p-1 text-muted-foreground hover:text-foreground transition-colors'
         >
           <X className='h-3.5 w-3.5' />
@@ -227,12 +231,12 @@ export default function AddObservationModal({
 
           <div>
             <p className='text-[7px] uppercase tracking-[0.18em] font-mono mb-0.5 text-muted-foreground'>
-              {isEdit ? 'Edit observation' : 'Log observation'}
+              {isEdit ? t('editTitle') : t('logTitle')}
             </p>
             <p className='text-sm font-semibold text-card-foreground leading-tight'>{birdName}</p>
           </div>
 
-          <Section label='How observed' frameColor={frameColor}>
+          <Section label={t('howObserved')} frameColor={frameColor}>
             <div className='flex gap-1.5'>
               {evidence.map(({ key, Icon, label, value, toggle }) => (
                 <button
@@ -253,7 +257,7 @@ export default function AddObservationModal({
             </div>
           </Section>
 
-          <Section label='Date' frameColor={frameColor}>
+          <Section label={t('date')} frameColor={frameColor}>
             <Popover>
               <PopoverTrigger render={
                 <button
@@ -278,7 +282,7 @@ export default function AddObservationModal({
           </Section>
 
           <Section
-            label='Location'
+            label={t('location')}
             frameColor={frameColor}
             trailing={
               savedLocations.length > 0 ? (
@@ -295,7 +299,7 @@ export default function AddObservationModal({
                       }
                     >
                       {mode === 'saved' ? <MapPin className='h-2 w-2' /> : <Map className='h-2 w-2' />}
-                      {mode}
+                      {mode === 'saved' ? t('modeSaved') : t('modeMap')}
                     </button>
                   ))}
                 </div>
@@ -329,7 +333,7 @@ export default function AddObservationModal({
             )}
           </Section>
 
-          <Section label='Observation quality' frameColor={frameColor}>
+          <Section label={t('observationQuality')} frameColor={frameColor}>
             <div className='flex flex-col items-center gap-1.5'>
               <div
                 className='flex gap-1'
@@ -343,7 +347,7 @@ export default function AddObservationModal({
                       type='button'
                       onClick={() => setQuality(quality === stars ? null : stars)}
                       onMouseEnter={() => setHoverStar(stars)}
-                      aria-label={`${stars} star${stars > 1 ? 's' : ''}`}
+                      aria-label={tCard('starsLabel', { count: stars })}
                       className='p-0.5 transition-transform hover:scale-110'
                     >
                       <svg viewBox='0 0 20 20' className='w-6 h-6' aria-hidden='true'>
@@ -377,20 +381,20 @@ export default function AddObservationModal({
             </div>
           </Section>
 
-          <Section label='Notes' frameColor={frameColor}>
+          <Section label={t('notes')} frameColor={frameColor}>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder='What happened?'
+              placeholder={t('notesPlaceholder')}
               maxLength={2000}
               rows={4}
-              aria-label='Observation notes'
+              aria-label={t('notesAriaLabel')}
               className='w-full rounded-md px-2.5 py-1.5 text-lg text-card-foreground placeholder:text-muted-foreground/50 resize-none leading-relaxed focus:outline-none border border-border bg-background/60 transition-colors focus:border-muted-foreground/50'
               style={{ fontFamily: 'var(--font-handwritten)' }}
             />
           </Section>
 
-          {photographed && <Section label='Photo' frameColor={frameColor}>
+          {photographed && <Section label={t('photo')} frameColor={frameColor}>
             {photoError && (
               <div className='mb-2 flex items-start gap-1.5 rounded-md px-2.5 py-2 bg-destructive/10 border border-destructive/30 text-destructive text-[10px] font-mono'>
                 <span className='shrink-0 mt-px'>⚠</span>
@@ -400,7 +404,7 @@ export default function AddObservationModal({
             {photoPreview ? (
               <div className='relative rounded-md overflow-hidden'>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photoPreview} alt='Observation photo' className='w-full max-h-36 object-cover' />
+                <img src={photoPreview} alt={tCard('observationPhoto')} className='w-full max-h-36 object-cover' />
                 {photoUploading && (
                   <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
                     <div
@@ -413,7 +417,7 @@ export default function AddObservationModal({
                   <button
                     type='button'
                     onClick={removePhoto}
-                    aria-label='Remove photo'
+                    aria-label={t('removePhoto')}
                     className='absolute top-1.5 right-1.5 rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
                   >
                     <X className='h-3 w-3' />
@@ -427,7 +431,7 @@ export default function AddObservationModal({
                 className='group flex w-full flex-col items-center justify-center gap-1.5 py-5 rounded-md border-2 border-dashed border-border hover:border-muted-foreground/40 text-[9px] font-mono uppercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-all bg-muted/20 hover:bg-muted/30'
               >
                 <Images className='h-5 w-5 transition-transform group-hover:scale-110 duration-150' />
-                <span>Add a photo</span>
+                <span>{t('addAPhoto')}</span>
               </button>
             )}
             <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handlePhotoChange} />
@@ -448,7 +452,7 @@ export default function AddObservationModal({
               disabled={pending || photoUploading}
               className='px-3 py-1.5 rounded-md text-[10px] font-mono uppercase tracking-[0.1em] border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors disabled:opacity-50'
             >
-              Cancel
+              {tCommon('cancel')}
             </button>
             <button
               type='button'
@@ -457,7 +461,7 @@ export default function AddObservationModal({
               className='px-4 py-1.5 rounded-md text-[10px] font-mono uppercase tracking-[0.1em] text-white transition-all hover:brightness-110 active:scale-[0.97] disabled:opacity-60'
               style={{ background: frameColor, boxShadow: `0 2px 8px ${frameColor}50` }}
             >
-              {pending ? 'Saving…' : isEdit ? 'Update' : 'Save'}
+              {pending ? t('saving') : isEdit ? t('update') : t('save')}
             </button>
           </div>
         </div>

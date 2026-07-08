@@ -1,17 +1,25 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getUser } from '@/features/auth/auth-helpers';
 import { buildUserContext } from '@/features/bird-guide/bird-guide-context';
 import AskRobinFull from '@/features/bird-guide/components/AskRobinFull/AskRobinFull';
 import { locales, type Locale } from '@/i18n/locales';
 
-export const metadata: Metadata = {
-  title: 'BirdDex — Ask Robin',
-  description: 'Ask Robin anything about birds. Logged-in users get answers based on their own observations.',
-};
-
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'AskRobinPage' });
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  };
 }
 
 export default async function AskRobinPage({

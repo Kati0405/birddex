@@ -7,6 +7,7 @@ import { buildUserContext } from '@/features/bird-guide/bird-guide-context';
 import { buildSystemPrompt } from '@/features/bird-guide/bird-guide-prompt';
 import { ROBIN_TOOLS, executeToolCall } from '@/features/bird-guide/robin-tools';
 import type { ChatActionInput } from '@/features/bird-guide/bird-guide.types';
+import { localizedZodMessage } from '@/shared/lib/zod-locale';
 
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -28,7 +29,7 @@ export async function chatAction(
 
   const parsed = ChatActionSchema.safeParse(input);
   if (!parsed.success) {
-    return { error: parsed.error.issues.map((i) => i.message).join(', ') };
+    return { error: await localizedZodMessage(parsed.error) };
   }
 
   const { messages } = parsed.data;

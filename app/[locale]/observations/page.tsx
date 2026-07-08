@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { requireAuth } from '@/features/auth/auth-helpers';
 import { getAllUserObservations } from '@/features/observations/observation-queries';
 import ObservationList from '@/features/observations/components/ObservationList/ObservationList';
@@ -15,6 +15,7 @@ export default async function ObservationsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations('ObservationsPage');
 
   await requireAuth();
   const observations = await getAllUserObservations();
@@ -24,8 +25,8 @@ export default async function ObservationsPage({
       <div className='px-0 md:px-6 py-5'>
         <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
           {observations.length === 0
-            ? 'No observations yet'
-            : `${observations.length} ${observations.length === 1 ? 'observation' : 'observations'}`}
+            ? t('noObservationsYet')
+            : t('observationCount', { count: observations.length })}
         </p>
         <ObservationList observations={observations} />
       </div>

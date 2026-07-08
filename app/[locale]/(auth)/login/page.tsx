@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { locales, type Locale } from '@/i18n/locales';
 import { signInWithGoogleAction } from '../actions';
 
@@ -13,6 +13,7 @@ export default async function LoginPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations('Auth');
 
   return (
     <div className="w-full max-w-sm rounded-xl p-8 space-y-6 bg-card border border-border">
@@ -21,7 +22,7 @@ export default async function LoginPage({
           BirdDex
         </h1>
         <p className="text-sm italic font-heading text-muted-foreground">
-          Your field journal awaits
+          {t('tagline')}
         </p>
       </div>
 
@@ -31,12 +32,12 @@ export default async function LoginPage({
           className="w-full flex items-center justify-center gap-3 rounded-lg py-2.5 text-sm font-semibold bg-background text-foreground border border-border transition-all hover:opacity-90 cursor-pointer"
         >
           <GoogleIcon />
-          Continue with Google
+          {t('continueWithGoogle')}
         </button>
       </form>
 
       <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-        By signing in you agree to keep your field notes somewhat accurate.
+        {t('disclaimer')}
       </p>
     </div>
   );

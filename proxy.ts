@@ -4,20 +4,35 @@ import { createSupabaseMiddlewareClient } from './shared/lib/supabase-middleware
 import { routing } from './i18n/routing';
 
 const intlMiddleware = createIntlMiddleware(routing);
+const LOCALE_HEADER = 'X-NEXT-INTL-LOCALE';
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // `/auth/callback` is a fixed OAuth redirect target and must never be
-  // locale-prefixed. Every other route lives under a locale prefix — if the
-  // incoming path doesn't have one yet (e.g. a bookmarked `/birds` or the
-  // root `/`), hand off to next-intl to detect/redirect to `/en/...` or
-  // `/uk/...` first.
-  if (!pathname.startsWith('/auth') && !pathname.match(/^\/(en|uk)(\/|$)/)) {
+  // locale-prefixed — skip next-intl entirely for it.
+  if (pathname.startsWith('/auth')) {
+    return NextResponse.next({ request });
+  }
+
+  // For an unprefixed path (e.g. a bookmarked `/birds` or the root `/`),
+  // hand off to next-intl to detect/redirect to `/en/...` or `/uk/...`.
+  if (!pathname.match(/^\/(en|uk)(\/|$)/)) {
     return intlMiddleware(request);
   }
 
-  const response = NextResponse.next({ request });
+  const locale = pathname.match(/^\/(en|uk)(\/|$)/)?.[1] ?? routing.defaultLocale;
+
+  // Forward the resolved locale on the request headers (not just the
+  // response) — `getLocale()` (from `next-intl/server`) reads this as a
+  // fallback inside Server Actions that don't share the page render's
+  // `setRequestLocale()` cache scope. next-intl's own middleware sets this
+  // the same way for the initial unprefixed request handled above.
+  const headers = new Headers(request.headers);
+  headers.set(LOCALE_HEADER, locale);
+  const requestWithLocale = { headers };
+
+  const response = NextResponse.next({ request: requestWithLocale });
   const supabase = createSupabaseMiddlewareClient(request, response);
 
   // Always refresh the session so cookies stay current
@@ -26,7 +41,7 @@ export async function proxy(request: NextRequest) {
   // Redirect authenticated users away from auth pages
   if (pathname.match(/^\/(en|uk)\/login(\/|$)/)) {
     if (user) {
-      return NextResponse.redirect(new URL('/en/birds', request.url));
+      return NextResponse.redirect(new URL(`/${locale}/birds`, request.url));
     }
     return response;
   }
@@ -34,7 +49,7 @@ export async function proxy(request: NextRequest) {
   // Admin-only routes
   if (pathname.match(/^\/(en|uk)\/admin(\/|$)/) || pathname.match(/^\/(en|uk)\/birds\/[^/]+\/edit/)) {
     if (!user) {
-      return NextResponse.redirect(new URL('/en/login', request.url));
+      return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
     }
 
     // Check role from profiles table
@@ -45,7 +60,7 @@ export async function proxy(request: NextRequest) {
       .single();
 
     if (profile?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/en/birds', request.url));
+      return NextResponse.redirect(new URL(`/${locale}/birds`, request.url));
     }
   }
 

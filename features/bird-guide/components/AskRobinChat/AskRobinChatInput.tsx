@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { ArrowUp } from 'lucide-react';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function AskRobinChatInput({ value, onChange, onSend, disabled }: Props) {
+  const t = useTranslations('AskRobinPage');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function AskRobinChatInput({ value, onChange, onSend, disabled }:
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Ask about any bird…"
+        placeholder={t('inputPlaceholder')}
         disabled={disabled}
         rows={1}
         className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground disabled:opacity-50 py-1 max-h-40"

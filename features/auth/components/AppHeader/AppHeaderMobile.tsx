@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/shared/lib/cn';
 import { logoutAction } from '@/app/[locale]/(auth)/actions';
@@ -17,12 +18,14 @@ type Props = {
 export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, totalBirds, userEmail }: Props) {
   const [open, setOpen] = useState(false);
   const currentPath = usePathname();
+  const t = useTranslations('Navigation');
+  const tAuth = useTranslations('Auth');
 
   return (
     <>
       <button
         onClick={() => setOpen(!open)}
-        aria-label="Toggle menu"
+        aria-label={t('toggleMenu')}
         className="flex flex-col justify-center gap-[5px] w-9 h-9 p-1.5 bg-transparent border-0 cursor-pointer"
       >
         {[0, 1, 2].map((i) => (
@@ -50,24 +53,24 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
               ×
             </button>
 
-            <MobileNavLink href="/birds" label="Birds" active={currentPath === '/birds'} onClick={() => setOpen(false)} />
+            <MobileNavLink href="/birds" label={t('birds')} active={currentPath === '/birds'} onClick={() => setOpen(false)} />
             {isAuthenticated && (
-              <MobileNavLink href="/observations" label="My Observations" active={currentPath === '/observations'} onClick={() => setOpen(false)} />
+              <MobileNavLink href="/observations" label={t('myObservations')} active={currentPath === '/observations'} onClick={() => setOpen(false)} />
             )}
             {isAuthenticated && (
-              <MobileNavLink href="/locations" label="My Locations" active={currentPath === '/locations'} onClick={() => setOpen(false)} />
+              <MobileNavLink href="/locations" label={t('myLocations')} active={currentPath === '/locations'} onClick={() => setOpen(false)} />
             )}
             {isAuthenticated && (
-              <MobileNavLink href="/photos" label="My Photos" active={currentPath === '/photos'} onClick={() => setOpen(false)} />
+              <MobileNavLink href="/photos" label={t('myPhotos')} active={currentPath === '/photos'} onClick={() => setOpen(false)} />
             )}
-            <MobileNavLink href="/ask-robin" label="Ask Robin" active={currentPath === '/ask-robin'} onClick={() => setOpen(false)} />
+            <MobileNavLink href="/ask-robin" label={t('askRobin')} active={currentPath === '/ask-robin'} onClick={() => setOpen(false)} />
             {isAdmin && (
-              <MobileNavLink href="/admin/add-bird" label="Add Bird" active={currentPath === '/admin/add-bird'} onClick={() => setOpen(false)} adminBadge />
+              <MobileNavLink href="/admin/add-bird" label={t('addBird')} active={currentPath === '/admin/add-bird'} onClick={() => setOpen(false)} adminBadge />
             )}
 
             {isAuthenticated && seenCount !== undefined && totalBirds !== undefined && (
               <div className="mt-4 px-4 py-3 bg-secondary rounded-lg font-mono text-[11px] text-primary tracking-wide">
-                Seen {seenCount} / {totalBirds}
+                {t('seenCount', { seen: seenCount, total: totalBirds })}
               </div>
             )}
 
@@ -85,7 +88,7 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
                       type="submit"
                       className="font-mono text-[10px] tracking-[0.15em] uppercase text-muted-foreground bg-transparent border-0 cursor-pointer p-0 hover:text-foreground transition-colors"
                     >
-                      Log out
+                      {tAuth('logOut')}
                     </button>
                   </form>
                 </>
@@ -95,7 +98,7 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
                   onClick={() => setOpen(false)}
                   className="inline-block font-mono text-[10px] tracking-[0.15em] uppercase text-primary-foreground bg-primary px-5 py-2.5 rounded-md no-underline"
                 >
-                  Log in
+                  {tAuth('logIn')}
                 </Link>
               )}
             </div>

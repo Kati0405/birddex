@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { Link } from '@/i18n/navigation';
 import { Trash2, MapPin, Plus, ChevronUp, MapPinned, Images, X, Eye, Pencil } from 'lucide-react';
@@ -52,6 +53,8 @@ function resizeImage(file: File, maxPx = 1920, quality = 0.8): Promise<Blob> {
 }
 
 export default function LocationsManager({ initial, stats }: Props) {
+  const t = useTranslations('LocationsPage');
+  const tCommon = useTranslations('Common');
   const [locations, setLocations] = useState<SavedLocation[]>(initial);
   const [latLng, setLatLng] = useState<LatLng | null>(null);
   const [name, setName] = useState('');
@@ -96,11 +99,11 @@ export default function LocationsManager({ initial, stats }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setPhotoError('Only image files are allowed.');
+      setPhotoError(t('onlyImageFiles'));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setPhotoError('Image must be under 10 MB.');
+      setPhotoError(t('imageTooLarge'));
       return;
     }
     setPhotoPreview(URL.createObjectURL(file));
@@ -123,7 +126,7 @@ export default function LocationsManager({ initial, stats }: Props) {
         setPhotoPublicId(result.publicId);
       }
     } catch {
-      setPhotoError('Upload failed. Please try again.');
+      setPhotoError(t('uploadFailed'));
       setPhotoPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     } finally {
@@ -165,11 +168,11 @@ export default function LocationsManager({ initial, stats }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setEditPhotoError('Only image files are allowed.');
+      setEditPhotoError(t('onlyImageFiles'));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setEditPhotoError('Image must be under 10 MB.');
+      setEditPhotoError(t('imageTooLarge'));
       return;
     }
     setEditPhotoPreview(URL.createObjectURL(file));
@@ -192,7 +195,7 @@ export default function LocationsManager({ initial, stats }: Props) {
         setEditPhotoPublicId(result.publicId);
       }
     } catch {
-      setEditPhotoError('Upload failed. Please try again.');
+      setEditPhotoError(t('uploadFailed'));
       setEditPhotoPreview(null);
       if (editFileInputRef.current) editFileInputRef.current.value = '';
     } finally {
@@ -217,9 +220,9 @@ export default function LocationsManager({ initial, stats }: Props) {
   }
 
   function handleEditSave(loc: SavedLocation) {
-    if (!editLatLng) { setEditError('Pick a point on the map.'); return; }
-    if (!editName.trim()) { setEditError('Enter a name.'); return; }
-    if (editPhotoUploading) { setEditError('Wait for photo upload to finish.'); return; }
+    if (!editLatLng) { setEditError(t('pickPoint')); return; }
+    if (!editName.trim()) { setEditError(t('enterNameShort')); return; }
+    if (editPhotoUploading) { setEditError(t('waitForUpload')); return; }
     setEditError(null);
     startEditTransition(async () => {
       const result = await updateLocationAction({
@@ -269,9 +272,9 @@ export default function LocationsManager({ initial, stats }: Props) {
   }
 
   function handleAdd() {
-    if (!latLng) { setError('Pick a point on the map first.'); return; }
-    if (!name.trim()) { setError('Enter a name for this location.'); return; }
-    if (photoUploading) { setError('Wait for photo upload to finish.'); return; }
+    if (!latLng) { setError(t('pickPointFirst')); return; }
+    if (!name.trim()) { setError(t('enterName')); return; }
+    if (photoUploading) { setError(t('waitForUpload')); return; }
     setError(null);
     startTransition(async () => {
       const result = await saveLocationAction({
@@ -329,9 +332,9 @@ export default function LocationsManager({ initial, stats }: Props) {
       {/* Header */}
       <div className='flex items-start justify-between gap-4'>
         <div>
-          <h1 className='text-xl font-semibold font-heading text-foreground'>My Locations</h1>
+          <h1 className='text-xl font-semibold font-heading text-foreground'>{t('title')}</h1>
           <p className='text-xs mt-1 text-muted-foreground'>
-            Save your usual birdwatching spots and reuse them when logging observations.
+            {t('subtitle')}
           </p>
         </div>
         {locations.length > 0 && (
@@ -344,12 +347,12 @@ export default function LocationsManager({ initial, stats }: Props) {
             {formOpen ? (
               <>
                 <ChevronUp className='h-3.5 w-3.5' />
-                <span className='hidden sm:inline'>Close</span>
+                <span className='hidden sm:inline'>{t('close')}</span>
               </>
             ) : (
               <>
                 <Plus className='h-3.5 w-3.5' />
-                <span className='hidden sm:inline'>Add location</span>
+                <span className='hidden sm:inline'>{t('addLocation')}</span>
               </>
             )}
           </Button>
@@ -359,28 +362,28 @@ export default function LocationsManager({ initial, stats }: Props) {
       {/* Add location form */}
       {formOpen && (
         <div className='rounded-2xl border border-border bg-card p-5 flex flex-col gap-5'>
-          <h2 className='text-sm font-semibold text-card-foreground'>Add new location</h2>
+          <h2 className='text-sm font-semibold text-card-foreground'>{t('addNewLocation')}</h2>
 
           <div>
             <label htmlFor='location-name' className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
-              Name this place
+              {t('nameThisPlace')}
             </label>
             <input
               id='location-name'
               type='text'
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder='e.g. City park, backyard feeder, river path...'
+              placeholder={t('namePlaceholder')}
               className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary'
             />
           </div>
 
           <div>
             <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
-              Pick it on the map
+              {t('pickOnMap')}
             </label>
             <p className='text-[11px] text-muted-foreground/60 mb-2'>
-              Search for a place or click the map to drop a pin.
+              {t('pickOnMapHint')}
             </p>
             <LocationPicker value={latLng} onChange={setLatLng} frameColor='#60a5fa' />
           </div>
@@ -388,20 +391,20 @@ export default function LocationsManager({ initial, stats }: Props) {
           <div className='rounded-lg bg-muted/30 border border-border/50 px-3 py-2'>
             {latLng ? (
               <div>
-                <p className='text-[10px] font-medium uppercase tracking-wider text-muted-foreground'>Selected point</p>
+                <p className='text-[10px] font-medium uppercase tracking-wider text-muted-foreground'>{t('selectedPoint')}</p>
                 <p className='text-sm font-mono text-foreground'>
                   {latLng.lat.toFixed(4)}, {latLng.lng.toFixed(4)}
                 </p>
               </div>
             ) : (
-              <p className='text-xs text-muted-foreground/60'>No point selected yet.</p>
+              <p className='text-xs text-muted-foreground/60'>{t('noPointSelected')}</p>
             )}
           </div>
 
           {/* Habitat selector */}
           <div>
             <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
-              Habitats (optional, up to 3)
+              {t('habitatsOptional')}
             </label>
             <div className='flex flex-wrap gap-1.5'>
               {BIOMES.map((biome) => {
@@ -433,7 +436,7 @@ export default function LocationsManager({ initial, stats }: Props) {
           {/* Photo upload */}
           <div>
             <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
-              Photo (optional)
+              {t('photoOptional')}
             </label>
             {photoError && (
               <div className='mb-2 flex items-start gap-1.5 rounded-md px-2.5 py-2 bg-destructive/10 border border-destructive/30 text-destructive text-[10px] font-mono'>
@@ -444,7 +447,7 @@ export default function LocationsManager({ initial, stats }: Props) {
             {photoPreview ? (
               <div className='relative rounded-lg overflow-hidden'>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photoPreview} alt='Location preview' className='w-full max-h-40 object-cover' />
+                <img src={photoPreview} alt={t('locationPreview')} className='w-full max-h-40 object-cover' />
                 {photoUploading && (
                   <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
                     <div className='w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin' />
@@ -454,7 +457,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                   <button
                     type='button'
                     onClick={removePhoto}
-                    aria-label='Remove photo'
+                    aria-label={t('removePhoto')}
                     className='absolute top-1.5 right-1.5 rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
                   >
                     <X className='h-3 w-3' />
@@ -468,7 +471,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                 className='group flex w-full flex-col items-center justify-center gap-1.5 py-5 rounded-lg border-2 border-dashed border-border hover:border-muted-foreground/40 text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-all bg-muted/20 hover:bg-muted/30'
               >
                 <Images className='h-5 w-5 transition-transform group-hover:scale-110 duration-150' />
-                <span>Add a photo of this place</span>
+                <span>{t('addPhotoOfPlace')}</span>
               </button>
             )}
             <input
@@ -477,7 +480,7 @@ export default function LocationsManager({ initial, stats }: Props) {
               accept='image/*'
               className='hidden'
               onChange={handlePhotoChange}
-              aria-label='Upload location photo'
+              aria-label={t('uploadLocationPhoto')}
             />
           </div>
 
@@ -489,7 +492,7 @@ export default function LocationsManager({ initial, stats }: Props) {
               disabled={pending || !isValid}
               className={!isValid ? 'opacity-50' : ''}
             >
-              {pending ? 'Saving...' : 'Save location'}
+              {pending ? t('saving') : t('saveLocation')}
             </Button>
           </div>
         </div>
@@ -499,7 +502,7 @@ export default function LocationsManager({ initial, stats }: Props) {
       {locations.length > 0 && (
         <div className='flex flex-col gap-2'>
           <h2 className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
-            Your places
+            {t('yourPlaces')}
           </h2>
           <div className='flex flex-col gap-2'>
             {locations.map((loc) => {
@@ -509,11 +512,11 @@ export default function LocationsManager({ initial, stats }: Props) {
               if (isEditing) {
                 return (
                   <div key={loc.id} className='rounded-2xl border border-primary/30 bg-card p-5 flex flex-col gap-5'>
-                    <h2 className='text-sm font-semibold text-card-foreground'>Edit location</h2>
+                    <h2 className='text-sm font-semibold text-card-foreground'>{t('editLocation')}</h2>
 
                     <div>
                       <label htmlFor={`edit-name-${loc.id}`} className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
-                        Name
+                        {t('name')}
                       </label>
                       <input
                         id={`edit-name-${loc.id}`}
@@ -526,10 +529,10 @@ export default function LocationsManager({ initial, stats }: Props) {
 
                     <div>
                       <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
-                        Location on the map
+                        {t('locationOnMap')}
                       </label>
                       <p className='text-[11px] text-muted-foreground/60 mb-2'>
-                        Search for a place or click the map to move the pin.
+                        {t('moveMapHint')}
                       </p>
                       <LocationPicker value={editLatLng} onChange={setEditLatLng} frameColor='#60a5fa' />
                     </div>
@@ -537,19 +540,19 @@ export default function LocationsManager({ initial, stats }: Props) {
                     <div className='rounded-lg bg-muted/30 border border-border/50 px-3 py-2'>
                       {editLatLng ? (
                         <div>
-                          <p className='text-[10px] font-medium uppercase tracking-wider text-muted-foreground'>Selected point</p>
+                          <p className='text-[10px] font-medium uppercase tracking-wider text-muted-foreground'>{t('selectedPoint')}</p>
                           <p className='text-sm font-mono text-foreground'>
                             {editLatLng.lat.toFixed(4)}, {editLatLng.lng.toFixed(4)}
                           </p>
                         </div>
                       ) : (
-                        <p className='text-xs text-muted-foreground/60'>No point selected.</p>
+                        <p className='text-xs text-muted-foreground/60'>{t('noPointSelectedShort')}</p>
                       )}
                     </div>
 
                     <div>
                       <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
-                        Habitats (optional, up to 3)
+                        {t('habitatsOptional')}
                       </label>
                       <div className='flex flex-wrap gap-1.5'>
                         {BIOMES.map((biome) => {
@@ -581,7 +584,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                     {/* Photo upload */}
                     <div>
                       <label className='block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider'>
-                        Photo
+                        {t('photo')}
                       </label>
                       {editPhotoError && (
                         <div className='mb-2 flex items-start gap-1.5 rounded-md px-2.5 py-2 bg-destructive/10 border border-destructive/30 text-destructive text-[10px] font-mono'>
@@ -592,7 +595,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                       {editPhotoPreview ? (
                         <div className='relative rounded-lg overflow-hidden'>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={editPhotoPreview} alt='Location preview' className='w-full max-h-40 object-cover' />
+                          <img src={editPhotoPreview} alt={t('locationPreview')} className='w-full max-h-40 object-cover' />
                           {editPhotoUploading && (
                             <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
                               <div className='w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin' />
@@ -603,7 +606,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                               <button
                                 type='button'
                                 onClick={() => editFileInputRef.current?.click()}
-                                aria-label='Change photo'
+                                aria-label={t('changePhoto')}
                                 className='rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
                               >
                                 <Images className='h-3 w-3' />
@@ -611,7 +614,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                               <button
                                 type='button'
                                 onClick={removeEditPhoto}
-                                aria-label='Remove photo'
+                                aria-label={t('removePhoto')}
                                 className='rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
                               >
                                 <X className='h-3 w-3' />
@@ -626,7 +629,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                           className='group flex w-full flex-col items-center justify-center gap-1.5 py-5 rounded-lg border-2 border-dashed border-border hover:border-muted-foreground/40 text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-all bg-muted/20 hover:bg-muted/30'
                         >
                           <Images className='h-5 w-5 transition-transform group-hover:scale-110 duration-150' />
-                          <span>Add a photo of this place</span>
+                          <span>{t('addPhotoOfPlace')}</span>
                         </button>
                       )}
                       <input
@@ -635,7 +638,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                         accept='image/*'
                         className='hidden'
                         onChange={handleEditPhotoChange}
-                        aria-label='Upload location photo'
+                        aria-label={t('uploadLocationPhoto')}
                       />
                     </div>
 
@@ -643,14 +646,14 @@ export default function LocationsManager({ initial, stats }: Props) {
 
                     <div className='flex justify-end gap-2'>
                       <Button variant='ghost' size='sm' onClick={cancelEditing} disabled={editPending}>
-                        Cancel
+                        {tCommon('cancel')}
                       </Button>
                       <Button
                         size='sm'
                         onClick={() => handleEditSave(loc)}
                         disabled={editPending || !editName.trim() || !editLatLng}
                       >
-                        {editPending ? 'Saving...' : 'Save changes'}
+                        {editPending ? t('saving') : t('saveChanges')}
                       </Button>
                     </div>
                   </div>
@@ -694,7 +697,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                         </p>
                         {locStats && locStats.observationCount > 0 && (
                           <p className='text-[11px] text-muted-foreground'>
-                            {locStats.observationCount} obs · {locStats.speciesCount} species
+                            {t('obsCount', { count: locStats.observationCount })} · {t('speciesCount', { count: locStats.speciesCount })}
                           </p>
                         )}
                       </div>
@@ -703,14 +706,14 @@ export default function LocationsManager({ initial, stats }: Props) {
                       <Link
                         href={`/locations/${loc.id}`}
                         className='p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors'
-                        aria-label={`View ${loc.name}`}
+                        aria-label={t('view', { name: loc.name })}
                       >
                         <Eye className='h-4 w-4' />
                       </Link>
                       <button
                         type='button'
                         onClick={() => startEditing(loc)}
-                        aria-label={`Edit ${loc.name}`}
+                        aria-label={t('edit', { name: loc.name })}
                         className='p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors'
                       >
                         <Pencil className='h-4 w-4' />
@@ -722,7 +725,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                           setDeleteError(null);
                         }}
                         disabled={deletePending}
-                        aria-label={`Delete ${loc.name}`}
+                        aria-label={t('deleteLocation', { name: loc.name })}
                         className='p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors'
                       >
                         <Trash2 className='h-4 w-4' />
@@ -742,9 +745,9 @@ export default function LocationsManager({ initial, stats }: Props) {
           <div className='flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4'>
             <MapPinned className='h-6 w-6 text-primary' />
           </div>
-          <h2 className='text-sm font-semibold text-card-foreground'>No saved locations yet</h2>
+          <h2 className='text-sm font-semibold text-card-foreground'>{t('emptyTitle')}</h2>
           <p className='text-xs text-muted-foreground mt-1 max-w-xs'>
-            Save your usual birdwatching spots so you can quickly select them when logging observations.
+            {t('emptyDescription')}
           </p>
           <Button
             variant='outline'
@@ -753,7 +756,7 @@ export default function LocationsManager({ initial, stats }: Props) {
             onClick={() => setFormOpen(true)}
           >
             <Plus className='h-3.5 w-3.5' />
-            Add your first location
+            {t('addFirstLocation')}
           </Button>
         </div>
       )}
@@ -761,7 +764,7 @@ export default function LocationsManager({ initial, stats }: Props) {
       {/* Delete confirmation modal */}
       {deletingId !== null && deletingLocation && (
         <ConfirmDeleteModal
-          title='Delete location'
+          title={t('deleteLocationTitle')}
           error={deleteError}
           pending={deletePending}
           onConfirm={handleDeleteConfirmed}
@@ -770,7 +773,10 @@ export default function LocationsManager({ initial, stats }: Props) {
             setDeleteError(null);
           }}
         >
-          Delete <span className='font-semibold'>{deletingLocation.name}</span>? This will remove it from your saved places. Your observations will keep their location data.
+          {t.rich('deleteLocationConfirm', {
+            name: deletingLocation.name,
+            b: (chunks) => <span className='font-semibold'>{chunks}</span>,
+          })}
         </ConfirmDeleteModal>
       )}
     </div>

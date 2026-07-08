@@ -1,6 +1,8 @@
 'use client';
 
-const MONTHS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+import { useTranslations } from 'next-intl';
+
+const MONTH_KEYS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 
 interface Props {
   bestMonths: number[];
@@ -8,6 +10,7 @@ interface Props {
 }
 
 export default function ObservationMonthsChart({ bestMonths = [], frameColor = '#5a7a3a' }: Props) {
+  const t = useTranslations('Months');
   const BASE = frameColor;
 
   const activeSet = new Set(bestMonths);
@@ -23,7 +26,8 @@ export default function ObservationMonthsChart({ bestMonths = [], frameColor = '
 
   return (
     <div className='flex gap-[2px] w-full items-end'>
-      {MONTHS.map((label, i) => {
+      {MONTH_KEYS.map((key, i) => {
+        const label = t(key);
         const month = i + 1;
         const active = activeSet.has(month);
         const peak = isPeak(month);

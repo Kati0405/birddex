@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
+import { useLocale, useTranslations } from 'next-intl';
 import { Expand, Download, X, Loader2 } from 'lucide-react';
 import { isCloudinaryUrl, cloudinaryPublicId } from '@/shared/lib/cloudinary-utils';
 import type { ObservationPhoto } from '@/features/observations/observation-queries';
@@ -11,8 +12,8 @@ interface Props {
   photos: ObservationPhoto[];
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', {
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale === 'uk' ? 'uk-UA' : 'en-GB', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -45,6 +46,8 @@ function Lightbox({
   photo: ObservationPhoto;
   onClose: () => void;
 }) {
+  const t = useTranslations('PhotosPage');
+  const locale = useLocale();
   const fullUrl = getFullSizeUrl(photo.photoUrl);
   const [loaded, setLoaded] = useState(false);
 
@@ -102,14 +105,14 @@ function Lightbox({
               downloadPhoto(fullUrl, `${photo.birdNameEng.replace(/\s+/g, '-').toLowerCase()}.jpg`)
             }
             className="p-2 rounded-full bg-black/50 text-white/80 hover:text-white hover:bg-black/70 transition-colors"
-            aria-label="Download photo"
+            aria-label={t('downloadPhoto')}
           >
             <Download size={18} />
           </button>
           <button
             onClick={onClose}
             className="p-2 rounded-full bg-black/50 text-white/80 hover:text-white hover:bg-black/70 transition-colors"
-            aria-label="Close"
+            aria-label={t('close')}
           >
             <X size={18} />
           </button>
@@ -118,7 +121,7 @@ function Lightbox({
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent rounded-b-lg">
           <p className="font-heading text-[15px] text-white leading-tight">{photo.birdNameEng}</p>
           <p className="font-mono text-[10px] text-white/60 mt-0.5 tracking-wide">
-            {formatDate(photo.observedAt)}
+            {formatDate(photo.observedAt, locale)}
           </p>
         </div>
       </div>
@@ -127,6 +130,8 @@ function Lightbox({
 }
 
 export default function PhotoGallery({ photos }: Props) {
+  const t = useTranslations('PhotosPage');
+  const locale = useLocale();
   const [expanded, setExpanded] = useState<ObservationPhoto | null>(null);
   const closeLightbox = useCallback(() => setExpanded(null), []);
 
@@ -148,9 +153,9 @@ export default function PhotoGallery({ photos }: Props) {
           <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
           <circle cx="12" cy="13" r="3" />
         </svg>
-        <p className="font-mono text-[11px] tracking-widest uppercase">No photos yet</p>
+        <p className="font-mono text-[11px] tracking-widest uppercase">{t('noPhotosYet')}</p>
         <p className="font-mono text-[10px] text-muted-foreground/60">
-          Add a photo when logging an observation
+          {t('emptyDescription')}
         </p>
       </div>
     );
@@ -164,7 +169,7 @@ export default function PhotoGallery({ photos }: Props) {
             key={photo.observationId}
             onClick={() => setExpanded(photo)}
             className="break-inside-avoid mb-2 group relative overflow-hidden rounded-md bg-secondary w-full text-left cursor-pointer"
-            aria-label={`Expand photo of ${photo.birdNameEng}`}
+            aria-label={t('expandPhotoOf', { name: photo.birdNameEng })}
           >
             <div className="relative w-full">
               {isCloudinaryUrl(photo.photoUrl) ? (
@@ -200,7 +205,7 @@ export default function PhotoGallery({ photos }: Props) {
                 {photo.birdNameEng}
               </p>
               <p className="font-mono text-[9px] text-white/60 mt-0.5 tracking-wide">
-                {formatDate(photo.observedAt)}
+                {formatDate(photo.observedAt, locale)}
               </p>
             </div>
           </button>
