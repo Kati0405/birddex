@@ -6,7 +6,7 @@ Navigation: top header has Birds (catalog), Observations (all logged observation
 
 Signing in: tap "Log in" top-right, then "Continue with Google". Unlocks observations, collection, locations, photos, and personalized Ask Robin answers.
 
-Bird Catalog (/birds): browse all bird cards in a grid. Search by English or Latin name. Tap "Filters" to filter by rarity, biome, food, observation status (all/observed/unobserved), or observation type (seen/heard/photographed). Combine multiple filters; badge shows active count. "Reset Filters" clears all.
+Bird Catalog (/birds): browse all bird cards in a grid. Toolbar has search (by English or Latin name), a "Filters" button, a "Reset" button (appears once a filter is active), and for signed-in users an All/Seen/Not seen switcher for collection status. Filters cover rarity, biome, food, behaviour, observation status (all/observed/unobserved), and observation type (seen/heard/photographed). You can also toggle rarity/food/habitat/behaviour filters by clicking those elements directly on a card front. Active filters show as removable chips below the toolbar; badge on "Filters" shows active count; "Reset" clears everything.
 
 Bird cards show: photo, name, rarity frame, food & habitat icons, field note. Signed-in users see a checkmark on observed birds and a binoculars icon to log observations. Admins see a "⋮" (three dots) menu next to the bird's name with Edit and Delete actions; Delete opens a confirmation modal, and is blocked with a message in that modal if the bird has logged observations.
 

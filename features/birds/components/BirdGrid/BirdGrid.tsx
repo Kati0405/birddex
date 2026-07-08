@@ -1,4 +1,4 @@
-import type { Bird } from '@/entities/bird-domain';
+import type { Bird, Biome, Food, Behaviour, Rarity } from '@/entities/bird-domain';
 import BirdCard from '@/features/birds/components/BirdCard/BirdCard';
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { CollectionCardData } from '@/features/observations/observation-queries';
@@ -10,6 +10,14 @@ interface BirdGridProps {
   observedIds?: number[];
   savedLocations?: SavedLocation[];
   collectionDataByBirdId?: Record<number, CollectionCardData>;
+  onToggleFood?: (food: Food) => void;
+  onToggleBiome?: (biome: Biome) => void;
+  onToggleBehaviour?: (behaviour: Behaviour) => void;
+  onToggleRarity?: (rarity: Rarity) => void;
+  selectedFoods?: Set<Food>;
+  selectedBiomes?: Set<Biome>;
+  selectedBehaviours?: Set<Behaviour>;
+  selectedRarities?: Set<Rarity>;
 }
 
 export default function BirdGrid({
@@ -19,6 +27,14 @@ export default function BirdGrid({
   observedIds = [],
   savedLocations = [],
   collectionDataByBirdId,
+  onToggleFood,
+  onToggleBiome,
+  onToggleBehaviour,
+  onToggleRarity,
+  selectedFoods,
+  selectedBiomes,
+  selectedBehaviours,
+  selectedRarities,
 }: BirdGridProps) {
   if (birds.length === 0) {
     return (
@@ -40,6 +56,14 @@ export default function BirdGrid({
           isObserved={observedSet.has(bird.id)}
           savedLocations={savedLocations}
           collectionData={collectionDataByBirdId?.[bird.id]}
+          onToggleFood={onToggleFood}
+          onToggleBiome={onToggleBiome}
+          onToggleBehaviour={onToggleBehaviour}
+          onToggleRarity={onToggleRarity}
+          selectedFoods={selectedFoods}
+          selectedBiomes={selectedBiomes}
+          selectedBehaviours={selectedBehaviours}
+          selectedRarities={selectedRarities}
         />
       ))}
     </div>

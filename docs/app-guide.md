@@ -36,15 +36,20 @@ Use the search bar at the top to find birds by English name or Latin name. Resul
 
 ### Filtering
 
-Tap the **Filters** button next to the search bar to open the filter panel. You can filter by:
+The toolbar above the grid combines search, filters, and your collection status in one bar. If signed in, an **All / Seen / Not seen** switcher sits next to the search bar (below it on mobile) so you can jump between your whole collection and what you have or haven't observed yet, without opening the filter panel.
 
-- **My Collection** (signed-in only): show all birds, only observed, or not yet observed
+Tap the **Filters** button to open the filter panel for more specific filtering. You can filter by:
+
+- **My Collection** (signed-in only): show all birds, only observed, or not yet observed — mirrors the All/Seen/Not seen switcher
 - **Observed as** (signed-in only): filter to birds you've seen, heard, or photographed
 - **Rarity**: Common, Uncommon, Rare, Epic, or Legendary
 - **Biome**: forest, wetland, grassland, urban, etc.
 - **Food**: insects, seeds, fish, berries, etc.
+- **Behaviour**: nocturnal, predator, songbird, etc.
 
-You can combine multiple filters. The badge on the Filters button shows how many filters are active. Tap **Reset Filters** at the bottom to clear everything.
+You can also filter directly from a bird card front by clicking its rarity badge, food icons, habitat icons, or behaviour tags — this toggles the same filter as picking it in the panel.
+
+Every active filter (except All/Seen/Not seen, shown separately) appears as a removable chip below the toolbar — tap the **×** on a chip to clear just that filter. The badge on the Filters button shows how many filters are active in total. Tap **Reset** next to the Filters button (or **Reset Filters** at the bottom of the panel) to clear everything at once.
 
 ### Bird Cards
 

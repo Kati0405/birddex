@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { cn } from '@/shared/lib/cn';
 import { biomeImage, foodImage, behaviourImage } from '@/entities/bird-domain';
-import type { Bird } from '@/entities/bird-domain';
+import type { Bird, Biome, Food, Behaviour, Rarity } from '@/entities/bird-domain';
 import BirdImage from '@/features/birds/components/BirdImage/BirdImage';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import ObservationButton from '@/features/observations/components/ObservationButton/ObservationButton';
@@ -18,6 +18,14 @@ interface Props {
   savedLocations?: SavedLocation[];
   onFlip?: () => void;
   active?: boolean;
+  onToggleFood?: (food: Food) => void;
+  onToggleBiome?: (biome: Biome) => void;
+  onToggleBehaviour?: (behaviour: Behaviour) => void;
+  onToggleRarity?: (rarity: Rarity) => void;
+  selectedFoods?: Set<Food>;
+  selectedBiomes?: Set<Biome>;
+  selectedBehaviours?: Set<Behaviour>;
+  selectedRarities?: Set<Rarity>;
 }
 
 export default function BirdCardFront({
@@ -29,7 +37,18 @@ export default function BirdCardFront({
   savedLocations = [],
   onFlip,
   active = true,
+  onToggleFood,
+  onToggleBiome,
+  onToggleBehaviour,
+  onToggleRarity,
+  selectedFoods,
+  selectedBiomes,
+  selectedBehaviours,
+  selectedRarities,
 }: Props) {
+  const rarityActive = selectedRarities?.has(bird.rarity);
+  const rarityClickable = !!onToggleRarity;
+  const RarityTag = rarityClickable ? 'button' : 'div';
   return (
     <div
       className={cn(
@@ -48,7 +67,26 @@ export default function BirdCardFront({
       {/* Name row */}
       <div className='px-4 sm:px-2 pt-4 sm:pt-2 pb-2 sm:pb-1 flex items-center gap-2'>
         <div className='min-w-0 flex-1'>
-          <div className='flex items-center gap-1.5 mb-1 sm:mb-0.5'>
+          <RarityTag
+            type={rarityClickable ? 'button' : undefined}
+            aria-label={rarityClickable ? `Filter by ${bird.rarity}` : undefined}
+            aria-pressed={rarityClickable ? rarityActive : undefined}
+            onClick={
+              rarityClickable
+                ? (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    onToggleRarity(bird.rarity);
+                  }
+                : undefined
+            }
+            className={cn(
+              'flex items-center gap-1.5 mb-1 sm:mb-0.5 rounded-sm -mx-1 px-1',
+              rarityClickable && 'cursor-pointer transition-transform hover:scale-105 active:scale-95',
+            )}
+            style={{
+              background: rarityActive ? `${frameColor}28` : 'transparent',
+            }}
+          >
             <div
               className='w-[12px] h-[12px] sm:w-[8px] sm:h-[8px] shrink-0'
               style={{
@@ -62,7 +100,7 @@ export default function BirdCardFront({
             >
               {bird.rarity}
             </span>
-          </div>
+          </RarityTag>
           <div className='flex items-center gap-1.5'>
             <h2 className='text-2xl sm:text-sm font-semibold leading-tight truncate text-card-foreground'>
               {bird.name_eng}
@@ -99,7 +137,7 @@ export default function BirdCardFront({
       />
 
       {/* Icon row: food left, biomes right */}
-      <div className='px-4 sm:px-1.5 pt-3 sm:pt-1 pb-1 sm:pb-0.5 flex items-end justify-between min-w-0'>
+      <div className='px-4 sm:px-1.5 pt-2 sm:pt-1 pb-2 sm:pb-1 flex items-end justify-between min-w-0'>
         <div className='flex flex-col gap-1 sm:gap-0.5 min-w-0'>
           <p
             className='text-[11px] sm:text-[7px] uppercase tracking-[0.18em] font-mono'
@@ -107,14 +145,16 @@ export default function BirdCardFront({
           >
             Food
           </p>
-          <div className='flex gap-1.5 sm:gap-1 scale-75 origin-left -mb-3 sm:-mb-2 lg:scale-75 lg:origin-left lg:-mb-3'>
+          <div className='flex gap-1.5 sm:gap-1'>
             {bird.food.slice(0, 3).map((f) => (
               <HexIcon
                 key={f}
                 imageSrc={foodImage[f]}
                 label={f}
-                size={56}
+                size={42}
                 bgColor={`${frameColor}28`}
+                onClick={onToggleFood ? () => onToggleFood(f) : undefined}
+                active={selectedFoods?.has(f)}
               />
             ))}
           </div>
@@ -126,14 +166,16 @@ export default function BirdCardFront({
           >
             Habitat
           </p>
-          <div className='flex gap-1.5 sm:gap-1 scale-75 origin-right -mb-3 sm:-mb-2 lg:scale-75 lg:origin-right lg:-mb-3'>
+          <div className='flex gap-1.5 sm:gap-1'>
             {bird.biomes.slice(0, 3).map((b) => (
               <HexIcon
                 key={b}
                 imageSrc={biomeImage[b]}
                 label={b}
-                size={56}
+                size={42}
                 bgColor={`${frameColor}28`}
+                onClick={onToggleBiome ? () => onToggleBiome(b) : undefined}
+                active={selectedBiomes?.has(b)}
               />
             ))}
           </div>
@@ -180,28 +222,46 @@ export default function BirdCardFront({
             Behaviour
           </p>
           <div className='flex flex-wrap gap-1.5 sm:gap-1'>
-            {bird.behaviour.map((b) => (
-              <span
-                key={b}
-
-                className='text-sm sm:text-[10px] px-3 sm:px-2 py-1.5 sm:py-0.5 rounded leading-none inline-flex items-center gap-1.5 sm:gap-1 text-muted-foreground'
-                style={{
-                  background: `${frameColor}18`,
-                  border: `1px solid ${frameColor}45`,
-                }}
-              >
-                {behaviourImage[b] && (
-                  <Image
-                    src={behaviourImage[b]}
-                    alt={b}
-                    width={14}
-                    height={14}
-                    className='opacity-70 sm:w-[11px] sm:h-[11px]'
-                  />
-                )}
-                {b}
-              </span>
-            ))}
+            {bird.behaviour.map((b) => {
+              const active = selectedBehaviours?.has(b);
+              const clickable = !!onToggleBehaviour;
+              const Tag = clickable ? 'button' : 'span';
+              return (
+                <Tag
+                  key={b}
+                  type={clickable ? 'button' : undefined}
+                  aria-label={clickable ? `Filter by ${b}` : undefined}
+                  aria-pressed={clickable ? active : undefined}
+                  onClick={
+                    clickable
+                      ? (e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          onToggleBehaviour(b);
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    'text-sm sm:text-[10px] px-3 sm:px-2 py-1.5 sm:py-0.5 rounded leading-none inline-flex items-center gap-1.5 sm:gap-1 text-muted-foreground',
+                    clickable && 'cursor-pointer transition-transform hover:scale-105 active:scale-95',
+                  )}
+                  style={{
+                    background: active ? `${frameColor}38` : `${frameColor}18`,
+                    border: active ? `1px solid ${frameColor}` : `1px solid ${frameColor}45`,
+                  }}
+                >
+                  {behaviourImage[b] && (
+                    <Image
+                      src={behaviourImage[b]}
+                      alt={b}
+                      width={14}
+                      height={14}
+                      className='opacity-70 sm:w-[11px] sm:h-[11px]'
+                    />
+                  )}
+                  {b}
+                </Tag>
+              );
+            })}
           </div>
         </div>
       )}

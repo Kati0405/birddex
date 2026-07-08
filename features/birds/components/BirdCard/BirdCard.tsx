@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import type { Bird } from '@/entities/bird-domain';
+import type { Bird, Biome, Food, Behaviour, Rarity } from '@/entities/bird-domain';
 import { RARITY_COLOR } from '@/entities/bird-domain';
 import BirdCardFront from './BirdCardFront';
 import BirdCardBack from './BirdCardBack';
@@ -18,6 +18,14 @@ export default function BirdCard({
   collectionData,
   initialFlipped = false,
   initialObsId,
+  onToggleFood,
+  onToggleBiome,
+  onToggleBehaviour,
+  onToggleRarity,
+  selectedFoods,
+  selectedBiomes,
+  selectedBehaviours,
+  selectedRarities,
 }: {
   bird: Bird;
   isAdmin?: boolean;
@@ -27,6 +35,14 @@ export default function BirdCard({
   collectionData?: CollectionCardData;
   initialFlipped?: boolean;
   initialObsId?: string;
+  onToggleFood?: (food: Food) => void;
+  onToggleBiome?: (biome: Biome) => void;
+  onToggleBehaviour?: (behaviour: Behaviour) => void;
+  onToggleRarity?: (rarity: Rarity) => void;
+  selectedFoods?: Set<Food>;
+  selectedBiomes?: Set<Biome>;
+  selectedBehaviours?: Set<Behaviour>;
+  selectedRarities?: Set<Rarity>;
 }) {
   const [flipped, setFlipped] = useState(initialFlipped);
   const frameColor = RARITY_COLOR[bird.rarity];
@@ -56,6 +72,14 @@ export default function BirdCard({
           savedLocations={savedLocations}
           onFlip={flip}
           active={!flipped}
+          onToggleFood={onToggleFood}
+          onToggleBiome={onToggleBiome}
+          onToggleBehaviour={onToggleBehaviour}
+          onToggleRarity={onToggleRarity}
+          selectedFoods={selectedFoods}
+          selectedBiomes={selectedBiomes}
+          selectedBehaviours={selectedBehaviours}
+          selectedRarities={selectedRarities}
         />
         <BirdCardBack
           bird={bird}
