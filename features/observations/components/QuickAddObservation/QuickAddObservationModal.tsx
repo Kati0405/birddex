@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { createPortal } from 'react-dom';
 import { Bird, Search, X } from 'lucide-react';
 import { RARITY_COLOR } from '@/entities/bird-domain';
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export default function QuickAddObservationModal({ savedLocations = [], initialLocation, onClose }: Props) {
+  const t = useTranslations('QuickAddObservation');
   const [birds, setBirds] = useState<BirdSearchResult[]>([]);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<BirdSearchResult | null>(null);
@@ -95,11 +97,11 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
         {/* Header */}
         <div className='flex items-center gap-2 px-4 py-3 border-b border-border'>
           <Bird size={16} className='text-primary shrink-0' />
-          <span className='text-sm font-semibold flex-1'>Log observation</span>
+          <span className='text-sm font-semibold flex-1'>{t('logObservation')}</span>
           <button
             type='button'
             onClick={onClose}
-            aria-label='Close'
+            aria-label={t('close')}
             className='text-muted-foreground hover:text-foreground transition-colors'
           >
             <X size={16} />
@@ -109,7 +111,7 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
         {/* Search */}
         <div className='px-4 pt-3 pb-2'>
           <p className='text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground mb-2'>
-            Which bird did you see?
+            {t('whichBird')}
           </p>
           <div className='relative'>
             <Search size={13} className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60' />
@@ -118,7 +120,7 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
               type='text'
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder='Search by name…'
+              placeholder={t('searchPlaceholder')}
               className='w-full pl-8 pr-3 py-2 text-sm rounded-md border border-border bg-background/60 text-card-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors'
             />
           </div>
@@ -131,7 +133,7 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
               <div className='w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin' />
             </div>
           ) : filtered.length === 0 ? (
-            <p className='text-center text-xs text-muted-foreground py-8'>No birds found</p>
+            <p className='text-center text-xs text-muted-foreground py-8'>{t('noBirdsFound')}</p>
           ) : (
             <div className='flex flex-col divide-y divide-border/50'>
               {filtered.map((bird) => {

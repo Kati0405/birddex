@@ -274,6 +274,15 @@
     "saving": "Зберігаємо…",
     "saveBird": "Зберегти птаха"
   },
+  "QuickAddObservation": {
+    "spottedIt": "Є птах!",
+    "addObservation": "Додати спостереження",
+    "logObservation": "Записати спостереження",
+    "close": "Закрити",
+    "whichBird": "Хто це був?",
+    "searchPlaceholder": "Пошук за назвою…",
+    "noBirdsFound": "Птахів не знайдено"
+  },
   "Months": {
     "jan": "Січ",
     "feb": "Лют",

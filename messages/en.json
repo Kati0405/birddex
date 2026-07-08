@@ -274,6 +274,15 @@
     "saving": "Saving…",
     "saveBird": "Save bird"
   },
+  "QuickAddObservation": {
+    "spottedIt": "Spotted it!",
+    "addObservation": "Add observation",
+    "logObservation": "Log observation",
+    "close": "Close",
+    "whichBird": "Which bird did you see?",
+    "searchPlaceholder": "Search by name…",
+    "noBirdsFound": "No birds found"
+  },
   "Months": {
     "jan": "Jan",
     "feb": "Feb",

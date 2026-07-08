@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Plus } from 'lucide-react';
 import QuickAddObservationModal from './QuickAddObservationModal';
 import type { SavedLocation } from '@/features/locations/location-queries';
@@ -23,6 +24,7 @@ export default function QuickAddObservationButton({
   initialLocation,
   variant = 'header',
 }: Props) {
+  const t = useTranslations('QuickAddObservation');
   const [open, setOpen] = useState(false);
 
   if (variant === 'inline') {
@@ -34,7 +36,7 @@ export default function QuickAddObservationButton({
           className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer'
         >
           <Plus className='h-3.5 w-3.5' />
-          Add observation
+          {t('addObservation')}
         </button>
         {open && (
           <QuickAddObservationModal
@@ -55,7 +57,7 @@ export default function QuickAddObservationButton({
         className='flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold font-mono tracking-wide bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all cursor-pointer shadow-sm'
       >
         <Plus className='h-3.5 w-3.5' />
-        Spotted it!
+        {t('spottedIt')}
       </button>
       {open && (
         <QuickAddObservationModal
