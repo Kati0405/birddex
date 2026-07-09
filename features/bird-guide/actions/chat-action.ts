@@ -7,6 +7,7 @@ import { buildUserContext } from '@/features/bird-guide/bird-guide-context';
 import { buildSystemPrompt } from '@/features/bird-guide/bird-guide-prompt';
 import { ROBIN_TOOLS, executeToolCall } from '@/features/bird-guide/robin-tools';
 import type { ChatActionInput } from '@/features/bird-guide/bird-guide.types';
+import { getErrorMessage } from '@/shared/lib/errors';
 
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -131,7 +132,7 @@ export async function chatAction(
           apiMessages.push(...toolResults);
         }
       } catch (e) {
-        controller.error(e instanceof Error ? e.message : 'Stream error');
+        controller.error(getErrorMessage(e, 'Stream error'));
       } finally {
         controller.close();
       }

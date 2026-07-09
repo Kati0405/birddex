@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAuth } from '@/features/auth/auth-helpers';
 import { toggleCollected } from '@/features/collection/collection-queries';
+import { getErrorMessage } from '@/shared/lib/errors';
 
 export async function toggleCollectedAction(
   birdId: number
@@ -15,6 +16,6 @@ export async function toggleCollectedAction(
     revalidatePath(`/birds/${birdId}`);
     return result;
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 }

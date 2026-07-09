@@ -45,6 +45,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/features/auth/auth-helpers";
 import { saveLocation } from "@/features/locations/location-queries";
+import { getErrorMessage } from "@/shared/lib/errors";
 
 const SaveLocationSchema = z.object({
   name: z.string().min(1).max(100),
@@ -63,7 +64,7 @@ export async function saveLocationAction(input: SaveLocationInput) {
   try {
     await saveLocation(parsed.data.name, parsed.data.lat, parsed.data.lng);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Unknown error" };
+    return { error: getErrorMessage(e) };
   }
 
   revalidatePath("/locations");

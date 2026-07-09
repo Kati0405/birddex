@@ -6,6 +6,7 @@ import { getBirdById, deleteBird, BirdHasObservationsError } from '@/features/bi
 import { requireAdmin } from '@/features/auth/auth-helpers';
 import { deleteCloudinaryAsset } from '@/shared/lib/cloudinary';
 import { toCloudinaryResourceType } from '@/shared/lib/cloudinary-utils';
+import { getErrorMessage } from '@/shared/lib/errors';
 
 const DeleteBirdSchema = z.object({
   birdId: z.number().int().positive(),
@@ -28,7 +29,7 @@ export async function deleteBirdAction(input: DeleteBirdInput) {
     if (e instanceof BirdHasObservationsError) {
       return { error: 'This bird has observations logged against it and cannot be deleted. Remove those observations first.' };
     }
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   if (existing?.image_public_id) {

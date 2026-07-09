@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { createBird, getBirdByLatinName } from '@/features/birds/bird-queries';
 import { requireAdmin } from '@/features/auth/auth-helpers';
 import { RARITIES, FOODS, BIOMES, BEHAVIOURS, type Rarity, type Food, type Biome, type Behaviour } from '@/entities/bird-domain';
+import { getErrorMessage } from '@/shared/lib/errors';
 
 const CreateBirdSchema = z.object({
   name_eng: z.string().min(1).max(100),
@@ -35,7 +36,7 @@ export async function createBirdAction(input: CreateBirdInput) {
   try {
     birdId = await createBird(parsed.data);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   revalidatePath('/birds');

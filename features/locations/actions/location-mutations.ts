@@ -6,6 +6,7 @@ import { saveLocation, deleteLocation, updateLocation, updateLocationPhoto, getS
 import { uploadCloudinaryBuffer, deleteCloudinaryAsset } from '@/shared/lib/cloudinary';
 import { requireAuth } from '@/features/auth/auth-helpers';
 import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
+import { getErrorMessage } from '@/shared/lib/errors';
 
 import { BIOMES } from '@/entities/bird-domain';
 
@@ -51,7 +52,7 @@ export async function saveLocationAction(
     try {
       uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/locations', resource_type: 'image' });
     } catch (e) {
-      return { error: e instanceof Error ? e.message : 'Upload failed' };
+      return { error: getErrorMessage(e, 'Upload failed') };
     }
     photoUrl = uploaded.secure_url;
     photoPublicId = uploaded.public_id;
@@ -70,7 +71,7 @@ export async function saveLocationAction(
     if (photoPublicId) {
       await deleteCloudinaryAsset(photoPublicId, 'image');
     }
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   revalidatePath('/locations');
@@ -96,7 +97,7 @@ export async function deleteLocationAction(
   try {
     await deleteLocation(parsed.data.id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   if (loc?.photo_public_id) {
@@ -136,7 +137,7 @@ export async function updateLocationAction(
       parsed.data.oldName,
     );
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   revalidatePath('/locations');
@@ -163,7 +164,7 @@ export async function updateLocationPhotoAction(
     try {
       await updateLocationPhoto(id, null, null);
     } catch (e) {
-      return { error: e instanceof Error ? e.message : 'Unknown error' };
+      return { error: getErrorMessage(e) };
     }
 
     if (location.photoPublicId) {
@@ -182,14 +183,14 @@ export async function updateLocationPhotoAction(
   try {
     uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/locations', resource_type: 'image' });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Upload failed' };
+    return { error: getErrorMessage(e, 'Upload failed') };
   }
 
   try {
     await updateLocationPhoto(id, uploaded.secure_url, uploaded.public_id);
   } catch (e) {
     await deleteCloudinaryAsset(uploaded.public_id, 'image');
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   if (location.photoPublicId) {

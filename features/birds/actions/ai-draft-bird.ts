@@ -4,6 +4,7 @@ import { z } from 'zod';
 import OpenAI from 'openai';
 import { requireAdmin } from '@/features/auth/auth-helpers';
 import { RARITIES, FOODS, BIOMES, BEHAVIOURS, type Rarity, type Food, type Biome, type Behaviour } from '@/entities/bird-domain';
+import { getErrorMessage } from '@/shared/lib/errors';
 
 const DraftBirdSchema = z.object({
   name_eng: z.string().min(1).max(100),
@@ -126,7 +127,7 @@ export async function draftBirdAction(
       ],
     });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'AI request failed.' };
+    return { error: getErrorMessage(e, 'AI request failed.') };
   }
 
   const message = response.choices[0]?.message;

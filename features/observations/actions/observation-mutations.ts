@@ -12,6 +12,7 @@ import {
 import { uploadCloudinaryBuffer, deleteCloudinaryAsset } from '@/shared/lib/cloudinary';
 import { toCloudinaryResourceType } from '@/shared/lib/cloudinary-utils';
 import { requireAuth } from '@/features/auth/auth-helpers';
+import { getErrorMessage } from '@/shared/lib/errors';
 
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 
@@ -38,7 +39,7 @@ async function uploadObservationPhoto(file: File): Promise<
     const uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/observations', resource_type: 'image' });
     return { photoUrl: uploaded.secure_url, publicId: uploaded.public_id };
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Upload failed' };
+    return { error: getErrorMessage(e, 'Upload failed') };
   }
 }
 
@@ -100,7 +101,7 @@ export async function addObservationAction(
     if (photoPublicId) {
       await deleteCloudinaryAsset(photoPublicId, 'image');
     }
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   revalidatePath('/');
@@ -164,7 +165,7 @@ export async function updateObservationAction(
     if (uploadedPublicId) {
       await deleteCloudinaryAsset(uploadedPublicId, 'image');
     }
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   const oldAssetReplaced = uploadedPublicId && existing.photoPublicId;
@@ -195,7 +196,7 @@ export async function deleteObservationAction(
   try {
     await deleteObservation(parsed.data.id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Unknown error' };
+    return { error: getErrorMessage(e) };
   }
 
   if (existing.photoPublicId) {
