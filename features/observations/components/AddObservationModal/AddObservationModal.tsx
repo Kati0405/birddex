@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { CalendarIcon, Eye, Music, Camera, Images, LocateFixed, MapPin, Map, X } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { addObservationAction, updateObservationAction, uploadObservationPhotoAction } from '@/features/observations/actions/observation-mutations';
+import { addObservationAction, updateObservationAction } from '@/features/observations/actions/observation-mutations';
 import type { LatLng } from '@/features/observations/components/LocationPicker';
 import type { SavedLocation } from '@/features/locations/location-queries';
 
@@ -71,7 +71,8 @@ export default function AddObservationModal({
   const [quality, setQuality] = useState<ObservationQuality>(initialData?.quality ?? null);
   const [notes, setNotes] = useState(initialData?.notes ?? '');
   const [photoPreview, setPhotoPreview] = useState<string | null>(initialData?.photoUrl ?? null);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(initialData?.photoUrl ?? null);
+  const [photoFile, setPhotoFile] = useState<Blob | null>(null);
+  const [photoRemoved, setPhotoRemoved] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -110,23 +111,12 @@ export default function AddObservationModal({
     setPhotoUploading(true);
     setPhotoError(null);
     setError(null);
-    const resized = await resizeImage(file);
-    const formData = new FormData();
-    formData.append('file', resized, 'photo.jpg');
     try {
-      const timeout = new Promise<{ error: string }>((resolve) =>
-        setTimeout(() => resolve({ error: 'Upload timed out. Check your connection and try again.' }), 20000)
-      );
-      const result = await Promise.race([uploadObservationPhotoAction(formData), timeout]);
-      if ('error' in result) {
-        setPhotoError(result.error);
-        setPhotoPreview(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      } else {
-        setPhotoUrl(result.url);
-      }
+      const resized = await resizeImage(file);
+      setPhotoFile(resized);
+      setPhotoRemoved(false);
     } catch {
-      setPhotoError('Upload failed. Please try again.');
+      setPhotoError('Failed to process image. Please try again.');
       setPhotoPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     } finally {
@@ -136,7 +126,8 @@ export default function AddObservationModal({
 
   function removePhoto() {
     setPhotoPreview(null);
-    setPhotoUrl(null);
+    setPhotoFile(null);
+    setPhotoRemoved(true);
     setPhotoError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
@@ -144,7 +135,7 @@ export default function AddObservationModal({
   function handleSave() {
     setError(null);
     startTransition(async () => {
-      const payload = {
+      const fields = {
         observedAt: date,
         lat: resolvedLatLng?.lat ?? null,
         lng: resolvedLatLng?.lng ?? null,
@@ -154,28 +145,45 @@ export default function AddObservationModal({
         photographed,
         quality,
         notes: notes.trim() || null,
-        photoUrl,
       };
 
-      const result = isEdit
-        ? await updateObservationAction({ id: initialData!.observationId, ...payload })
-        : await addObservationAction({ birdId, ...payload });
+      const formData = new FormData();
+      formData.append('observedAt', fields.observedAt.toISOString());
+      if (fields.lat != null) formData.append('lat', String(fields.lat));
+      if (fields.lng != null) formData.append('lng', String(fields.lng));
+      if (fields.locationName) formData.append('locationName', fields.locationName);
+      formData.append('seen', String(fields.seen));
+      formData.append('heard', String(fields.heard));
+      formData.append('photographed', String(fields.photographed));
+      if (fields.quality != null) formData.append('quality', String(fields.quality));
+      if (fields.notes) formData.append('notes', fields.notes);
+      if (photoFile) formData.append('file', photoFile, 'photo.jpg');
+
+      let result: { success: true; photoUrl: string | null } | { error: string };
+      if (isEdit) {
+        formData.append('id', initialData!.observationId);
+        if (photoRemoved && !photoFile) formData.append('removePhoto', 'true');
+        result = await updateObservationAction(formData);
+      } else {
+        formData.append('birdId', String(birdId));
+        result = await addObservationAction(formData);
+      }
 
       if ('error' in result) {
         setError(result.error);
       } else {
         onSaved(isEdit ? {
           observationId: initialData!.observationId,
-          date: payload.observedAt,
-          seen: payload.seen,
-          heard: payload.heard,
-          photographed: payload.photographed,
-          quality: payload.quality ?? null,
-          notes: payload.notes ?? null,
-          photoUrl: payload.photoUrl ?? null,
-          lat: payload.lat ?? null,
-          lng: payload.lng ?? null,
-          locationName: payload.locationName ?? null,
+          date: fields.observedAt,
+          seen: fields.seen,
+          heard: fields.heard,
+          photographed: fields.photographed,
+          quality: fields.quality ?? null,
+          notes: fields.notes ?? null,
+          photoUrl: result.photoUrl,
+          lat: fields.lat ?? null,
+          lng: fields.lng ?? null,
+          locationName: fields.locationName ?? null,
         } : undefined);
         onClose();
       }

@@ -1,3 +1,4 @@
+import 'server-only';
 import { v2 as cloudinary } from 'cloudinary';
 import type { UploadApiOptions } from 'cloudinary';
 
@@ -21,4 +22,16 @@ export function uploadCloudinaryBuffer(
       })
       .end(buffer);
   });
+}
+
+export function deleteCloudinaryAsset(
+  publicId: string,
+  resourceType: UploadApiOptions['resource_type'] = 'image',
+): Promise<void> {
+  return cloudinary.uploader
+    .destroy(publicId, { resource_type: resourceType })
+    .then(() => undefined)
+    .catch((err) => {
+      console.error(`deleteCloudinaryAsset(${publicId}, ${resourceType}) failed:`, err);
+    });
 }

@@ -2,19 +2,19 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { saveLocation, deleteLocation, updateLocation, updateLocationPhoto } from '@/features/locations/location-queries';
-import { cloudinary, uploadCloudinaryBuffer } from '@/shared/lib/cloudinary';
+import { saveLocation, deleteLocation, updateLocation, updateLocationPhoto, getSavedLocationById } from '@/features/locations/location-queries';
+import { uploadCloudinaryBuffer, deleteCloudinaryAsset } from '@/shared/lib/cloudinary';
 import { requireAuth } from '@/features/auth/auth-helpers';
 import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 
 import { BIOMES } from '@/entities/bird-domain';
 
-const SaveLocationSchema = z.object({
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+
+const SaveLocationFieldsSchema = z.object({
   name: z.string().min(1).max(100),
   lat: z.number(),
   lng: z.number(),
-  photoUrl: z.string().url().nullable().optional(),
-  photoPublicId: z.string().nullable().optional(),
   habitats: z.array(z.enum(BIOMES as [string, ...string[]])).max(3).optional(),
 });
 
@@ -22,29 +22,53 @@ const DeleteLocationSchema = z.object({
   id: z.number().int().positive(),
 });
 
-type SaveLocationInput = z.infer<typeof SaveLocationSchema>;
 type DeleteLocationInput = z.infer<typeof DeleteLocationSchema>;
 
 export async function saveLocationAction(
-  input: SaveLocationInput
+  formData: FormData
 ): Promise<{ success: true } | { error: string }> {
   await requireAuth();
 
-  const parsed = SaveLocationSchema.safeParse(input);
+  const habitatsRaw = formData.get('habitats');
+  const parsed = SaveLocationFieldsSchema.safeParse({
+    name: formData.get('name'),
+    lat: Number(formData.get('lat')),
+    lng: Number(formData.get('lng')),
+    habitats: habitatsRaw ? JSON.parse(habitatsRaw as string) : undefined,
+  });
   if (!parsed.success) return { error: parsed.error.flatten().toString() };
+
+  const file = formData.get('file');
+  let photoUrl: string | null = null;
+  let photoPublicId: string | null = null;
+
+  if (file instanceof File && file.size > 0) {
+    if (!file.type.startsWith('image/')) return { error: 'Only image files are allowed.' };
+    if (file.size > MAX_PHOTO_BYTES) return { error: 'Image must be under 10 MB.' };
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    let uploaded: { secure_url: string; public_id: string };
+    try {
+      uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/locations', resource_type: 'image' });
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : 'Upload failed' };
+    }
+    photoUrl = uploaded.secure_url;
+    photoPublicId = uploaded.public_id;
+  }
 
   try {
     await saveLocation(
       parsed.data.name,
       parsed.data.lat,
       parsed.data.lng,
-      parsed.data.photoUrl ?? null,
-      parsed.data.photoPublicId ?? null,
+      photoUrl,
+      photoPublicId,
       parsed.data.habitats,
     );
   } catch (e) {
-    if (parsed.data.photoPublicId) {
-      await cloudinary.uploader.destroy(parsed.data.photoPublicId).catch(() => {});
+    if (photoPublicId) {
+      await deleteCloudinaryAsset(photoPublicId, 'image');
     }
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
@@ -76,7 +100,7 @@ export async function deleteLocationAction(
   }
 
   if (loc?.photo_public_id) {
-    await cloudinary.uploader.destroy(loc.photo_public_id as string).catch(() => {});
+    await deleteCloudinaryAsset(loc.photo_public_id as string, 'image');
   }
 
   revalidatePath('/locations');
@@ -119,55 +143,59 @@ export async function updateLocationAction(
   return { success: true };
 }
 
-export async function uploadLocationPhotoAction(
+export async function updateLocationPhotoAction(
   formData: FormData
-): Promise<{ url: string; publicId: string } | { error: string }> {
+): Promise<{ success: true; photoUrl: string | null } | { error: string }> {
   await requireAuth();
 
-  const file = formData.get('file') as File | null;
-  if (!file) return { error: 'No file provided' };
+  const id = Number(formData.get('id'));
+  if (!Number.isInteger(id) || id <= 0) return { error: 'Invalid location id' };
+
+  const location = await getSavedLocationById(id);
+  if (!location) return { error: 'Location not found' };
+
+  const file = formData.get('file');
+  const removePhoto = formData.get('remove') === 'true';
+
+  if (!file || !(file instanceof File) || file.size === 0) {
+    if (!removePhoto) return { error: 'No file provided' };
+
+    try {
+      await updateLocationPhoto(id, null, null);
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : 'Unknown error' };
+    }
+
+    if (location.photoPublicId) {
+      await deleteCloudinaryAsset(location.photoPublicId, 'image');
+    }
+
+    revalidatePath('/locations');
+    return { success: true, photoUrl: null };
+  }
 
   if (!file.type.startsWith('image/')) return { error: 'Only image files are allowed.' };
-  if (file.size > 10 * 1024 * 1024) return { error: 'Image must be under 10 MB.' };
+  if (file.size > MAX_PHOTO_BYTES) return { error: 'Image must be under 10 MB.' };
 
   const buffer = Buffer.from(await file.arrayBuffer());
-
+  let uploaded: { secure_url: string; public_id: string };
   try {
-    const result = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/locations', resource_type: 'image' });
-    return { url: result.secure_url, publicId: result.public_id };
+    uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/locations', resource_type: 'image' });
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Upload failed' };
   }
-}
-
-const UpdateLocationPhotoSchema = z.object({
-  id: z.number().int().positive(),
-  photoUrl: z.string().url().nullable(),
-  photoPublicId: z.string().nullable(),
-  oldPhotoPublicId: z.string().nullable().optional(),
-});
-
-type UpdateLocationPhotoInput = z.infer<typeof UpdateLocationPhotoSchema>;
-
-export async function updateLocationPhotoAction(
-  input: UpdateLocationPhotoInput
-): Promise<{ success: true } | { error: string }> {
-  const parsed = UpdateLocationPhotoSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.flatten().toString() };
 
   try {
-    await updateLocationPhoto(parsed.data.id, parsed.data.photoUrl, parsed.data.photoPublicId);
+    await updateLocationPhoto(id, uploaded.secure_url, uploaded.public_id);
   } catch (e) {
-    if (parsed.data.photoPublicId) {
-      await cloudinary.uploader.destroy(parsed.data.photoPublicId).catch(() => {});
-    }
+    await deleteCloudinaryAsset(uploaded.public_id, 'image');
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
-  if (parsed.data.oldPhotoPublicId) {
-    await cloudinary.uploader.destroy(parsed.data.oldPhotoPublicId).catch(() => {});
+  if (location.photoPublicId) {
+    await deleteCloudinaryAsset(location.photoPublicId, 'image');
   }
 
   revalidatePath('/locations');
-  return { success: true };
+  return { success: true, photoUrl: uploaded.secure_url };
 }

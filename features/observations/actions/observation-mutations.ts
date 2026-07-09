@@ -2,12 +2,20 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { addObservation, updateObservation, deleteObservation, type ObservationQuality } from '@/features/observations/observation-queries';
-import { uploadCloudinaryBuffer } from '@/shared/lib/cloudinary';
+import {
+  addObservation,
+  updateObservation,
+  deleteObservation,
+  getObservationForUser,
+  type ObservationQuality,
+} from '@/features/observations/observation-queries';
+import { uploadCloudinaryBuffer, deleteCloudinaryAsset } from '@/shared/lib/cloudinary';
+import { toCloudinaryResourceType } from '@/shared/lib/cloudinary-utils';
 import { requireAuth } from '@/features/auth/auth-helpers';
 
-const AddObservationSchema = z.object({
-  birdId: z.number().int().positive(),
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+
+const ObservationFieldsSchema = z.object({
   observedAt: z.coerce.date(),
   lat: z.number().nullable().optional(),
   lng: z.number().nullable().optional(),
@@ -17,22 +25,64 @@ const AddObservationSchema = z.object({
   photographed: z.boolean().default(false),
   quality: z.number().int().min(1).max(5).nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
-  photoUrl: z.union([z.string().url(), z.literal(''), z.null()]).optional(),
 });
 
-type AddObservationInput = z.infer<typeof AddObservationSchema>;
+async function uploadObservationPhoto(file: File): Promise<
+  { photoUrl: string; publicId: string } | { error: string }
+> {
+  if (!file.type.startsWith('image/')) return { error: 'Only image files are allowed.' };
+  if (file.size > MAX_PHOTO_BYTES) return { error: 'Image must be under 10 MB.' };
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  try {
+    const uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/observations', resource_type: 'image' });
+    return { photoUrl: uploaded.secure_url, publicId: uploaded.public_id };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Upload failed' };
+  }
+}
+
+function parseObservationFields(formData: FormData) {
+  return ObservationFieldsSchema.safeParse({
+    observedAt: formData.get('observedAt'),
+    lat: formData.get('lat') != null && formData.get('lat') !== '' ? Number(formData.get('lat')) : null,
+    lng: formData.get('lng') != null && formData.get('lng') !== '' ? Number(formData.get('lng')) : null,
+    locationName: formData.get('locationName') || null,
+    seen: formData.get('seen') === 'true',
+    heard: formData.get('heard') === 'true',
+    photographed: formData.get('photographed') === 'true',
+    quality: formData.get('quality') ? Number(formData.get('quality')) : null,
+    notes: formData.get('notes') || null,
+  });
+}
 
 export async function addObservationAction(
-  input: AddObservationInput
-): Promise<{ success: true } | { error: string }> {
+  formData: FormData
+): Promise<{ success: true; photoUrl: string | null } | { error: string }> {
   await requireAuth();
 
-  const parsed = AddObservationSchema.safeParse(input);
+  const parsed = parseObservationFields(formData);
   if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') };
+
+  const birdId = Number(formData.get('birdId'));
+  if (!Number.isInteger(birdId) || birdId <= 0) return { error: 'Invalid bird id' };
+
+  const file = formData.get('file');
+  let photoUrl: string | null = null;
+  let photoPublicId: string | null = null;
+  let photoResourceType: string | null = null;
+
+  if (file instanceof File && file.size > 0) {
+    const uploadResult = await uploadObservationPhoto(file);
+    if ('error' in uploadResult) return { error: uploadResult.error };
+    photoUrl = uploadResult.photoUrl;
+    photoPublicId = uploadResult.publicId;
+    photoResourceType = 'image';
+  }
 
   try {
     await addObservation({
-      birdId: parsed.data.birdId,
+      birdId,
       observedAt: parsed.data.observedAt,
       lat: parsed.data.lat ?? null,
       lng: parsed.data.lng ?? null,
@@ -42,43 +92,61 @@ export async function addObservationAction(
       photographed: parsed.data.photographed,
       quality: (parsed.data.quality ?? null) as ObservationQuality,
       notes: parsed.data.notes ?? null,
-      photoUrl: parsed.data.photoUrl ?? null,
+      photoUrl,
+      photoPublicId,
+      photoResourceType,
     });
   } catch (e) {
+    if (photoPublicId) {
+      await deleteCloudinaryAsset(photoPublicId, 'image');
+    }
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
   revalidatePath('/');
   revalidatePath('/collection');
-  return { success: true };
+  return { success: true, photoUrl };
 }
 
-const UpdateObservationSchema = z.object({
-  id: z.string().uuid(),
-  observedAt: z.coerce.date(),
-  lat: z.number().nullable().optional(),
-  lng: z.number().nullable().optional(),
-  locationName: z.string().max(300).nullable().optional(),
-  seen: z.boolean().default(false),
-  heard: z.boolean().default(false),
-  photographed: z.boolean().default(false),
-  quality: z.number().int().min(1).max(5).nullable().optional(),
-  notes: z.string().max(2000).nullable().optional(),
-  photoUrl: z.union([z.string().url(), z.literal(''), z.null()]).optional(),
-});
-
-type UpdateObservationInput = z.infer<typeof UpdateObservationSchema>;
-
 export async function updateObservationAction(
-  input: UpdateObservationInput
-): Promise<{ success: true } | { error: string }> {
+  formData: FormData
+): Promise<{ success: true; photoUrl: string | null } | { error: string }> {
   await requireAuth();
 
-  const parsed = UpdateObservationSchema.safeParse(input);
+  const id = formData.get('id');
+  if (typeof id !== 'string' || !z.string().uuid().safeParse(id).success) {
+    return { error: 'Invalid observation id' };
+  }
+
+  const existing = await getObservationForUser(id);
+  if (!existing) return { error: 'Observation not found' };
+
+  const parsed = parseObservationFields(formData);
   if (!parsed.success) return { error: parsed.error.issues.map((i) => `${i.path.join('.') || 'root'}: ${i.message}`).join(', ') };
 
+  const file = formData.get('file');
+  const removePhoto = formData.get('removePhoto') === 'true';
+
+  let photoUrl = existing.photoUrl;
+  let photoPublicId = existing.photoPublicId;
+  let photoResourceType = existing.photoResourceType;
+  let uploadedPublicId: string | null = null;
+
+  if (file instanceof File && file.size > 0) {
+    const uploadResult = await uploadObservationPhoto(file);
+    if ('error' in uploadResult) return { error: uploadResult.error };
+    photoUrl = uploadResult.photoUrl;
+    photoPublicId = uploadResult.publicId;
+    photoResourceType = 'image';
+    uploadedPublicId = uploadResult.publicId;
+  } else if (removePhoto) {
+    photoUrl = null;
+    photoPublicId = null;
+    photoResourceType = null;
+  }
+
   try {
-    await updateObservation(parsed.data.id, {
+    await updateObservation(id, {
       observedAt: parsed.data.observedAt,
       lat: parsed.data.lat ?? null,
       lng: parsed.data.lng ?? null,
@@ -88,14 +156,25 @@ export async function updateObservationAction(
       photographed: parsed.data.photographed,
       quality: (parsed.data.quality ?? null) as ObservationQuality,
       notes: parsed.data.notes ?? null,
-      photoUrl: parsed.data.photoUrl ?? null,
+      photoUrl,
+      photoPublicId,
+      photoResourceType,
     });
   } catch (e) {
+    if (uploadedPublicId) {
+      await deleteCloudinaryAsset(uploadedPublicId, 'image');
+    }
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
+  const oldAssetReplaced = uploadedPublicId && existing.photoPublicId;
+  const oldAssetRemoved = removePhoto && existing.photoPublicId;
+  if ((oldAssetReplaced || oldAssetRemoved) && existing.photoPublicId) {
+    await deleteCloudinaryAsset(existing.photoPublicId, toCloudinaryResourceType(existing.photoResourceType));
+  }
+
   revalidatePath('/collection');
-  return { success: true };
+  return { success: true, photoUrl };
 }
 
 const DeleteObservationSchema = z.object({
@@ -110,31 +189,20 @@ export async function deleteObservationAction(
   const parsed = DeleteObservationSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues.map((i) => i.message).join(', ') };
 
+  const existing = await getObservationForUser(parsed.data.id);
+  if (!existing) return { error: 'Observation not found' };
+
   try {
     await deleteObservation(parsed.data.id);
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Unknown error' };
   }
 
+  if (existing.photoPublicId) {
+    await deleteCloudinaryAsset(existing.photoPublicId, toCloudinaryResourceType(existing.photoResourceType));
+  }
+
   revalidatePath('/');
   revalidatePath('/collection');
   return { success: true };
-}
-
-export async function uploadObservationPhotoAction(
-  formData: FormData
-): Promise<{ url: string } | { error: string }> {
-  await requireAuth();
-
-  const file = formData.get('file') as File | null;
-  if (!file) return { error: 'No file provided' };
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  try {
-    const result = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/observations', resource_type: 'image' });
-    return { url: result.secure_url };
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Upload failed' };
-  }
 }

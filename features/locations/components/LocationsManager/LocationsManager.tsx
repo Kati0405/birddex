@@ -11,7 +11,6 @@ import {
   saveLocationAction,
   deleteLocationAction,
   updateLocationAction,
-  uploadLocationPhotoAction,
   updateLocationPhotoAction,
 } from '@/features/locations/actions/location-mutations';
 import { BIOMES, biomeImage } from '@/entities/bird-domain';
@@ -71,15 +70,14 @@ export default function LocationsManager({ initial, stats }: Props) {
   const [editPending, startEditTransition] = useTransition();
 
   const [editPhotoPreview, setEditPhotoPreview] = useState<string | null>(null);
-  const [editPhotoUrl, setEditPhotoUrl] = useState<string | null>(null);
-  const [editPhotoPublicId, setEditPhotoPublicId] = useState<string | null>(null);
+  const [editPhotoFile, setEditPhotoFile] = useState<Blob | null>(null);
+  const [editPhotoRemoved, setEditPhotoRemoved] = useState(false);
   const [editPhotoUploading, setEditPhotoUploading] = useState(false);
   const [editPhotoError, setEditPhotoError] = useState<string | null>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
 
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-  const [photoPublicId, setPhotoPublicId] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<Blob | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -108,22 +106,9 @@ export default function LocationsManager({ initial, stats }: Props) {
     setPhotoError(null);
     try {
       const resized = await resizeImage(file);
-      const formData = new FormData();
-      formData.append('file', resized, 'location.jpg');
-      const timeout = new Promise<{ error: string }>((resolve) =>
-        setTimeout(() => resolve({ error: 'Upload timed out. Check your connection and try again.' }), 20000),
-      );
-      const result = await Promise.race([uploadLocationPhotoAction(formData), timeout]);
-      if ('error' in result) {
-        setPhotoError(result.error);
-        setPhotoPreview(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      } else {
-        setPhotoUrl(result.url);
-        setPhotoPublicId(result.publicId);
-      }
+      setPhotoFile(resized);
     } catch {
-      setPhotoError('Upload failed. Please try again.');
+      setPhotoError('Failed to process image. Please try again.');
       setPhotoPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
     } finally {
@@ -133,8 +118,7 @@ export default function LocationsManager({ initial, stats }: Props) {
 
   function removePhoto() {
     setPhotoPreview(null);
-    setPhotoUrl(null);
-    setPhotoPublicId(null);
+    setPhotoFile(null);
     setPhotoError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
@@ -146,8 +130,8 @@ export default function LocationsManager({ initial, stats }: Props) {
     setEditHabitats([...loc.habitats]);
     setEditError(null);
     setEditPhotoPreview(loc.photoUrl);
-    setEditPhotoUrl(loc.photoUrl);
-    setEditPhotoPublicId(loc.photoPublicId);
+    setEditPhotoFile(null);
+    setEditPhotoRemoved(false);
     setEditPhotoUploading(false);
     setEditPhotoError(null);
   }
@@ -156,8 +140,8 @@ export default function LocationsManager({ initial, stats }: Props) {
     setEditingId(null);
     setEditError(null);
     setEditPhotoPreview(null);
-    setEditPhotoUrl(null);
-    setEditPhotoPublicId(null);
+    setEditPhotoFile(null);
+    setEditPhotoRemoved(false);
     setEditPhotoError(null);
   }
 
@@ -177,22 +161,10 @@ export default function LocationsManager({ initial, stats }: Props) {
     setEditPhotoError(null);
     try {
       const resized = await resizeImage(file);
-      const formData = new FormData();
-      formData.append('file', resized, 'location.jpg');
-      const timeout = new Promise<{ error: string }>((resolve) =>
-        setTimeout(() => resolve({ error: 'Upload timed out. Check your connection and try again.' }), 20000),
-      );
-      const result = await Promise.race([uploadLocationPhotoAction(formData), timeout]);
-      if ('error' in result) {
-        setEditPhotoError(result.error);
-        setEditPhotoPreview(null);
-        if (editFileInputRef.current) editFileInputRef.current.value = '';
-      } else {
-        setEditPhotoUrl(result.url);
-        setEditPhotoPublicId(result.publicId);
-      }
+      setEditPhotoFile(resized);
+      setEditPhotoRemoved(false);
     } catch {
-      setEditPhotoError('Upload failed. Please try again.');
+      setEditPhotoError('Failed to process image. Please try again.');
       setEditPhotoPreview(null);
       if (editFileInputRef.current) editFileInputRef.current.value = '';
     } finally {
@@ -202,8 +174,8 @@ export default function LocationsManager({ initial, stats }: Props) {
 
   function removeEditPhoto() {
     setEditPhotoPreview(null);
-    setEditPhotoUrl(null);
-    setEditPhotoPublicId(null);
+    setEditPhotoFile(null);
+    setEditPhotoRemoved(true);
     setEditPhotoError(null);
     if (editFileInputRef.current) editFileInputRef.current.value = '';
   }
@@ -219,7 +191,7 @@ export default function LocationsManager({ initial, stats }: Props) {
   function handleEditSave(loc: SavedLocation) {
     if (!editLatLng) { setEditError('Pick a point on the map.'); return; }
     if (!editName.trim()) { setEditError('Enter a name.'); return; }
-    if (editPhotoUploading) { setEditError('Wait for photo upload to finish.'); return; }
+    if (editPhotoUploading) { setEditError('Wait for photo processing to finish.'); return; }
     setEditError(null);
     startEditTransition(async () => {
       const result = await updateLocationAction({
@@ -235,18 +207,27 @@ export default function LocationsManager({ initial, stats }: Props) {
         return;
       }
 
-      const photoChanged = editPhotoUrl !== loc.photoUrl;
-      if (photoChanged) {
-        const photoResult = await updateLocationPhotoAction({
-          id: loc.id,
-          photoUrl: editPhotoUrl,
-          photoPublicId: editPhotoPublicId,
-          oldPhotoPublicId: loc.photoPublicId,
-        });
+      let newPhotoUrl = loc.photoUrl;
+      if (editPhotoFile) {
+        const photoFormData = new FormData();
+        photoFormData.append('id', String(loc.id));
+        photoFormData.append('file', editPhotoFile, 'location.jpg');
+        const photoResult = await updateLocationPhotoAction(photoFormData);
         if ('error' in photoResult) {
           setEditError(photoResult.error);
           return;
         }
+        newPhotoUrl = photoResult.photoUrl;
+      } else if (editPhotoRemoved) {
+        const photoFormData = new FormData();
+        photoFormData.append('id', String(loc.id));
+        photoFormData.append('remove', 'true');
+        const photoResult = await updateLocationPhotoAction(photoFormData);
+        if ('error' in photoResult) {
+          setEditError(photoResult.error);
+          return;
+        }
+        newPhotoUrl = null;
       }
 
       setLocations((prev) =>
@@ -258,8 +239,7 @@ export default function LocationsManager({ initial, stats }: Props) {
                 lat: editLatLng.lat,
                 lng: editLatLng.lng,
                 habitats: editHabitats,
-                photoUrl: editPhotoUrl,
-                photoPublicId: editPhotoPublicId,
+                photoUrl: newPhotoUrl,
               }
             : l
         )
@@ -271,17 +251,17 @@ export default function LocationsManager({ initial, stats }: Props) {
   function handleAdd() {
     if (!latLng) { setError('Pick a point on the map first.'); return; }
     if (!name.trim()) { setError('Enter a name for this location.'); return; }
-    if (photoUploading) { setError('Wait for photo upload to finish.'); return; }
+    if (photoUploading) { setError('Wait for photo processing to finish.'); return; }
     setError(null);
     startTransition(async () => {
-      const result = await saveLocationAction({
-        name: name.trim(),
-        lat: latLng.lat,
-        lng: latLng.lng,
-        photoUrl: photoUrl ?? null,
-        photoPublicId: photoPublicId ?? null,
-        habitats: selectedHabitats,
-      });
+      const formData = new FormData();
+      formData.append('name', name.trim());
+      formData.append('lat', String(latLng.lat));
+      formData.append('lng', String(latLng.lng));
+      formData.append('habitats', JSON.stringify(selectedHabitats));
+      if (photoFile) formData.append('file', photoFile, 'location.jpg');
+
+      const result = await saveLocationAction(formData);
       if ('error' in result) {
         setError(result.error);
       } else {
@@ -292,8 +272,8 @@ export default function LocationsManager({ initial, stats }: Props) {
             name: name.trim(),
             lat: latLng.lat,
             lng: latLng.lng,
-            photoUrl: photoUrl ?? null,
-            photoPublicId: photoPublicId ?? null,
+            photoUrl: photoPreview,
+            photoPublicId: null,
             habitats: selectedHabitats,
           },
         ]);

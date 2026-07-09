@@ -16,6 +16,8 @@ export interface ObservationData {
   quality: ObservationQuality;
   notes: string | null;
   photoUrl: string | null;
+  photoPublicId: string | null;
+  photoResourceType: string | null;
 }
 
 export async function addObservation(data: ObservationData): Promise<void> {
@@ -34,8 +36,35 @@ export async function addObservation(data: ObservationData): Promise<void> {
     quality: data.quality,
     notes: data.notes,
     photo_url: data.photoUrl,
+    cloudinary_public_id: data.photoPublicId,
+    cloudinary_resource_type: data.photoResourceType,
   });
   if (error) throw new Error(`addObservation: ${error.message}`);
+}
+
+export interface ObservationOwnerRecord {
+  id: string;
+  photoUrl: string | null;
+  photoPublicId: string | null;
+  photoResourceType: string | null;
+}
+
+export async function getObservationForUser(id: string): Promise<ObservationOwnerRecord | null> {
+  const user = await requireAuth();
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('observations')
+    .select('id, photo_url, cloudinary_public_id, cloudinary_resource_type')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
+  if (error || !data) return null;
+  return {
+    id: data.id as string,
+    photoUrl: (data.photo_url as string) ?? null,
+    photoPublicId: (data.cloudinary_public_id as string) ?? null,
+    photoResourceType: (data.cloudinary_resource_type as string) ?? null,
+  };
 }
 
 export interface ObservationEntry {
@@ -128,6 +157,8 @@ export interface ObservationUpdate {
   quality: ObservationQuality;
   notes: string | null;
   photoUrl: string | null;
+  photoPublicId: string | null;
+  photoResourceType: string | null;
 }
 
 export async function updateObservation(id: string, data: ObservationUpdate): Promise<void> {
@@ -146,6 +177,8 @@ export async function updateObservation(id: string, data: ObservationUpdate): Pr
       quality: data.quality,
       notes: data.notes,
       photo_url: data.photoUrl,
+      cloudinary_public_id: data.photoPublicId,
+      cloudinary_resource_type: data.photoResourceType,
     })
     .eq('id', id)
     .eq('user_id', user.id);

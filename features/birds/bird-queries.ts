@@ -36,26 +36,51 @@ export async function getBirdById(id: number): Promise<Bird | undefined> {
   return data as Bird;
 }
 
-export async function updateBirdSelectedImage(id: number, img: WikimediaImage): Promise<void> {
+export async function updateBirdSelectedImage(
+  id: number,
+  img: WikimediaImage,
+  publicId: string,
+): Promise<void> {
   const { error } = await supabaseAdmin
     .from('birds')
-    .update({ selected_image: img })
+    .update({
+      selected_image: img,
+      image_public_id: publicId,
+      image_resource_type: 'image',
+    })
     .eq('id', id);
   if (error) throw new Error(`updateBirdSelectedImage(${id}): ${error.message}`);
 }
 
-export async function updateBirdCloudinaryImage(id: number, imageUrl: string): Promise<void> {
+export async function updateBirdCloudinaryImage(
+  id: number,
+  imageUrl: string,
+  publicId: string,
+): Promise<void> {
   const { error } = await supabaseAdmin
     .from('birds')
-    .update({ image_url: imageUrl, selected_image: null })
+    .update({
+      image_url: imageUrl,
+      selected_image: null,
+      image_public_id: publicId,
+      image_resource_type: 'image',
+    })
     .eq('id', id);
   if (error) throw new Error(`updateBirdCloudinaryImage(${id}): ${error.message}`);
 }
 
-export async function updateBirdSoundUrl(id: number, soundUrl: string): Promise<void> {
+export async function updateBirdSoundUrl(
+  id: number,
+  soundUrl: string,
+  publicId: string,
+): Promise<void> {
   const { error } = await supabaseAdmin
     .from('birds')
-    .update({ sound_url: soundUrl })
+    .update({
+      sound_url: soundUrl,
+      sound_public_id: publicId,
+      sound_resource_type: 'video',
+    })
     .eq('id', id);
   if (error) throw new Error(`updateBirdSoundUrl(${id}): ${error.message}`);
 }

@@ -81,7 +81,11 @@ export interface Bird {
   wingspan: number;
   field_note: string;
   image_url?: string;
+  image_public_id?: string | null;
+  image_resource_type?: string | null;
   sound_url?: string;
+  sound_public_id?: string | null;
+  sound_resource_type?: string | null;
   best_months: number[];
   tips_to_find: string[];
   field_marks: string[];

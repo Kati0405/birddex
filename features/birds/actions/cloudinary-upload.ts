@@ -2,10 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { cloudinary, uploadCloudinaryBuffer } from '@/shared/lib/cloudinary';
+import { uploadCloudinaryBuffer, deleteCloudinaryAsset } from '@/shared/lib/cloudinary';
+import { toCloudinaryResourceType } from '@/shared/lib/cloudinary-utils';
 import { requireAdmin } from '@/features/auth/auth-helpers';
 import { getBirdById, updateBirdCloudinaryImage } from '@/features/birds/bird-queries';
-import { isCloudinaryUrl, cloudinaryPublicId } from '@/shared/lib/cloudinary-utils';
 
 export async function uploadBirdImageAction(formData: FormData) {
   await requireAdmin();
@@ -15,22 +15,22 @@ export async function uploadBirdImageAction(formData: FormData) {
 
   if (!file || !birdId) return { error: 'Missing file or birdId' };
 
-  // Delete previous Cloudinary image if one exists
   const existing = await getBirdById(birdId);
-  const prevUrl = existing?.selected_image?.imageUrl ?? existing?.image_url;
-  if (prevUrl && isCloudinaryUrl(prevUrl)) {
-    await cloudinary.uploader.destroy(cloudinaryPublicId(prevUrl)).catch(() => {});
-  }
-
+  const prevPublicId = existing?.image_public_id;
+  const prevResourceType = existing?.image_resource_type;
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex', resource_type: 'image' });
 
   try {
-    await updateBirdCloudinaryImage(birdId, uploaded.secure_url);
+    await updateBirdCloudinaryImage(birdId, uploaded.secure_url, uploaded.public_id);
   } catch (err) {
-    await cloudinary.uploader.destroy(uploaded.public_id).catch(() => {});
+    await deleteCloudinaryAsset(uploaded.public_id, 'image');
     throw err;
+  }
+
+  if (prevPublicId) {
+    await deleteCloudinaryAsset(prevPublicId, toCloudinaryResourceType(prevResourceType, 'image'));
   }
 
   revalidatePath(`/birds/${birdId}`);

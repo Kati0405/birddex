@@ -23,7 +23,6 @@ import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import { biomeImage } from '@/entities/bird-domain';
 import {
   deleteLocationAction,
-  uploadLocationPhotoAction,
   updateLocationPhotoAction,
 } from '@/features/locations/actions/location-mutations';
 import type { SavedLocation, LocationDetailStats, LocationObservation } from '@/features/locations/location-queries';
@@ -64,7 +63,6 @@ export default function LocationDetail({ location, stats, observations }: Props)
   const [deletePending, startDeleteTransition] = useTransition();
 
   const [photoUrl, setPhotoUrl] = useState(location.photoUrl);
-  const [photoPublicId, setPhotoPublicId] = useState(location.photoPublicId);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,26 +94,16 @@ export default function LocationDetail({ location, stats, observations }: Props)
     try {
       const resized = await resizeImage(file);
       const formData = new FormData();
+      formData.append('id', String(location.id));
       formData.append('file', resized, 'location.jpg');
       const timeout = new Promise<{ error: string }>((resolve) =>
         setTimeout(() => resolve({ error: 'Upload timed out.' }), 20000),
       );
-      const uploadResult = await Promise.race([uploadLocationPhotoAction(formData), timeout]);
-      if ('error' in uploadResult) {
-        setPhotoError(uploadResult.error);
-        return;
-      }
-      const saveResult = await updateLocationPhotoAction({
-        id: location.id,
-        photoUrl: uploadResult.url,
-        photoPublicId: uploadResult.publicId,
-        oldPhotoPublicId: photoPublicId,
-      });
-      if ('error' in saveResult) {
-        setPhotoError(saveResult.error);
+      const result = await Promise.race([updateLocationPhotoAction(formData), timeout]);
+      if ('error' in result) {
+        setPhotoError(result.error);
       } else {
-        setPhotoUrl(uploadResult.url);
-        setPhotoPublicId(uploadResult.publicId);
+        setPhotoUrl(result.photoUrl);
       }
     } catch {
       setPhotoError('Upload failed. Please try again.');
@@ -129,17 +117,14 @@ export default function LocationDetail({ location, stats, observations }: Props)
     setPhotoUploading(true);
     setPhotoError(null);
     try {
-      const result = await updateLocationPhotoAction({
-        id: location.id,
-        photoUrl: null,
-        photoPublicId: null,
-        oldPhotoPublicId: photoPublicId,
-      });
+      const formData = new FormData();
+      formData.append('id', String(location.id));
+      formData.append('remove', 'true');
+      const result = await updateLocationPhotoAction(formData);
       if ('error' in result) {
         setPhotoError(result.error);
       } else {
         setPhotoUrl(null);
-        setPhotoPublicId(null);
       }
     } finally {
       setPhotoUploading(false);

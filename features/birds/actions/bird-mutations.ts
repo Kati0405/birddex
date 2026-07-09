@@ -3,11 +3,14 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { getBirdById, updateBirdSelectedImage, updateBirdCloudinaryImage, updateBirdMetadata, updateBirdSoundUrl } from '@/features/birds/bird-queries';
+import { getBirdById, updateBirdSelectedImage, updateBirdMetadata, updateBirdSoundUrl } from '@/features/birds/bird-queries';
 import { requireAdmin } from '@/features/auth/auth-helpers';
-import { cloudinary, uploadCloudinaryBuffer } from '@/shared/lib/cloudinary';
-import { isCloudinaryUrl, cloudinaryPublicId } from '@/shared/lib/cloudinary-utils';
+import { uploadCloudinaryBuffer, deleteCloudinaryAsset } from '@/shared/lib/cloudinary';
+import { toCloudinaryResourceType } from '@/shared/lib/cloudinary-utils';
 import { RARITIES, FOODS, BIOMES, BEHAVIOURS, type Rarity, type Food, type Biome, type Behaviour } from '@/entities/bird-domain';
+
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 const WikimediaImageSchema = z.object({
   imageUrl: z.string().url(),
@@ -31,12 +34,9 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
 
   const { birdId, selectedImage } = parsed.data;
 
-  // Delete previous Cloudinary image if one exists
   const existing = await getBirdById(birdId);
-  const prevUrl = existing?.selected_image?.imageUrl ?? existing?.image_url;
-  if (prevUrl && isCloudinaryUrl(prevUrl)) {
-    await cloudinary.uploader.destroy(cloudinaryPublicId(prevUrl)).catch(() => {});
-  }
+  const prevPublicId = existing?.image_public_id;
+  const prevResourceType = existing?.image_resource_type;
 
   // Fetch the image ourselves first — Cloudinary pulling directly from Wikimedia gets 429
   const imgRes = await fetch(selectedImage.imageUrl, {
@@ -45,7 +45,18 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
   if (!imgRes.ok) {
     return { error: `Failed to fetch image from Wikimedia (${imgRes.status})` };
   }
+  const contentType = imgRes.headers.get('content-type') ?? '';
+  if (!ALLOWED_IMAGE_TYPES.includes(contentType.split(';')[0].trim())) {
+    return { error: `Unsupported image type: ${contentType || 'unknown'}` };
+  }
+  const contentLength = Number(imgRes.headers.get('content-length'));
+  if (Number.isFinite(contentLength) && contentLength > MAX_IMAGE_BYTES) {
+    return { error: 'Image too large (max 10MB)' };
+  }
   const buffer = Buffer.from(await imgRes.arrayBuffer());
+  if (buffer.byteLength > MAX_IMAGE_BYTES) {
+    return { error: 'Image too large (max 10MB)' };
+  }
 
   let uploaded: { secure_url: string; public_id: string };
   try {
@@ -57,14 +68,22 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
   }
 
   try {
-    await updateBirdSelectedImage(birdId, {
-      ...selectedImage,
-      imageUrl: uploaded.secure_url,
-      thumbnailUrl: uploaded.secure_url,
-    });
+    await updateBirdSelectedImage(
+      birdId,
+      {
+        ...selectedImage,
+        imageUrl: uploaded.secure_url,
+        thumbnailUrl: uploaded.secure_url,
+      },
+      uploaded.public_id,
+    );
   } catch (err) {
-    await cloudinary.uploader.destroy(uploaded.public_id).catch(() => {});
+    await deleteCloudinaryAsset(uploaded.public_id, 'image');
     throw err;
+  }
+
+  if (prevPublicId) {
+    await deleteCloudinaryAsset(prevPublicId, toCloudinaryResourceType(prevResourceType, 'image'));
   }
 
   revalidatePath(`/birds/${birdId}`);
@@ -74,17 +93,37 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
 const MAX_SOUND_BYTES = 10 * 1024 * 1024;
 const ALLOWED_SOUND_TYPES = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/x-m4a', 'audio/mp4'];
 
-function uploadSoundBuffer(buffer: Buffer) {
-  return uploadCloudinaryBuffer(buffer, { folder: 'birddex/sounds', resource_type: 'video' });
-}
-
-async function deletePreviousSound(birdId: number) {
+async function uploadAndSaveBirdSound(
+  birdId: number,
+  buffer: Buffer,
+): Promise<{ error: string } | { success: true; soundUrl: string }> {
   const existing = await getBirdById(birdId);
-  if (existing?.sound_url && isCloudinaryUrl(existing.sound_url)) {
-    await cloudinary.uploader
-      .destroy(cloudinaryPublicId(existing.sound_url), { resource_type: 'video' })
-      .catch(() => {});
+  const prevPublicId = existing?.sound_public_id;
+  const prevResourceType = existing?.sound_resource_type;
+
+  let uploaded: { secure_url: string; public_id: string };
+  try {
+    uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/sounds', resource_type: 'video' });
+  } catch (err: unknown) {
+    const e = err as { http_code?: number; message?: string };
+    console.error('Cloudinary sound upload failed:', e.http_code, e.message);
+    return { error: `Cloudinary upload failed (${e.http_code ?? 'unknown'}): ${e.message ?? 'unknown error'}` };
   }
+
+  try {
+    await updateBirdSoundUrl(birdId, uploaded.secure_url, uploaded.public_id);
+  } catch (err) {
+    await deleteCloudinaryAsset(uploaded.public_id, 'video');
+    throw err;
+  }
+
+  if (prevPublicId) {
+    await deleteCloudinaryAsset(prevPublicId, toCloudinaryResourceType(prevResourceType, 'video'));
+  }
+
+  revalidatePath(`/birds/${birdId}`);
+  revalidatePath(`/birds/${birdId}/edit`);
+  return { success: true, soundUrl: uploaded.secure_url };
 }
 
 const UpdateBirdSoundUrlSchema = z.object({
@@ -109,27 +148,7 @@ export async function updateBirdSoundUrlAction(input: UpdateBirdSoundUrlInput) {
   }
   const buffer = Buffer.from(await soundRes.arrayBuffer());
 
-  await deletePreviousSound(birdId);
-
-  let uploaded: { secure_url: string; public_id: string };
-  try {
-    uploaded = await uploadSoundBuffer(buffer);
-  } catch (err: unknown) {
-    const e = err as { http_code?: number; message?: string };
-    console.error('Cloudinary sound upload failed:', e.http_code, e.message);
-    return { error: `Cloudinary upload failed (${e.http_code ?? 'unknown'}): ${e.message ?? 'unknown error'}` };
-  }
-
-  try {
-    await updateBirdSoundUrl(birdId, uploaded.secure_url);
-  } catch (err) {
-    await cloudinary.uploader.destroy(uploaded.public_id, { resource_type: 'video' }).catch(() => {});
-    throw err;
-  }
-
-  revalidatePath(`/birds/${birdId}`);
-  revalidatePath(`/birds/${birdId}/edit`);
-  return { success: true, soundUrl: uploaded.secure_url };
+  return uploadAndSaveBirdSound(birdId, buffer);
 }
 
 export async function updateBirdSoundFileAction(formData: FormData) {
@@ -145,27 +164,7 @@ export async function updateBirdSoundFileAction(formData: FormData) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  await deletePreviousSound(birdId);
-
-  let uploaded: { secure_url: string; public_id: string };
-  try {
-    uploaded = await uploadSoundBuffer(buffer);
-  } catch (err: unknown) {
-    const e = err as { http_code?: number; message?: string };
-    console.error('Cloudinary sound upload failed:', e.http_code, e.message);
-    return { error: `Cloudinary upload failed (${e.http_code ?? 'unknown'}): ${e.message ?? 'unknown error'}` };
-  }
-
-  try {
-    await updateBirdSoundUrl(birdId, uploaded.secure_url);
-  } catch (err) {
-    await cloudinary.uploader.destroy(uploaded.public_id, { resource_type: 'video' }).catch(() => {});
-    throw err;
-  }
-
-  revalidatePath(`/birds/${birdId}`);
-  revalidatePath(`/birds/${birdId}/edit`);
-  return { success: true, soundUrl: uploaded.secure_url };
+  return uploadAndSaveBirdSound(birdId, buffer);
 }
 
 const UpdateBirdMetadataSchema = z.object({
