@@ -4,20 +4,12 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import {
-  Eye,
-  Music,
-  Camera,
-  Bird,
-  MapPin,
-  Plus,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
+import { Bird, Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RARITY_COLOR, type Rarity } from '@/entities/bird-domain';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
 import AddObservationModal from '@/features/observations/components/AddObservationModal/AddObservationModal';
+import ObservationRow from '@/features/observations/components/ObservationRow/ObservationRow';
 import { deleteObservationAction } from '@/features/observations/actions/observation-mutations';
 import type { UserObservation } from '@/features/observations/observation-queries';
 
@@ -77,90 +69,32 @@ export default function ObservationList({ observations: initialObservations }: P
           </h2>
           <div className='rounded-xl border border-border bg-card divide-y divide-border'>
             {obs.map((o) => (
-              <div
+              <ObservationRow
                 key={o.id}
-                className='flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors group first:rounded-t-xl last:rounded-b-xl'
-              >
-                <Link href={`/birds/${o.birdId}?obs=${o.id}&flipped=1`} className='flex items-center gap-3 min-w-0 flex-1'>
-                  {(o.photoThumbUrl || o.birdImageUrl) ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={(o.photoThumbUrl ?? o.birdImageUrl)!}
-                      alt={o.birdName}
-                      className='h-9 w-9 rounded-lg object-cover shrink-0'
-                    />
-                  ) : (
-                    <div className='h-9 w-9 rounded-lg bg-muted/30 flex items-center justify-center shrink-0'>
-                      <Bird className='h-4 w-4 text-muted-foreground/40' />
-                    </div>
-                  )}
-                  <div className='min-w-0 flex-1'>
-                    <p className='text-sm font-medium text-card-foreground truncate group-hover:text-primary transition-colors'>
-                      {o.birdName}
-                    </p>
-                    <div className='flex items-center gap-2 mt-0.5'>
-                      <span className='text-[11px] text-muted-foreground'>
-                        {format(new Date(o.observedAt), 'd MMM yyyy')}
-                      </span>
-                      <span className='flex items-center gap-1 text-muted-foreground/50'>
-                        {o.seen && <Eye className='h-3 w-3' />}
-                        {o.heard && <Music className='h-3 w-3' />}
-                        {o.photographed && <Camera className='h-3 w-3' />}
-                      </span>
-                      {o.quality != null && (() => {
-                        const q = o.quality;
-                        return (
-                          <span className='flex gap-px text-amber-500/70' title={`${q}/5`}>
-                            {[1, 2, 3, 4, 5].map((i) => (
-                              <svg key={i} viewBox='0 0 20 20' className='w-2.5 h-2.5' aria-hidden='true'>
-                                <path
-                                  d='M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 14.24l-4.94 2.46.94-5.49-4-3.9 5.53-.8z'
-                                  fill={i <= q ? 'currentColor' : 'transparent'}
-                                  stroke='currentColor'
-                                  strokeWidth='1.2'
-                                  strokeLinejoin='round'
-                                  style={{ opacity: i <= q ? 1 : 0.25 }}
-                                />
-                              </svg>
-                            ))}
-                          </span>
-                        );
-                      })()}
-                      {o.locationName && (
-                        <span className='flex items-center gap-0.5 text-[11px] text-muted-foreground/50 truncate'>
-                          <MapPin className='h-3 w-3 shrink-0' />
-                          <span className='truncate'>{o.locationName}</span>
-                        </span>
-                      )}
-                    </div>
-                    {o.notes && (
-                      <p className='text-[11px] text-muted-foreground/50 truncate mt-0.5'>
-                        {o.notes}
-                      </p>
-                    )}
+                observation={o}
+                actions={
+                  <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity'>
+                    <button
+                      type='button'
+                      onClick={() => setEditing(o)}
+                      aria-label={`Edit observation of ${o.birdName}`}
+                      title='Edit observation'
+                      className='flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors'
+                    >
+                      <Pencil className='h-3.5 w-3.5' />
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => { setDeleteError(null); setDeleting(o); }}
+                      aria-label={`Delete observation of ${o.birdName}`}
+                      title='Delete observation'
+                      className='flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors'
+                    >
+                      <Trash2 className='h-3.5 w-3.5' />
+                    </button>
                   </div>
-                </Link>
-                <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity'>
-                  <button
-                    type='button'
-                    onClick={() => setEditing(o)}
-                    aria-label={`Edit observation of ${o.birdName}`}
-                    title='Edit observation'
-                    className='flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors'
-                  >
-                    <Pencil className='h-3.5 w-3.5' />
-                  </button>
-                  <button
-                    type='button'
-                    onClick={() => { setDeleteError(null); setDeleting(o); }}
-                    aria-label={`Delete observation of ${o.birdName}`}
-                    title='Delete observation'
-                    className='flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors'
-                  >
-                    <Trash2 className='h-3.5 w-3.5' />
-                  </button>
-                </div>
-              </div>
+                }
+              />
             ))}
           </div>
         </div>

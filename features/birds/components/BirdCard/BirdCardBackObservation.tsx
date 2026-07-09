@@ -16,6 +16,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import LocationMapModal from '@/features/observations/components/LocationMapPopover/LocationMapPopover';
+import ObservationQualityStars from '@/features/observations/components/ObservationQualityStars/ObservationQualityStars';
 import {
   isCloudinaryUrl,
   cloudinaryPublicId,
@@ -45,33 +46,6 @@ const QUALITY_LABELS: Record<number, string> = {
   4: 'Great view',
   5: 'Excellent encounter',
 };
-
-function QualityStars({
-  rating,
-  size = 'sm',
-}: {
-  rating: number;
-  size?: 'sm' | 'xs';
-}) {
-  const s =
-    size === 'sm' ? 'w-3 h-3 sm:w-2 sm:h-2' : 'w-2.5 h-2.5 sm:w-1.5 sm:h-1.5';
-  return (
-    <div className='flex gap-px' title={QUALITY_LABELS[rating]}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <svg key={i} viewBox='0 0 20 20' className={s} aria-hidden='true'>
-          <path
-            d='M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 14.24l-4.94 2.46.94-5.49-4-3.9 5.53-.8z'
-            fill={i <= rating ? 'currentColor' : 'transparent'}
-            stroke='currentColor'
-            strokeWidth='1.2'
-            strokeLinejoin='round'
-            style={{ opacity: i <= rating ? 1 : 0.3 }}
-          />
-        </svg>
-      ))}
-    </div>
-  );
-}
 
 /** Optimized observation photo — mirrors the Cloudinary pipeline used in BirdImage. */
 function ObservationImage({ url, alt }: { url: string; alt: string }) {
@@ -473,7 +447,7 @@ export default function BirdCardBackObservation({
                   }}
                   title={QUALITY_LABELS[qualityRating]}
                 >
-                  <QualityStars rating={qualityRating} size='xs' />
+                  <ObservationQualityStars rating={qualityRating} size='xs' />
                 </div>
               )}
             </div>

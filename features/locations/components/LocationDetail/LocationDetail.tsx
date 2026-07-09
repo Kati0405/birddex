@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import {
-  MapPin,
   Eye,
   Music,
   Camera,
@@ -27,33 +26,13 @@ import {
 } from '@/features/locations/actions/location-mutations';
 import type { SavedLocation, LocationDetailStats, LocationObservation } from '@/features/locations/location-queries';
 import QuickAddObservationButton from '@/features/observations/components/QuickAddObservation/QuickAddObservationButton';
+import ObservationRow from '@/features/observations/components/ObservationRow/ObservationRow';
+import { resizeImage } from '@/shared/lib/image-resize';
 
 interface Props {
   location: SavedLocation;
   stats: LocationDetailStats;
   observations: LocationObservation[];
-}
-
-function resizeImage(file: File, maxPx = 1920, quality = 0.8): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(
-        (blob) => (blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'))),
-        'image/jpeg',
-        quality,
-      );
-    };
-    img.onerror = reject;
-    img.src = url;
-  });
 }
 
 export default function LocationDetail({ location, stats, observations }: Props) {
@@ -325,44 +304,7 @@ export default function LocationDetail({ location, stats, observations }: Props)
         {observations.length > 0 ? (
           <div className='rounded-xl border border-border bg-card divide-y divide-border'>
             {observations.map((obs) => (
-              <Link
-                key={obs.id}
-                href={`/birds/${obs.birdId}?obs=${obs.id}&flipped=1`}
-                className='flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors group first:rounded-t-xl last:rounded-b-xl'
-              >
-                {(obs.photoThumbUrl || obs.birdImageUrl) ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={(obs.photoThumbUrl ?? obs.birdImageUrl)!}
-                    alt={obs.birdName}
-                    className='h-9 w-9 rounded-lg object-cover shrink-0'
-                  />
-                ) : (
-                  <div className='h-9 w-9 rounded-lg bg-muted/30 flex items-center justify-center shrink-0'>
-                    <Bird className='h-4 w-4 text-muted-foreground/40' />
-                  </div>
-                )}
-                <div className='min-w-0 flex-1'>
-                  <p className='text-sm font-medium text-card-foreground truncate group-hover:text-primary transition-colors'>
-                    {obs.birdName}
-                  </p>
-                  <div className='flex items-center gap-2 mt-0.5'>
-                    <span className='text-[11px] text-muted-foreground'>
-                      {format(new Date(obs.observedAt), 'd MMM yyyy')}
-                    </span>
-                    <span className='flex items-center gap-1 text-muted-foreground/50'>
-                      {obs.seen && <Eye className='h-3 w-3' />}
-                      {obs.heard && <Music className='h-3 w-3' />}
-                      {obs.photographed && <Camera className='h-3 w-3' />}
-                    </span>
-                  </div>
-                  {obs.notes && (
-                    <p className='text-[11px] text-muted-foreground/50 truncate mt-0.5'>
-                      {obs.notes}
-                    </p>
-                  )}
-                </div>
-              </Link>
+              <ObservationRow key={obs.id} observation={obs} />
             ))}
           </div>
         ) : (
