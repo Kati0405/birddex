@@ -22,6 +22,7 @@ Key docs:
 - `docs/data-fetching.md` — **MUST read before any data fetching or database work**
 - `docs/data-mutations.md` — **MUST read before any data mutations, Server Actions, or form handling**
 - `docs/authentication.md` — **MUST read before any auth, role, or session-related work**
+- `docs/cloudinary-lifecycle.md` — **MUST read before any Cloudinary, upload, image, sound, observation, location, or bird media work**
 - `docs/app-guide.md` — user-facing app guide (also used as Ask Robin chat context)
 
 ## Spec-Driven Development
@@ -130,6 +131,16 @@ Auth uses Supabase Auth with Google OAuth. Two roles: `admin` (catalog editing) 
 - Never expose the `SUPABASE_SERVICE_ROLE_KEY` to the client — it's only used in `lib/supabase-admin.ts`
 - Route protection lives in `proxy.ts` but Server Actions must also guard themselves independently
 - To promote a user to admin: `UPDATE public.profiles SET role = 'admin' WHERE id = '<uuid>';` in Supabase SQL Editor
+
+## Cloudinary Asset Lifecycle
+
+Before editing anything related to Cloudinary, uploads, images, sounds, observations, locations, or bird media, read `docs/cloudinary-lifecycle.md`.
+
+- Do not make cosmetic Cloudinary refactors unless they improve lifecycle safety
+- Keep Cloudinary changes small and test-backed
+- Always preserve upload → DB write → delete-old ordering
+- Never trust client-supplied `public_id`/`photoUrl`/`resource_type` as authority — old asset identity always comes from the database
+- Add tests for rollback (new asset deleted on DB failure), ownership denial, and cleanup-failure behavior
 
 ---
 
