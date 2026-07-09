@@ -3,20 +3,13 @@
 import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
+import { format } from 'date-fns';
 import { Expand, Download, X, Loader2 } from 'lucide-react';
 import { isCloudinaryUrl, cloudinaryPublicId } from '@/shared/lib/cloudinary-utils';
 import type { ObservationPhoto } from '@/features/observations/observation-queries';
 
 interface Props {
   photos: ObservationPhoto[];
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
 }
 
 function getFullSizeUrl(photoUrl: string) {
@@ -118,7 +111,7 @@ function Lightbox({
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent rounded-b-lg">
           <p className="font-heading text-[15px] text-white leading-tight">{photo.birdNameEng}</p>
           <p className="font-mono text-[10px] text-white/60 mt-0.5 tracking-wide">
-            {formatDate(photo.observedAt)}
+            {format(new Date(photo.observedAt), 'd MMM yyyy')}
           </p>
         </div>
       </div>
@@ -200,7 +193,7 @@ export default function PhotoGallery({ photos }: Props) {
                 {photo.birdNameEng}
               </p>
               <p className="font-mono text-[9px] text-white/60 mt-0.5 tracking-wide">
-                {formatDate(photo.observedAt)}
+                {format(new Date(photo.observedAt), 'd MMM yyyy')}
               </p>
             </div>
           </button>

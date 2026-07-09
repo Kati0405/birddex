@@ -8,6 +8,7 @@ import type { Rarity, Food, Biome, Behaviour } from '@/entities/bird-domain';
 import { draftBirdAction, type DraftedBird } from '@/features/birds/actions/ai-draft-bird';
 import { createBirdAction } from '@/features/birds/actions/create-bird-mutation';
 import BirdChipPicker from '@/features/birds/components/BirdChipPicker/BirdChipPicker';
+import { toggleInArray } from '@/shared/lib/toggle';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -88,9 +89,7 @@ function AddBirdEditableFields({ initialDraft }: { initialDraft: DraftedBird }) 
   }
 
   function toggleMonth(m: number) {
-    setBestMonths((prev) =>
-      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m].sort((a, b) => a - b)
-    );
+    setBestMonths((prev) => toggleInArray(prev, m).sort((a, b) => a - b));
   }
 
   function setTip(i: number, val: string) {

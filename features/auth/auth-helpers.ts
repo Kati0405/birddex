@@ -29,16 +29,9 @@ export async function requireAuth(): Promise<User> {
 }
 
 export async function requireAdmin(): Promise<User> {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  const user = await requireAuth();
+  const role = await getUserRole();
 
-  const { data } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (data?.role !== 'admin') redirect('/');
+  if (role !== 'admin') redirect('/');
   return user;
 }

@@ -34,6 +34,7 @@ import FilterChips, { type FilterChip } from './FilterChips';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import { shuffle } from '@/shared/lib/shuffle';
 import { matchesBirdQuery } from '@/shared/lib/bird-search';
+import { toggleInSet } from '@/shared/lib/toggle';
 
 const PAGE_SIZE = 20;
 const RARITIES: Rarity[] = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
@@ -234,13 +235,6 @@ export default function BirdSearch({
     selectedBiomes,
     selectedBehaviours,
   ]);
-
-  function toggle<T>(set: Set<T>, value: T): Set<T> {
-    const next = new Set(set);
-    if (next.has(value)) next.delete(value);
-    else next.add(value);
-    return next;
-  }
 
   const filtered = useMemo(
     () =>
@@ -532,19 +526,19 @@ export default function BirdSearch({
           savedLocations={savedLocations}
           collectionDataByBirdId={collectionDataByBirdId}
           onToggleFood={(f) => {
-            setSelectedFoods((s) => toggle(s, f));
+            setSelectedFoods((s) => toggleInSet(s, f));
             setVisibleCount(PAGE_SIZE);
           }}
           onToggleBiome={(b) => {
-            setSelectedBiomes((s) => toggle(s, b));
+            setSelectedBiomes((s) => toggleInSet(s, b));
             setVisibleCount(PAGE_SIZE);
           }}
           onToggleBehaviour={(b) => {
-            setSelectedBehaviours((s) => toggle(s, b));
+            setSelectedBehaviours((s) => toggleInSet(s, b));
             setVisibleCount(PAGE_SIZE);
           }}
           onToggleRarity={(r) => {
-            setSelectedRarities((s) => toggle(s, r));
+            setSelectedRarities((s) => toggleInSet(s, r));
             setVisibleCount(PAGE_SIZE);
           }}
           selectedFoods={selectedFoods}
@@ -653,7 +647,7 @@ export default function BirdSearch({
                         key={t}
                         onClick={() => {
                           setObservationTypeFilter(
-                            toggle(observationTypeFilter, t),
+                            toggleInSet(observationTypeFilter, t),
                           );
                           setVisibleCount(PAGE_SIZE);
                         }}
@@ -678,7 +672,7 @@ export default function BirdSearch({
                     key={r}
                     active={selectedRarities.has(r)}
                     onClick={() => {
-                      setSelectedRarities(toggle(selectedRarities, r));
+                      setSelectedRarities(toggleInSet(selectedRarities, r));
                       setVisibleCount(PAGE_SIZE);
                     }}
                     count={rarityCounts[r] ?? 0}
@@ -705,7 +699,7 @@ export default function BirdSearch({
                     key={b}
                     active={selectedBiomes.has(b)}
                     onClick={() => {
-                      setSelectedBiomes(toggle(selectedBiomes, b));
+                      setSelectedBiomes(toggleInSet(selectedBiomes, b));
                       setVisibleCount(PAGE_SIZE);
                     }}
                     count={biomeCounts[b] ?? 0}
@@ -729,7 +723,7 @@ export default function BirdSearch({
                     key={b}
                     active={selectedBehaviours.has(b)}
                     onClick={() => {
-                      setSelectedBehaviours(toggle(selectedBehaviours, b));
+                      setSelectedBehaviours(toggleInSet(selectedBehaviours, b));
                       setVisibleCount(PAGE_SIZE);
                     }}
                     count={behaviourCounts[b] ?? 0}
@@ -745,7 +739,7 @@ export default function BirdSearch({
                     key={f}
                     active={selectedFoods.has(f)}
                     onClick={() => {
-                      setSelectedFoods(toggle(selectedFoods, f));
+                      setSelectedFoods(toggleInSet(selectedFoods, f));
                       setVisibleCount(PAGE_SIZE);
                     }}
                     count={foodCounts[f] ?? 0}
