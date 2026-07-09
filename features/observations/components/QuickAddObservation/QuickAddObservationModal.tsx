@@ -45,9 +45,7 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
     setTimeout(() => inputRef.current?.focus(), 50);
   }, []);
 
-  const filtered = query.trim().length === 0
-    ? birds.slice(0, 8)
-    : birds.filter((b) => matchesBirdQuery(b, query)).slice(0, 8);
+  const filtered = birds.filter((b) => matchesBirdQuery(b, query)).slice(0, 8);
 
   if (selected) {
     const frameColor = RARITY_COLOR[selected.rarity as keyof typeof RARITY_COLOR] ?? RARITY_COLOR.Common;

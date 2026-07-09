@@ -1,5 +1,8 @@
-export function matchesBirdQuery(bird: { name_eng: string; name_latin: string }, query: string): boolean {
-  if (query === '') return true;
-  const q = query.toLowerCase();
-  return bird.name_eng.toLowerCase().includes(q) || bird.name_latin.toLowerCase().includes(q);
+export function matchesBirdQuery(
+  bird: { name_eng?: string | null; name_latin?: string | null },
+  query: string,
+): boolean {
+  const q = query.trim().toLowerCase();
+  if (q === '') return true;
+  return (bird.name_eng ?? '').toLowerCase().includes(q) || (bird.name_latin ?? '').toLowerCase().includes(q);
 }
