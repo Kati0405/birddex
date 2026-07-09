@@ -7,6 +7,7 @@ import { RARITY_COLOR } from '@/entities/bird-domain';
 import { getBirdsForSearch, type BirdSearchResult } from '@/features/birds/actions/bird-search';
 import AddObservationModal from '@/features/observations/components/AddObservationModal/AddObservationModal';
 import type { SavedLocation } from '@/features/locations/location-queries';
+import { matchesBirdQuery } from '@/shared/lib/bird-search';
 
 interface InitialLocation {
   lat: number;
@@ -46,13 +47,7 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
 
   const filtered = query.trim().length === 0
     ? birds.slice(0, 8)
-    : birds
-        .filter(
-          (b) =>
-            b.name_eng.toLowerCase().includes(query.toLowerCase()) ||
-            b.name_latin.toLowerCase().includes(query.toLowerCase()),
-        )
-        .slice(0, 8);
+    : birds.filter((b) => matchesBirdQuery(b, query)).slice(0, 8);
 
   if (selected) {
     const frameColor = RARITY_COLOR[selected.rarity as keyof typeof RARITY_COLOR] ?? RARITY_COLOR.Common;

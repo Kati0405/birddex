@@ -6,6 +6,7 @@ import type { SavedLocation } from '@/features/locations/location-queries';
 import type { CollectionCardData } from '@/features/observations/observation-queries';
 import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
 import { Input } from '@/components/ui/input';
+import { matchesBirdQuery } from '@/shared/lib/bird-search';
 
 interface CollectionSearchProps {
   birds: Bird[];
@@ -25,14 +26,7 @@ export default function CollectionSearch({
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(
-    () =>
-      query === ''
-        ? birds
-        : birds.filter(
-            (b) =>
-              b.name_eng.toLowerCase().includes(query.toLowerCase()) ||
-              b.name_latin.toLowerCase().includes(query.toLowerCase()),
-          ),
+    () => birds.filter((b) => matchesBirdQuery(b, query)),
     [birds, query],
   );
 

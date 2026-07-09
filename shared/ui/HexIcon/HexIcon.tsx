@@ -26,7 +26,7 @@ export default function HexIcon({
   const clickable = !!onClick;
 
   return (
-    <div className="relative group flex flex-col items-center shrink-0">
+    <div className='relative group flex flex-col items-center shrink-0'>
       <div
         role={clickable ? 'button' : undefined}
         tabIndex={clickable ? 0 : undefined}
@@ -51,11 +51,16 @@ export default function HexIcon({
               }
             : undefined
         }
-        className={clickable ? 'flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer' : 'flex items-center justify-center'}
+        className={
+          clickable
+            ? 'flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer'
+            : 'flex items-center justify-center'
+        }
         style={{
           width: size,
           height: size,
-          clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+          clipPath:
+            'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
           background: bgColor,
           outline: clickable && active ? '2px solid currentColor' : undefined,
           outlineOffset: clickable && active ? '1px' : undefined,
@@ -67,10 +72,12 @@ export default function HexIcon({
             alt={label ?? ''}
             width={innerSize}
             height={innerSize}
-            className="object-contain"
+            className='object-contain'
           />
         ) : (
-          <span style={{ fontSize: innerSize * 0.9, lineHeight: 1 }}>{emoji}</span>
+          <span style={{ fontSize: innerSize * 0.9, lineHeight: 1 }}>
+            {emoji}
+          </span>
         )}
       </div>
 
@@ -87,7 +94,7 @@ export default function HexIcon({
             {label}
           </span>
           {/* inline label — mobile */}
-          <span className="sm:hidden mt-0.5 text-[7px] uppercase tracking-wide text-muted-foreground text-center leading-tight max-w-[48px] truncate font-mono">
+          <span className='sm:hidden mt-0.5 text-[7px] uppercase tracking-wide text-muted-foreground text-center leading-tight max-w-[48px] truncate font-mono'>
             {label}
           </span>
         </>

@@ -6,9 +6,8 @@ import { updateBirdMetadataAction } from '@/features/birds/actions/bird-mutation
 import { draftBirdAction } from '@/features/birds/actions/ai-draft-bird';
 import { RARITIES, RARITY_COLOR, FOODS, foodImage, BIOMES, biomeImage, BEHAVIOURS, behaviourImage } from '@/entities/bird-domain';
 import type { Rarity, Food, Biome, Behaviour } from '@/entities/bird-domain';
-import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import SoundUploader from '@/shared/ui/SoundUploader/SoundUploader';
-import type { StaticImageData } from 'next/image';
+import BirdChipPicker from '@/features/birds/components/BirdChipPicker/BirdChipPicker';
 
 const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -25,32 +24,6 @@ interface Props {
   currentTipsToFind: string[];
   currentFieldMarks: string[];
   currentSoundUrl?: string;
-}
-
-function ToggleChip<T extends string>({
-  value, imageSrc, label, selected, max, count, onToggle,
-}: {
-  value: T; imageSrc: StaticImageData; label: string;
-  selected: boolean; max: number; count: number; onToggle: (v: T) => void;
-}) {
-  const disabled = !selected && count >= max;
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={() => onToggle(value)}
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition-colors
-        ${selected
-          ? 'border-primary bg-primary text-primary-foreground'
-          : disabled
-          ? 'border-border bg-muted text-muted-foreground opacity-40 cursor-not-allowed'
-          : 'border-border bg-background hover:border-primary'
-        }`}
-    >
-      <HexIcon imageSrc={imageSrc} label={undefined} size={22} />
-      {label}
-    </button>
-  );
 }
 
 export default function BirdMetadataEditor({
@@ -183,38 +156,12 @@ export default function BirdMetadataEditor({
         </select>
       </section>
 
-      <section className="space-y-2">
-        {sectionLabel('Food', '(1–3)')}
-        <div className="flex flex-wrap gap-2">
-          {FOODS.map((f) => (
-            <ToggleChip key={f} value={f} imageSrc={foodImage[f]} label={f}
-              selected={food.includes(f)} max={3} count={food.length}
-              onToggle={(v) => toggle(food, setFood, v, 3)} />
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-2">
-        {sectionLabel('Biome', '(1–3)')}
-        <div className="flex flex-wrap gap-2">
-          {BIOMES.map((b) => (
-            <ToggleChip key={b} value={b} imageSrc={biomeImage[b]} label={b}
-              selected={biomes.includes(b)} max={3} count={biomes.length}
-              onToggle={(v) => toggle(biomes, setBiomes, v, 3)} />
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-2">
-        {sectionLabel('Behaviour', '(1–3)')}
-        <div className="flex flex-wrap gap-2">
-          {BEHAVIOURS.map((beh) => (
-            <ToggleChip key={beh} value={beh} imageSrc={behaviourImage[beh]} label={beh}
-              selected={behaviour.includes(beh)} max={3} count={behaviour.length}
-              onToggle={(v) => toggle(behaviour, setBehaviour, v, 3)} />
-          ))}
-        </div>
-      </section>
+      <BirdChipPicker label="Food" values={FOODS} imageFor={foodImage} selected={food} max={3}
+        onToggle={(v) => toggle(food, setFood, v, 3)} />
+      <BirdChipPicker label="Biome" values={BIOMES} imageFor={biomeImage} selected={biomes} max={3}
+        onToggle={(v) => toggle(biomes, setBiomes, v, 3)} />
+      <BirdChipPicker label="Behaviour" values={BEHAVIOURS} imageFor={behaviourImage} selected={behaviour} max={3}
+        onToggle={(v) => toggle(behaviour, setBehaviour, v, 3)} />
 
       <section className="space-y-2">
         {sectionLabel('Best months to observe')}

@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { addObservation, updateObservation, deleteObservation, type ObservationQuality } from '@/features/observations/observation-queries';
-import { cloudinary } from '@/shared/lib/cloudinary';
+import { uploadCloudinaryBuffer } from '@/shared/lib/cloudinary';
 import { requireAuth } from '@/features/auth/auth-helpers';
 
 const AddObservationSchema = z.object({
@@ -132,17 +132,7 @@ export async function uploadObservationPhotoAction(
   const buffer = Buffer.from(await file.arrayBuffer());
 
   try {
-    const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          { folder: 'birddex/observations', resource_type: 'image' },
-          (err, res) => {
-            if (err || !res) return reject(err ?? new Error('Upload failed'));
-            resolve({ secure_url: res.secure_url });
-          }
-        )
-        .end(buffer);
-    });
+    const result = await uploadCloudinaryBuffer(buffer, { folder: 'birddex/observations', resource_type: 'image' });
     return { url: result.secure_url };
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Upload failed' };

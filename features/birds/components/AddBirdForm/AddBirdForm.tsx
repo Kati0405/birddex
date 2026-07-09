@@ -7,7 +7,7 @@ import {
 import type { Rarity, Food, Biome, Behaviour } from '@/entities/bird-domain';
 import { draftBirdAction, type DraftedBird } from '@/features/birds/actions/ai-draft-bird';
 import { createBirdAction } from '@/features/birds/actions/create-bird-mutation';
-import BirdChipPicker from './BirdChipPicker';
+import BirdChipPicker from '@/features/birds/components/BirdChipPicker/BirdChipPicker';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

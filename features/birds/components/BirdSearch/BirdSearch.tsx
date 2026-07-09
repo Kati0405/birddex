@@ -2,8 +2,26 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import type { Bird, Biome, Behaviour, Food, Rarity } from '@/entities/bird-domain';
-import { BIOMES, BEHAVIOURS, FOODS, RARITY_COLOR, biomeImage, biomeIcon, BIOME_FALLBACK_ICON, behaviourImage, foodImage, foodIcon, FOOD_FALLBACK_ICON } from '@/entities/bird-domain';
+import type {
+  Bird,
+  Biome,
+  Behaviour,
+  Food,
+  Rarity,
+} from '@/entities/bird-domain';
+import {
+  BIOMES,
+  BEHAVIOURS,
+  FOODS,
+  RARITY_COLOR,
+  biomeImage,
+  biomeIcon,
+  BIOME_FALLBACK_ICON,
+  behaviourImage,
+  foodImage,
+  foodIcon,
+  FOOD_FALLBACK_ICON,
+} from '@/entities/bird-domain';
 import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { CollectionCardData } from '@/features/observations/observation-queries';
@@ -15,6 +33,7 @@ import ObservationStatusSwitcher from './ObservationStatusSwitcher';
 import FilterChips, { type FilterChip } from './FilterChips';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import { shuffle } from '@/shared/lib/shuffle';
+import { matchesBirdQuery } from '@/shared/lib/bird-search';
 
 const PAGE_SIZE = 20;
 const RARITIES: Rarity[] = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
@@ -43,12 +62,18 @@ export default function BirdSearch({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [query, setQuery] = useState('');
-  const [selectedRarities, setSelectedRarities] = useState<Set<Rarity>>(new Set());
+  const [selectedRarities, setSelectedRarities] = useState<Set<Rarity>>(
+    new Set(),
+  );
   const [selectedBiomes, setSelectedBiomes] = useState<Set<Biome>>(new Set());
-  const [selectedBehaviours, setSelectedBehaviours] = useState<Set<Behaviour>>(new Set());
+  const [selectedBehaviours, setSelectedBehaviours] = useState<Set<Behaviour>>(
+    new Set(),
+  );
   const [selectedFoods, setSelectedFoods] = useState<Set<Food>>(new Set());
-  const [observationFilter, setObservationFilter] = useState<ObservationFilter>('all');
-  const [observationTypeFilter, setObservationTypeFilter] = useState<ObservationTypeFilter>(new Set());
+  const [observationFilter, setObservationFilter] =
+    useState<ObservationFilter>('all');
+  const [observationTypeFilter, setObservationTypeFilter] =
+    useState<ObservationTypeFilter>(new Set());
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -60,7 +85,10 @@ export default function BirdSearch({
     [birds],
   );
   const availableBehaviours = useMemo(
-    () => BEHAVIOURS.filter((b) => birds.some((bird) => bird.behaviour.includes(b))),
+    () =>
+      BEHAVIOURS.filter((b) =>
+        birds.some((bird) => bird.behaviour.includes(b)),
+      ),
     [birds],
   );
   const availableFoods = useMemo(
@@ -70,10 +98,7 @@ export default function BirdSearch({
 
   // Base predicates shared by every facet's "all other active filters" check
   const matchesQueryBase = useCallback(
-    (b: Bird) =>
-      query === '' ||
-      b.name_eng.toLowerCase().includes(query.toLowerCase()) ||
-      b.name_latin.toLowerCase().includes(query.toLowerCase()),
+    (b: Bird) => matchesBirdQuery(b, query),
     [query],
   );
   const matchesObservationBase = useCallback(
@@ -85,13 +110,25 @@ export default function BirdSearch({
       if (observationTypeFilter.size > 0) {
         const data = collectionDataByBirdId[b.id];
         if (!data) return false;
-        if (observationTypeFilter.has('seen') && data.seenCount === 0) return false;
-        if (observationTypeFilter.has('heard') && data.heardCount === 0) return false;
-        if (observationTypeFilter.has('photographed') && data.photographedCount === 0) return false;
+        if (observationTypeFilter.has('seen') && data.seenCount === 0)
+          return false;
+        if (observationTypeFilter.has('heard') && data.heardCount === 0)
+          return false;
+        if (
+          observationTypeFilter.has('photographed') &&
+          data.photographedCount === 0
+        )
+          return false;
       }
       return true;
     },
-    [isAuthenticated, observedSet, observationFilter, observationTypeFilter, collectionDataByBirdId],
+    [
+      isAuthenticated,
+      observedSet,
+      observationFilter,
+      observationTypeFilter,
+      collectionDataByBirdId,
+    ],
   );
 
   // Each facet's counts are computed against birds matching every OTHER active filter,
@@ -101,12 +138,23 @@ export default function BirdSearch({
       (b) =>
         matchesQueryBase(b) &&
         matchesObservationBase(b) &&
-        (selectedBiomes.size === 0 || b.biomes.some((bm) => selectedBiomes.has(bm))) &&
-        (selectedBehaviours.size === 0 || b.behaviour.some((bh) => selectedBehaviours.has(bh))) &&
+        (selectedBiomes.size === 0 ||
+          b.biomes.some((bm) => selectedBiomes.has(bm))) &&
+        (selectedBehaviours.size === 0 ||
+          b.behaviour.some((bh) => selectedBehaviours.has(bh))) &&
         (selectedFoods.size === 0 || b.food.some((f) => selectedFoods.has(f))),
     );
-    return Object.fromEntries(RARITIES.map((r) => [r, pool.filter((b) => b.rarity === r).length]));
-  }, [birds, matchesQueryBase, matchesObservationBase, selectedBiomes, selectedBehaviours, selectedFoods]);
+    return Object.fromEntries(
+      RARITIES.map((r) => [r, pool.filter((b) => b.rarity === r).length]),
+    );
+  }, [
+    birds,
+    matchesQueryBase,
+    matchesObservationBase,
+    selectedBiomes,
+    selectedBehaviours,
+    selectedFoods,
+  ]);
 
   const biomeCounts = useMemo(() => {
     const pool = birds.filter(
@@ -114,11 +162,25 @@ export default function BirdSearch({
         matchesQueryBase(b) &&
         matchesObservationBase(b) &&
         (selectedRarities.size === 0 || selectedRarities.has(b.rarity)) &&
-        (selectedBehaviours.size === 0 || b.behaviour.some((bh) => selectedBehaviours.has(bh))) &&
+        (selectedBehaviours.size === 0 ||
+          b.behaviour.some((bh) => selectedBehaviours.has(bh))) &&
         (selectedFoods.size === 0 || b.food.some((f) => selectedFoods.has(f))),
     );
-    return Object.fromEntries(availableBiomes.map((b) => [b, pool.filter((bird) => bird.biomes.includes(b)).length]));
-  }, [birds, availableBiomes, matchesQueryBase, matchesObservationBase, selectedRarities, selectedBehaviours, selectedFoods]);
+    return Object.fromEntries(
+      availableBiomes.map((b) => [
+        b,
+        pool.filter((bird) => bird.biomes.includes(b)).length,
+      ]),
+    );
+  }, [
+    birds,
+    availableBiomes,
+    matchesQueryBase,
+    matchesObservationBase,
+    selectedRarities,
+    selectedBehaviours,
+    selectedFoods,
+  ]);
 
   const behaviourCounts = useMemo(() => {
     const pool = birds.filter(
@@ -126,11 +188,25 @@ export default function BirdSearch({
         matchesQueryBase(b) &&
         matchesObservationBase(b) &&
         (selectedRarities.size === 0 || selectedRarities.has(b.rarity)) &&
-        (selectedBiomes.size === 0 || b.biomes.some((bm) => selectedBiomes.has(bm))) &&
+        (selectedBiomes.size === 0 ||
+          b.biomes.some((bm) => selectedBiomes.has(bm))) &&
         (selectedFoods.size === 0 || b.food.some((f) => selectedFoods.has(f))),
     );
-    return Object.fromEntries(availableBehaviours.map((b) => [b, pool.filter((bird) => bird.behaviour.includes(b)).length]));
-  }, [birds, availableBehaviours, matchesQueryBase, matchesObservationBase, selectedRarities, selectedBiomes, selectedFoods]);
+    return Object.fromEntries(
+      availableBehaviours.map((b) => [
+        b,
+        pool.filter((bird) => bird.behaviour.includes(b)).length,
+      ]),
+    );
+  }, [
+    birds,
+    availableBehaviours,
+    matchesQueryBase,
+    matchesObservationBase,
+    selectedRarities,
+    selectedBiomes,
+    selectedFoods,
+  ]);
 
   const foodCounts = useMemo(() => {
     const pool = birds.filter(
@@ -138,11 +214,26 @@ export default function BirdSearch({
         matchesQueryBase(b) &&
         matchesObservationBase(b) &&
         (selectedRarities.size === 0 || selectedRarities.has(b.rarity)) &&
-        (selectedBiomes.size === 0 || b.biomes.some((bm) => selectedBiomes.has(bm))) &&
-        (selectedBehaviours.size === 0 || b.behaviour.some((bh) => selectedBehaviours.has(bh))),
+        (selectedBiomes.size === 0 ||
+          b.biomes.some((bm) => selectedBiomes.has(bm))) &&
+        (selectedBehaviours.size === 0 ||
+          b.behaviour.some((bh) => selectedBehaviours.has(bh))),
     );
-    return Object.fromEntries(availableFoods.map((f) => [f, pool.filter((bird) => bird.food.includes(f)).length]));
-  }, [birds, availableFoods, matchesQueryBase, matchesObservationBase, selectedRarities, selectedBiomes, selectedBehaviours]);
+    return Object.fromEntries(
+      availableFoods.map((f) => [
+        f,
+        pool.filter((bird) => bird.food.includes(f)).length,
+      ]),
+    );
+  }, [
+    birds,
+    availableFoods,
+    matchesQueryBase,
+    matchesObservationBase,
+    selectedRarities,
+    selectedBiomes,
+    selectedBehaviours,
+  ]);
 
   function toggle<T>(set: Set<T>, value: T): Set<T> {
     const next = new Set(set);
@@ -154,36 +245,65 @@ export default function BirdSearch({
   const filtered = useMemo(
     () =>
       shuffledBirds.filter((b) => {
-        const matchesQuery =
-          query === '' ||
-          b.name_eng.toLowerCase().includes(query.toLowerCase()) ||
-          b.name_latin.toLowerCase().includes(query.toLowerCase());
-        const matchesRarity = selectedRarities.size === 0 || selectedRarities.has(b.rarity);
-        const matchesBiome = selectedBiomes.size === 0 || b.biomes.some((bm) => selectedBiomes.has(bm));
-        const matchesBehaviour = selectedBehaviours.size === 0 || b.behaviour.some((bh) => selectedBehaviours.has(bh));
-        const matchesFood = selectedFoods.size === 0 || b.food.some((f) => selectedFoods.has(f));
+        const matchesQuery = matchesBirdQuery(b, query);
+        const matchesRarity =
+          selectedRarities.size === 0 || selectedRarities.has(b.rarity);
+        const matchesBiome =
+          selectedBiomes.size === 0 ||
+          b.biomes.some((bm) => selectedBiomes.has(bm));
+        const matchesBehaviour =
+          selectedBehaviours.size === 0 ||
+          b.behaviour.some((bh) => selectedBehaviours.has(bh));
+        const matchesFood =
+          selectedFoods.size === 0 || b.food.some((f) => selectedFoods.has(f));
 
         let matchesObservation = true;
         if (isAuthenticated) {
           const isObserved = observedSet.has(b.id);
           if (observationFilter === 'observed') matchesObservation = isObserved;
-          else if (observationFilter === 'unobserved') matchesObservation = !isObserved;
+          else if (observationFilter === 'unobserved')
+            matchesObservation = !isObserved;
 
           if (matchesObservation && observationTypeFilter.size > 0) {
             const data = collectionDataByBirdId[b.id];
             if (!data) {
               matchesObservation = false;
             } else {
-              if (observationTypeFilter.has('seen') && data.seenCount === 0) matchesObservation = false;
-              if (observationTypeFilter.has('heard') && data.heardCount === 0) matchesObservation = false;
-              if (observationTypeFilter.has('photographed') && data.photographedCount === 0) matchesObservation = false;
+              if (observationTypeFilter.has('seen') && data.seenCount === 0)
+                matchesObservation = false;
+              if (observationTypeFilter.has('heard') && data.heardCount === 0)
+                matchesObservation = false;
+              if (
+                observationTypeFilter.has('photographed') &&
+                data.photographedCount === 0
+              )
+                matchesObservation = false;
             }
           }
         }
 
-        return matchesQuery && matchesRarity && matchesBiome && matchesBehaviour && matchesFood && matchesObservation;
+        return (
+          matchesQuery &&
+          matchesRarity &&
+          matchesBiome &&
+          matchesBehaviour &&
+          matchesFood &&
+          matchesObservation
+        );
       }),
-    [shuffledBirds, query, selectedRarities, selectedBiomes, selectedBehaviours, selectedFoods, observationFilter, observationTypeFilter, observedSet, collectionDataByBirdId, isAuthenticated],
+    [
+      shuffledBirds,
+      query,
+      selectedRarities,
+      selectedBiomes,
+      selectedBehaviours,
+      selectedFoods,
+      observationFilter,
+      observationTypeFilter,
+      observedSet,
+      collectionDataByBirdId,
+      isAuthenticated,
+    ],
   );
 
   const loadMore = useCallback(() => {
@@ -194,7 +314,9 @@ export default function BirdSearch({
     const el = sentinelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      (entries) => { if (entries[0].isIntersecting) loadMore(); },
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
       { rootMargin: '200px' },
     );
     observer.observe(el);
@@ -203,15 +325,25 @@ export default function BirdSearch({
 
   useEffect(() => {
     if (!filtersOpen) return;
-    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setFiltersOpen(false); }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setFiltersOpen(false);
+    }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [filtersOpen]);
 
-  const visibleBirds = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
+  const visibleBirds = useMemo(
+    () => filtered.slice(0, visibleCount),
+    [filtered, visibleCount],
+  );
 
-  const baseActiveCount = selectedRarities.size + selectedBiomes.size + selectedBehaviours.size + selectedFoods.size;
-  const obsActiveCount = (observationFilter !== 'all' ? 1 : 0) + observationTypeFilter.size;
+  const baseActiveCount =
+    selectedRarities.size +
+    selectedBiomes.size +
+    selectedBehaviours.size +
+    selectedFoods.size;
+  const obsActiveCount =
+    (observationFilter !== 'all' ? 1 : 0) + observationTypeFilter.size;
   const activeCount = baseActiveCount + obsActiveCount;
   const hasActiveFilters = activeCount > 0;
 
@@ -225,7 +357,10 @@ export default function BirdSearch({
     setVisibleCount(PAGE_SIZE);
   }
 
-  function removeFromSet<T>(setter: (updater: (s: Set<T>) => Set<T>) => void, value: T) {
+  function removeFromSet<T>(
+    setter: (updater: (s: Set<T>) => Set<T>) => void,
+    value: T,
+  ) {
     setter((s) => {
       const next = new Set(s);
       next.delete(value);
@@ -237,27 +372,55 @@ export default function BirdSearch({
   const filterChips: FilterChip[] = useMemo(() => {
     const chips: FilterChip[] = [];
     selectedRarities.forEach((r) =>
-      chips.push({ key: `rarity-${r}`, label: r, onRemove: () => removeFromSet(setSelectedRarities, r) }),
+      chips.push({
+        key: `rarity-${r}`,
+        label: r,
+        onRemove: () => removeFromSet(setSelectedRarities, r),
+      }),
     );
     selectedBiomes.forEach((b) =>
-      chips.push({ key: `biome-${b}`, label: b, onRemove: () => removeFromSet(setSelectedBiomes, b) }),
+      chips.push({
+        key: `biome-${b}`,
+        label: b,
+        onRemove: () => removeFromSet(setSelectedBiomes, b),
+      }),
     );
     selectedBehaviours.forEach((b) =>
-      chips.push({ key: `behaviour-${b}`, label: b, onRemove: () => removeFromSet(setSelectedBehaviours, b) }),
+      chips.push({
+        key: `behaviour-${b}`,
+        label: b,
+        onRemove: () => removeFromSet(setSelectedBehaviours, b),
+      }),
     );
     selectedFoods.forEach((f) =>
-      chips.push({ key: `food-${f}`, label: f, onRemove: () => removeFromSet(setSelectedFoods, f) }),
+      chips.push({
+        key: `food-${f}`,
+        label: f,
+        onRemove: () => removeFromSet(setSelectedFoods, f),
+      }),
     );
     observationTypeFilter.forEach((t) =>
-      chips.push({ key: `obstype-${t}`, label: t, onRemove: () => removeFromSet(setObservationTypeFilter, t) }),
+      chips.push({
+        key: `obstype-${t}`,
+        label: t,
+        onRemove: () => removeFromSet(setObservationTypeFilter, t),
+      }),
     );
     return chips;
-  }, [selectedRarities, selectedBiomes, selectedBehaviours, selectedFoods, observationTypeFilter]);
+  }, [
+    selectedRarities,
+    selectedBiomes,
+    selectedBehaviours,
+    selectedFoods,
+    observationTypeFilter,
+  ]);
 
   const filtersButton = (
     <button
       onClick={() => setFiltersOpen(true)}
-      aria-label={hasActiveFilters ? `Filters, ${activeCount} active` : 'Filters'}
+      aria-label={
+        hasActiveFilters ? `Filters, ${activeCount} active` : 'Filters'
+      }
       className={cn(
         'relative flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium border transition-colors shrink-0',
         hasActiveFilters
@@ -290,7 +453,12 @@ export default function BirdSearch({
   );
 
   return (
-    <div className={cn(isAuthenticated ? 'mt-[104px]' : 'mt-[56px]', 'md:mt-0 py-5')}>
+    <div
+      className={cn(
+        isAuthenticated ? 'mt-[104px]' : 'mt-[56px]',
+        'md:mt-0 py-5',
+      )}
+    >
       {/* Mobile top bar */}
       <div className='md:hidden fixed top-[62px] left-0 right-0 z-30 bg-card border-b border-border px-4 py-2.5 flex flex-col gap-2'>
         <div className='flex items-center gap-2'>
@@ -298,7 +466,10 @@ export default function BirdSearch({
             type='text'
             placeholder='Search birds...'
             value={query}
-            onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setVisibleCount(PAGE_SIZE);
+            }}
             className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 flex-1 rounded-full'
           />
           {filtersButton}
@@ -307,7 +478,10 @@ export default function BirdSearch({
         {isAuthenticated && (
           <ObservationStatusSwitcher
             value={observationFilter}
-            onChange={(f) => { setObservationFilter(f); setVisibleCount(PAGE_SIZE); }}
+            onChange={(f) => {
+              setObservationFilter(f);
+              setVisibleCount(PAGE_SIZE);
+            }}
             className='w-full [&>button]:flex-1'
           />
         )}
@@ -322,7 +496,10 @@ export default function BirdSearch({
               type='text'
               placeholder='Search birds...'
               value={query}
-              onChange={(e) => { setQuery(e.target.value); setVisibleCount(PAGE_SIZE); }}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setVisibleCount(PAGE_SIZE);
+              }}
               className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 max-w-xs rounded-full'
             />
             {filtersButton}
@@ -330,7 +507,10 @@ export default function BirdSearch({
             {isAuthenticated && (
               <ObservationStatusSwitcher
                 value={observationFilter}
-                onChange={(f) => { setObservationFilter(f); setVisibleCount(PAGE_SIZE); }}
+                onChange={(f) => {
+                  setObservationFilter(f);
+                  setVisibleCount(PAGE_SIZE);
+                }}
                 className='ml-auto'
               />
             )}
@@ -350,7 +530,8 @@ export default function BirdSearch({
         )}
 
         <p className='mb-4 text-sm text-muted-foreground'>
-          Showing {filtered.length} {filtered.length === 1 ? 'species' : 'species'}
+          Showing {filtered.length}{' '}
+          {filtered.length === 1 ? 'species' : 'species'}
         </p>
         <BirdGrid
           birds={visibleBirds}
@@ -359,10 +540,22 @@ export default function BirdSearch({
           observedIds={observedIds}
           savedLocations={savedLocations}
           collectionDataByBirdId={collectionDataByBirdId}
-          onToggleFood={(f) => { setSelectedFoods((s) => toggle(s, f)); setVisibleCount(PAGE_SIZE); }}
-          onToggleBiome={(b) => { setSelectedBiomes((s) => toggle(s, b)); setVisibleCount(PAGE_SIZE); }}
-          onToggleBehaviour={(b) => { setSelectedBehaviours((s) => toggle(s, b)); setVisibleCount(PAGE_SIZE); }}
-          onToggleRarity={(r) => { setSelectedRarities((s) => toggle(s, r)); setVisibleCount(PAGE_SIZE); }}
+          onToggleFood={(f) => {
+            setSelectedFoods((s) => toggle(s, f));
+            setVisibleCount(PAGE_SIZE);
+          }}
+          onToggleBiome={(b) => {
+            setSelectedBiomes((s) => toggle(s, b));
+            setVisibleCount(PAGE_SIZE);
+          }}
+          onToggleBehaviour={(b) => {
+            setSelectedBehaviours((s) => toggle(s, b));
+            setVisibleCount(PAGE_SIZE);
+          }}
+          onToggleRarity={(r) => {
+            setSelectedRarities((s) => toggle(s, r));
+            setVisibleCount(PAGE_SIZE);
+          }}
           selectedFoods={selectedFoods}
           selectedBiomes={selectedBiomes}
           selectedBehaviours={selectedBehaviours}
@@ -379,7 +572,11 @@ export default function BirdSearch({
       {/* Filter modal */}
       {filtersOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
-          <div className='absolute inset-0 bg-black/50' onClick={() => setFiltersOpen(false)} aria-hidden='true' />
+          <div
+            className='absolute inset-0 bg-black/50'
+            onClick={() => setFiltersOpen(false)}
+            aria-hidden='true'
+          />
           <div
             role='dialog'
             aria-modal='true'
@@ -387,7 +584,12 @@ export default function BirdSearch({
             className='relative bg-card rounded-xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col'
           >
             <div className='flex items-center justify-between px-5 py-4 border-b border-border'>
-              <span id='filters-dialog-title' className='text-sm font-semibold tracking-wide'>Filters</span>
+              <span
+                id='filters-dialog-title'
+                className='text-sm font-semibold tracking-wide'
+              >
+                Filters
+              </span>
               <button
                 onClick={() => setFiltersOpen(false)}
                 aria-label='Close filters'
@@ -401,19 +603,42 @@ export default function BirdSearch({
               {/* Observation filters — authenticated only */}
               {isAuthenticated && (
                 <FilterSection label='My Collection'>
-                  {(['all', 'observed', 'unobserved'] as ObservationFilter[]).map((f) => (
+                  {(
+                    ['all', 'observed', 'unobserved'] as ObservationFilter[]
+                  ).map((f) => (
                     <button
                       key={f}
-                      onClick={() => { setObservationFilter(f); setVisibleCount(PAGE_SIZE); }}
+                      onClick={() => {
+                        setObservationFilter(f);
+                        setVisibleCount(PAGE_SIZE);
+                      }}
                       className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors ${observationFilter === f ? 'bg-muted/60 text-foreground' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'}`}
                     >
                       <span className='flex h-6 w-6 items-center justify-center shrink-0 text-base'>
                         {f === 'all' ? '🐦' : f === 'observed' ? '✓' : '○'}
                       </span>
-                      <span className='flex-1 capitalize'>{f === 'all' ? 'All birds' : f === 'observed' ? 'Observed' : 'Not yet observed'}</span>
-                      {f === 'all' && <span className='text-xs tabular-nums text-muted-foreground'>{birds.length}</span>}
-                      {f === 'observed' && <span className='text-xs tabular-nums text-muted-foreground'>{observedIds.length}</span>}
-                      {f === 'unobserved' && <span className='text-xs tabular-nums text-muted-foreground'>{birds.length - observedIds.length}</span>}
+                      <span className='flex-1 capitalize'>
+                        {f === 'all'
+                          ? 'All birds'
+                          : f === 'observed'
+                            ? 'Observed'
+                            : 'Not yet observed'}
+                      </span>
+                      {f === 'all' && (
+                        <span className='text-xs tabular-nums text-muted-foreground'>
+                          {birds.length}
+                        </span>
+                      )}
+                      {f === 'observed' && (
+                        <span className='text-xs tabular-nums text-muted-foreground'>
+                          {observedIds.length}
+                        </span>
+                      )}
+                      {f === 'unobserved' && (
+                        <span className='text-xs tabular-nums text-muted-foreground'>
+                          {birds.length - observedIds.length}
+                        </span>
+                      )}
                     </button>
                   ))}
                 </FilterSection>
@@ -422,19 +647,34 @@ export default function BirdSearch({
               {isAuthenticated && (
                 <FilterSection label='Observed as'>
                   {(['seen', 'heard', 'photographed'] as const).map((t) => {
-                    const count = Object.values(collectionDataByBirdId).filter((d) =>
-                      t === 'seen' ? d.seenCount > 0 : t === 'heard' ? d.heardCount > 0 : d.photographedCount > 0
+                    const count = Object.values(collectionDataByBirdId).filter(
+                      (d) =>
+                        t === 'seen'
+                          ? d.seenCount > 0
+                          : t === 'heard'
+                            ? d.heardCount > 0
+                            : d.photographedCount > 0,
                     ).length;
-                    const icon = t === 'seen' ? '👁' : t === 'heard' ? '👂' : '📷';
+                    const icon =
+                      t === 'seen' ? '👁' : t === 'heard' ? '👂' : '📷';
                     return (
                       <button
                         key={t}
-                        onClick={() => { setObservationTypeFilter(toggle(observationTypeFilter, t)); setVisibleCount(PAGE_SIZE); }}
+                        onClick={() => {
+                          setObservationTypeFilter(
+                            toggle(observationTypeFilter, t),
+                          );
+                          setVisibleCount(PAGE_SIZE);
+                        }}
                         className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors ${observationTypeFilter.has(t) ? 'bg-muted/60 text-foreground' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'}`}
                       >
-                        <span className='flex h-6 w-6 items-center justify-center shrink-0 text-base'>{icon}</span>
+                        <span className='flex h-6 w-6 items-center justify-center shrink-0 text-base'>
+                          {icon}
+                        </span>
                         <span className='flex-1 capitalize'>{t}</span>
-                        <span className='text-xs tabular-nums text-muted-foreground'>{count}</span>
+                        <span className='text-xs tabular-nums text-muted-foreground'>
+                          {count}
+                        </span>
                       </button>
                     );
                   })}
@@ -446,7 +686,10 @@ export default function BirdSearch({
                   <FilterRow
                     key={r}
                     active={selectedRarities.has(r)}
-                    onClick={() => { setSelectedRarities(toggle(selectedRarities, r)); setVisibleCount(PAGE_SIZE); }}
+                    onClick={() => {
+                      setSelectedRarities(toggle(selectedRarities, r));
+                      setVisibleCount(PAGE_SIZE);
+                    }}
                     count={rarityCounts[r] ?? 0}
                     label={r}
                     icon={
@@ -455,7 +698,8 @@ export default function BirdSearch({
                         style={{
                           width: 18,
                           height: 18,
-                          clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                          clipPath:
+                            'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                           backgroundColor: RARITY_COLOR[r],
                         }}
                       />
@@ -469,13 +713,20 @@ export default function BirdSearch({
                   <FilterRow
                     key={b}
                     active={selectedBiomes.has(b)}
-                    onClick={() => { setSelectedBiomes(toggle(selectedBiomes, b)); setVisibleCount(PAGE_SIZE); }}
+                    onClick={() => {
+                      setSelectedBiomes(toggle(selectedBiomes, b));
+                      setVisibleCount(PAGE_SIZE);
+                    }}
                     count={biomeCounts[b] ?? 0}
                     label={b}
                     icon={
-                      biomeImage[b]
-                        ? <HexIcon imageSrc={biomeImage[b]} size={24} />
-                        : <span className='text-base leading-none'>{biomeIcon[b] ?? BIOME_FALLBACK_ICON}</span>
+                      biomeImage[b] ? (
+                        <HexIcon imageSrc={biomeImage[b]} size={24} />
+                      ) : (
+                        <span className='text-base leading-none'>
+                          {biomeIcon[b] ?? BIOME_FALLBACK_ICON}
+                        </span>
+                      )
                     }
                   />
                 ))}
@@ -486,7 +737,10 @@ export default function BirdSearch({
                   <FilterRow
                     key={b}
                     active={selectedBehaviours.has(b)}
-                    onClick={() => { setSelectedBehaviours(toggle(selectedBehaviours, b)); setVisibleCount(PAGE_SIZE); }}
+                    onClick={() => {
+                      setSelectedBehaviours(toggle(selectedBehaviours, b));
+                      setVisibleCount(PAGE_SIZE);
+                    }}
                     count={behaviourCounts[b] ?? 0}
                     label={b}
                     icon={<HexIcon imageSrc={behaviourImage[b]} size={24} />}
@@ -499,13 +753,20 @@ export default function BirdSearch({
                   <FilterRow
                     key={f}
                     active={selectedFoods.has(f)}
-                    onClick={() => { setSelectedFoods(toggle(selectedFoods, f)); setVisibleCount(PAGE_SIZE); }}
+                    onClick={() => {
+                      setSelectedFoods(toggle(selectedFoods, f));
+                      setVisibleCount(PAGE_SIZE);
+                    }}
                     count={foodCounts[f] ?? 0}
                     label={f}
                     icon={
-                      foodImage[f]
-                        ? <HexIcon imageSrc={foodImage[f]} size={24} />
-                        : <span className='text-base leading-none'>{foodIcon[f] ?? FOOD_FALLBACK_ICON}</span>
+                      foodImage[f] ? (
+                        <HexIcon imageSrc={foodImage[f]} size={24} />
+                      ) : (
+                        <span className='text-base leading-none'>
+                          {foodIcon[f] ?? FOOD_FALLBACK_ICON}
+                        </span>
+                      )
                     }
                   />
                 ))}
@@ -529,10 +790,18 @@ export default function BirdSearch({
   );
 }
 
-function FilterSection({ label, children }: { label: string; children: React.ReactNode }) {
+function FilterSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <p className='mb-1.5 text-[9px] font-medium text-muted-foreground uppercase tracking-[0.2em] font-mono'>{label}</p>
+      <p className='mb-1.5 text-[9px] font-medium text-muted-foreground uppercase tracking-[0.2em] font-mono'>
+        {label}
+      </p>
       <div className='space-y-0.5'>{children}</div>
     </div>
   );

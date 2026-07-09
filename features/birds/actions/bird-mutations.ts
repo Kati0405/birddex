@@ -5,9 +5,9 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { getBirdById, updateBirdSelectedImage, updateBirdCloudinaryImage, updateBirdMetadata, updateBirdSoundUrl } from '@/features/birds/bird-queries';
 import { requireAdmin } from '@/features/auth/auth-helpers';
-import { cloudinary } from '@/shared/lib/cloudinary';
+import { cloudinary, uploadCloudinaryBuffer } from '@/shared/lib/cloudinary';
 import { isCloudinaryUrl, cloudinaryPublicId } from '@/shared/lib/cloudinary-utils';
-import { RARITIES, type Rarity } from '@/entities/bird-domain';
+import { RARITIES, FOODS, BIOMES, BEHAVIOURS, type Rarity, type Food, type Biome, type Behaviour } from '@/entities/bird-domain';
 
 const WikimediaImageSchema = z.object({
   imageUrl: z.string().url(),
@@ -49,14 +49,7 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
 
   let uploaded: { secure_url: string; public_id: string };
   try {
-    uploaded = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream({ folder: 'birddex', resource_type: 'image' }, (err, res) => {
-          if (err || !res) return reject(err ?? new Error('Upload failed'));
-          resolve({ secure_url: res.secure_url, public_id: res.public_id });
-        })
-        .end(buffer);
-    });
+    uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex', resource_type: 'image' });
   } catch (err: unknown) {
     const e = err as { http_code?: number; message?: string };
     console.error('Cloudinary upload failed:', e.http_code, e.message);
@@ -81,15 +74,8 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
 const MAX_SOUND_BYTES = 10 * 1024 * 1024;
 const ALLOWED_SOUND_TYPES = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/x-m4a', 'audio/mp4'];
 
-async function uploadSoundBuffer(buffer: Buffer) {
-  return new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream({ folder: 'birddex/sounds', resource_type: 'video' }, (err, res) => {
-        if (err || !res) return reject(err ?? new Error('Upload failed'));
-        resolve({ secure_url: res.secure_url, public_id: res.public_id });
-      })
-      .end(buffer);
-  });
+function uploadSoundBuffer(buffer: Buffer) {
+  return uploadCloudinaryBuffer(buffer, { folder: 'birddex/sounds', resource_type: 'video' });
 }
 
 async function deletePreviousSound(birdId: number) {
@@ -182,20 +168,12 @@ export async function updateBirdSoundFileAction(formData: FormData) {
   return { success: true, soundUrl: uploaded.secure_url };
 }
 
-const FOOD_VALUES = ['insects', 'seeds', 'fish', 'rodents', 'berries', 'omnivore', 'scavenger'] as const;
-const BIOME_VALUES = ['forest', 'wetlands', 'city', 'fields', 'rivers', 'mountains', 'coast', 'gardens'] as const;
-const BEHAVIOUR_VALUES = [
-  'nocturnal', 'predator', 'songbird', 'mimic', 'flock bird', 'urban survivor',
-  'fish hunter', 'secretive', 'territorial', 'fast flyer', 'berry lover', 'forest ghost',
-  'feeder visitor',
-] as const;
-
 const UpdateBirdMetadataSchema = z.object({
   birdId: z.number().int().positive(),
   rarity: z.enum(RARITIES as [Rarity, ...Rarity[]]),
-  food: z.array(z.enum(FOOD_VALUES)).min(1).max(3),
-  biomes: z.array(z.enum(BIOME_VALUES)).min(1).max(3),
-  behaviour: z.array(z.enum(BEHAVIOUR_VALUES)).min(1).max(3),
+  food: z.array(z.enum(FOODS as [Food, ...Food[]])).min(1).max(3),
+  biomes: z.array(z.enum(BIOMES as [Biome, ...Biome[]])).min(1).max(3),
+  behaviour: z.array(z.enum(BEHAVIOURS as [Behaviour, ...Behaviour[]])).min(1).max(3),
   best_months: z.array(z.number().int().min(1).max(12)),
   field_note: z.string().max(300),
   tips_to_find: z.array(z.string().max(200)).max(4),

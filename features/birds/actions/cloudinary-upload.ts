@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { cloudinary } from '@/shared/lib/cloudinary';
+import { cloudinary, uploadCloudinaryBuffer } from '@/shared/lib/cloudinary';
 import { requireAdmin } from '@/features/auth/auth-helpers';
 import { getBirdById, updateBirdCloudinaryImage } from '@/features/birds/bird-queries';
 import { isCloudinaryUrl, cloudinaryPublicId } from '@/shared/lib/cloudinary-utils';
@@ -24,19 +24,7 @@ export async function uploadBirdImageAction(formData: FormData) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  const uploaded = await new Promise<{ secure_url: string; public_id: string }>(
-    (resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          { folder: 'birddex', resource_type: 'image' },
-          (err, res) => {
-            if (err || !res) return reject(err ?? new Error('Upload failed'));
-            resolve({ secure_url: res.secure_url, public_id: res.public_id });
-          }
-        )
-        .end(buffer);
-    }
-  );
+  const uploaded = await uploadCloudinaryBuffer(buffer, { folder: 'birddex', resource_type: 'image' });
 
   try {
     await updateBirdCloudinaryImage(birdId, uploaded.secure_url);
