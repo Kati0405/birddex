@@ -5,7 +5,7 @@ import type { Bird } from '@/entities/bird-domain';
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { CollectionCardData } from '@/features/observations/observation-queries';
 import BirdGrid from '@/features/birds/components/BirdGrid/BirdGrid';
-import { Input } from '@/components/ui/input';
+import BirdSearchBar from '@/features/birds/components/BirdSearchBar/BirdSearchBar';
 import { matchesBirdQuery } from '@/shared/lib/bird-search';
 
 interface CollectionSearchProps {
@@ -32,29 +32,14 @@ export default function CollectionSearch({
 
   return (
     <>
-      {/* Mobile fixed search bar */}
-      <div className='md:hidden fixed top-[62px] left-0 right-0 z-30 bg-card border-b border-border px-4 py-2'>
-        <Input
-          type='text'
-          placeholder='Search collection...'
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 w-full'
-        />
-      </div>
+      <BirdSearchBar
+        query={query}
+        onQueryChange={setQuery}
+        placeholder='Search collection...'
+        topOffsetClassName='top-[62px]'
+      />
 
       <div className='max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)]'>
-        {/* Desktop search bar */}
-        <div className='hidden md:flex items-center gap-2 mb-4'>
-          <Input
-            type='text'
-            placeholder='Search collection...'
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className='bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 max-w-xs'
-          />
-        </div>
-
         <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
           {birds.length === 0
             ? 'No birds observed yet'
