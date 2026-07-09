@@ -23,6 +23,7 @@ Key docs:
 - `docs/data-mutations.md` — **MUST read before any data mutations, Server Actions, or form handling**
 - `docs/authentication.md` — **MUST read before any auth, role, or session-related work**
 - `docs/cloudinary-lifecycle.md` — **MUST read before any Cloudinary, upload, image, sound, observation, location, or bird media work**
+- `docs/testing.md` — **MUST read before adding or changing any tests**
 - `docs/app-guide.md` — user-facing app guide (also used as Ask Robin chat context)
 
 ## Spec-Driven Development
@@ -57,13 +58,14 @@ After adding, changing, or removing any **user-facing feature** (new page, new U
 npm run dev      # start dev server at localhost:3000
 npm run build    # production build
 npm run lint     # run ESLint
+npm test         # run tests with Vitest
 ```
 
 ## Stack
 
 - **Next.js 16** (App Router) with **React 19** and **TypeScript**
 - **Tailwind CSS v4** via `@tailwindcss/postcss`
-- No test framework configured yet
+- **Vitest** + **React Testing Library** for tests — see `docs/testing.md`
 
 ## Architecture
 
