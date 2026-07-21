@@ -111,7 +111,7 @@ Look for:
 For BirdDex, the rarity color mapping is fixed — any deviation from the spec is a bug:
 | Rarity    | Hex       |
 |-----------|-----------|
-| Common    | `#808080` |
+| Common    | `#eaecf7` |
 | Uncommon  | `#198b58` |
 | Rare      | `#306fd5` |
 | Epic      | `#8d33ab` |

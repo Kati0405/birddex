@@ -62,6 +62,10 @@ Expected coverage:
 | Location photo     | `saved_locations` | `photo_url` | `photo_public_id`     | *(not yet present — resource type is hardcoded to `'image'` at every call site; add a `photo_resource_type` column before location photos can be anything other than images)* |
 | Observation photo  | `observations` | `photo_url`   | `cloudinary_public_id` | `cloudinary_resource_type` |
 
+Bird sounds are uploaded and deleted with Cloudinary `resource_type: 'video'`, not `'audio'` — Cloudinary has no `'audio'` resource type, and audio files must be treated as `'video'` for upload/delete calls. `sound_resource_type` stores this value; do not assume `'audio'` when writing or reading it.
+
+Use `toCloudinaryResourceType()` (`shared/lib/cloudinary-utils.ts`) to safely coerce a nullable DB-stored `resource_type` string into a valid Cloudinary resource type before any delete/replace call — every call site in `features/birds/actions/*` and `features/observations/actions/observation-mutations.ts` goes through it.
+
 ## 6. Server-only boundary
 
 - The Cloudinary SDK (`shared/lib/cloudinary.ts`) must only be imported from server-only modules (Server Actions, server query files).
@@ -95,7 +99,7 @@ Any change to a Cloudinary upload/replace/delete flow should be covered by tests
 These files implement or depend on the lifecycle rules above — read this doc before editing any of them:
 
 - `shared/lib/cloudinary.ts`
-- `shared/lib/cloudinary-utils.ts`
+- `shared/lib/cloudinary-utils.ts` (includes `toCloudinaryResourceType()`, the shared normalization point used before every delete/replace call)
 - `features/birds/actions/cloudinary-upload.ts`
 - `features/birds/actions/bird-mutations.ts`
 - `features/birds/actions/delete-bird-mutation.ts`

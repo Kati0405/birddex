@@ -19,12 +19,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Key docs:
 
-- `docs/data-fetching.md` — **MUST read before any data fetching or database work**
-- `docs/data-mutations.md` — **MUST read before any data mutations, Server Actions, or form handling**
-- `docs/authentication.md` — **MUST read before any auth, role, or session-related work**
-- `docs/cloudinary-lifecycle.md` — **MUST read before any Cloudinary, upload, image, sound, observation, location, or bird media work**
-- `docs/testing.md` — **MUST read before adding or changing any tests**
-- `docs/app-guide.md` — user-facing app guide (also used as Ask Robin chat context)
+- `docs/contracts/data-fetching.md` — **MUST read before any data fetching or database work**
+- `docs/contracts/data-mutations.md` — **MUST read before any data mutations, Server Actions, or form handling**
+- `docs/contracts/authentication.md` — **MUST read before any auth, role, or session-related work**
+- `docs/contracts/cloudinary-lifecycle.md` — **MUST read before any Cloudinary, upload, image, sound, observation, location, or bird media work**
+- `docs/guides/testing.md` — **MUST read before adding or changing any tests**
+- `docs/guides/app-guide.md` — user-facing app guide (also used as Ask Robin chat context)
+
+## Keep Documentation Accurate
+
+When changing behavior, architecture, or development workflow:
+
+1. Update the relevant documentation in `docs/`.
+2. Prefer updating an existing document over creating a new one.
+3. If code and documentation disagree, update the documentation in the same change.
+4. Do not leave examples, file paths, or code snippets stale.
 
 ## Spec-Driven Development
 
@@ -34,7 +43,7 @@ Specs live in `docs/specs/`. Use `docs/specs/spec-template.md` as the format.
 
 Before implementation:
 
-1. Read relevant docs (`docs/data-fetching.md`, `docs/data-mutations.md`, `docs/authentication.md`, etc.)
+1. Read relevant docs (`docs/contracts/data-fetching.md`, `docs/contracts/data-mutations.md`, `docs/contracts/authentication.md`, etc.)
 2. Write or update the feature spec, clarifying:
    - **Scope** — what will change
    - **Data changes** — tables, fields, migrations, validation
@@ -50,7 +59,7 @@ After implementation:
 
 ## IMPORTANT: Keep App Guide Up to Date
 
-After adding, changing, or removing any **user-facing feature** (new page, new UI element, changed workflow, removed functionality), update `docs/app-guide.md` to reflect the change. Also update the condensed version in `features/bird-guide/bird-guide-prompt.ts` (`APP_GUIDE` constant) so the Ask Robin chat can answer "how do I..." questions accurately. This is mandatory — do not skip even for small UX changes.
+After adding, changing, or removing any **user-facing feature** (new page, new UI element, changed workflow, removed functionality), update `docs/guides/app-guide.md` to reflect the change. Also update the condensed version in `features/bird-guide/bird-guide-prompt.ts` (`APP_GUIDE` constant) so the Ask Robin chat can answer "how do I..." questions accurately. This is mandatory — do not skip even for small UX changes.
 
 ## Commands
 
@@ -65,7 +74,7 @@ npm test         # run tests with Vitest
 
 - **Next.js 16** (App Router) with **React 19** and **TypeScript**
 - **Tailwind CSS v4** via `@tailwindcss/postcss`
-- **Vitest** + **React Testing Library** for tests — see `docs/testing.md`
+- **Vitest** + **React Testing Library** for tests — see `docs/guides/testing.md`
 
 ## Architecture
 
@@ -124,19 +133,19 @@ When adding any new admin-gated UI (`{isAdmin && ...}`), always include this bad
 
 ## Authentication
 
-Auth uses Supabase Auth with Google OAuth. Two roles: `admin` (catalog editing) and `user` (collection tracking). See `docs/authentication.md` for the full reference.
+Auth uses Supabase Auth with Google OAuth. Two roles: `admin` (catalog editing) and `user` (collection tracking). See `docs/contracts/authentication.md` for the full reference.
 
 **Critical rules:**
 
 - Always use `requireAdmin()` at the top of any Server Action or page that mutates catalog data
 - Auth and authorization decisions must happen server-side using getUser(), getUserRole(), requireAuth(), or requireAdmin(). Client components may receive user/role data as props for display only, but must not be trusted for security.
-- Never expose the `SUPABASE_SERVICE_ROLE_KEY` to the client — it's only used in `lib/supabase-admin.ts`
+- Never expose the `SUPABASE_SERVICE_ROLE_KEY` to the client — it's only used in `shared/lib/supabase-admin.ts`
 - Route protection lives in `proxy.ts` but Server Actions must also guard themselves independently
 - To promote a user to admin: `UPDATE public.profiles SET role = 'admin' WHERE id = '<uuid>';` in Supabase SQL Editor
 
 ## Cloudinary Asset Lifecycle
 
-Before editing anything related to Cloudinary, uploads, images, sounds, observations, locations, or bird media, read `docs/cloudinary-lifecycle.md`.
+Before editing anything related to Cloudinary, uploads, images, sounds, observations, locations, or bird media, read `docs/contracts/cloudinary-lifecycle.md`.
 
 - Do not make cosmetic Cloudinary refactors unless they improve lifecycle safety
 - Keep Cloudinary changes small and test-backed
@@ -200,7 +209,7 @@ Rarity controls the frame color. Use this exact mapping — no other colors:
 
 | Rarity    | Color  | Hex       |
 | --------- | ------ | --------- |
-| Common    | grey   | `#808080` |
+| Common    | grey   | `#eaecf7` |
 | Uncommon  | green  | `#198b58` |
 | Rare      | blue   | `#306fd5` |
 | Epic      | purple | `#8d33ab` |
@@ -303,7 +312,7 @@ Be especially careful with:
 - observation counts as unique species vs total observations
 - Supabase RLS and Server Action auth guards
 - Cloudinary uploads and cleanup on database failure
-- Ask Robin guide context staying in sync with docs/app-guide.md
+- Ask Robin guide context staying in sync with docs/guides/app-guide.md
 
 ## Component props example
 
@@ -314,7 +323,7 @@ type BirdCardProps = {
   imageUrl: string;
   soundUrl?: string;
   rarity: BirdRarity;
-  habitats: Habitat[];
+  habitats: Biome[];
   food: Food[];
   bestMonths: number[];
   wingspanCm: number;

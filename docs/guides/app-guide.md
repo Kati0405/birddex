@@ -114,7 +114,7 @@ The observation form lets you record:
 5. **Notes** — free-text field for what happened (handwriting-style font, up to 2000 characters)
 6. **Photo** — appears when "Photographed" is toggled on; upload a photo of your sighting (auto-resized for you)
 
-Tap **Save** to record the observation. You can edit observations later by opening the same bird's observation panel.
+Tap **Save** to record the observation. You can edit or delete observations later from the card's back side.
 
 ---
 

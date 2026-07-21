@@ -75,7 +75,7 @@ alter table public.birds enable row level security;
 create policy "Public read" on public.birds for select using (true);
 ```
 
-Catalog writes go through the service-role client (`lib/supabase-admin.ts`) which bypasses RLS — no write policy on `birds` is needed.
+Catalog writes go through the service-role client (`shared/lib/supabase-admin.ts`) which bypasses RLS — no write policy on `birds` is needed.
 
 ### 4. Backfill existing users (run once if users already exist)
 
@@ -147,16 +147,16 @@ User clicks "Continue with Google"
 
 | File | Purpose |
 |------|---------|
-| `lib/supabase-server.ts` | SSR-compatible Supabase client (uses `next/headers` cookies) |
-| `lib/supabase-middleware.ts` | Middleware-compatible Supabase client (uses request/response cookies) |
-| `lib/supabase-admin.ts` | Service-role client for catalog writes — bypasses RLS |
-| `lib/auth.ts` | Auth helpers: `getUser()`, `getUserRole()`, `requireAuth()`, `requireAdmin()` |
-| `lib/collection.ts` | Collection helpers: `checkIfCollected()`, `getCollectedCount()`, `getCollectedBirdIds()` |
+| `shared/lib/supabase-server.ts` | SSR-compatible Supabase client using server-side cookies |
+| `shared/lib/supabase-middleware.ts` | Middleware-compatible Supabase client using request/response cookies |
+| `shared/lib/supabase-admin.ts` | Service-role client for catalog writes; bypasses RLS |
+| `features/auth/auth-helpers.ts` | Auth helpers: `getUser()`, `getUserRole()`, `requireAuth()`, `requireAdmin()` |
+| `features/collection/collection-queries.ts` | Collection helpers such as `checkIfCollected()`, `toggleCollected()`, `getCollectedCount()`, and `getCollectedBirdIds()` |
 | `proxy.ts` | Route protection (runs before every matched request) |
 | `app/(auth)/actions.ts` | `signInWithGoogleAction()`, `logoutAction()` |
 | `app/auth/callback/route.ts` | OAuth code exchange handler |
 | `app/(auth)/login/page.tsx` | Login page — single "Continue with Google" button |
-| `components/AuthBar.tsx` | Header login/logout UI (Server Component) |
+| `features/auth/components/AuthBar/AuthBar.tsx` | Header login/logout UI (Server Component) |
 
 ---
 
@@ -173,8 +173,7 @@ User clicks "Continue with Google"
 Server actions (`updateBirdImageAction`, `updateBirdMetadataAction`) also call `requireAdmin()` independently — the proxy is not the only line of defense.
 
 ---
-
-## Auth Helpers (`lib/auth.ts`)
+## Auth Helpers (`features/auth/auth-helpers.ts`)
 
 ```ts
 getUser()       → User | null          // current Supabase user, or null

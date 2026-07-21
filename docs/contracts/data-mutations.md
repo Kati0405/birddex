@@ -20,16 +20,16 @@ ALL database writes (insert, update, delete) MUST go through helper functions de
 
 ### 3. Typed Parameters — No `FormData` (except file uploads)
 
-Every Server Action MUST have fully typed parameters.
+Server Actions should use fully typed parameters whenever no file upload is involved.
 
 - **NEVER** use `FormData` as a parameter type for non-file actions
 - Define an explicit TypeScript type or interface for every action's arguments
 - Derive the type from the Zod schema (see rule 4) using `z.infer<>` — do not duplicate types manually
-- **Exception**: File upload actions may use `FormData` since `File` objects cannot be serialized as typed params across the Server Action boundary. These actions must still validate the file (type, size) and call `requireAuth()` / `requireAdmin()` at the top
+- **Exception**: Actions that accept a file may use `FormData` for the whole form payload. Non-file fields from `FormData` must still be converted explicitly and validated with Zod before use. These actions must still validate the file (type, size) and call `requireAuth()` / `requireAdmin()` at the top
 
 ### 4. Validate All Arguments with Zod
 
-Every Server Action MUST validate its arguments with a Zod schema before doing anything else.
+Every Server Action MUST validate all untrusted input with Zod before using that input in business logic or database operations.
 
 - **NEVER** trust or use action arguments before they have been parsed by Zod
 - If validation fails, return a structured error — do not throw
@@ -39,23 +39,23 @@ Every Server Action MUST validate its arguments with a Zod schema before doing a
 
 ```ts
 // features/locations/actions/location-mutations.ts
-"use server";
+'use server';
 
-import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { requireAuth } from "@/features/auth/auth-helpers";
-import { saveLocation } from "@/features/locations/location-queries";
-import { getErrorMessage } from "@/shared/lib/errors";
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { requireAuth } from '@/features/auth/auth-helpers';
+import { saveLocation } from '@/features/locations/location-queries';
+import { getErrorMessage } from '@/shared/lib/errors';
 
-const SaveLocationSchema = z.object({
+const RenameLocationSchema = z.object({
   name: z.string().min(1).max(100),
   lat: z.number(),
   lng: z.number(),
 });
 
-type SaveLocationInput = z.infer<typeof SaveLocationSchema>;
+type RenameLocationInput = z.infer<typeof RenameLocationSchema>;
 
-export async function saveLocationAction(input: SaveLocationInput) {
+export async function renameLocationAction(input: SaveLocationInput) {
   await requireAuth();
 
   const parsed = SaveLocationSchema.safeParse(input);
@@ -67,33 +67,48 @@ export async function saveLocationAction(input: SaveLocationInput) {
     return { error: getErrorMessage(e) };
   }
 
-  revalidatePath("/locations");
+  revalidatePath('/locations');
   return { success: true };
 }
 ```
 
 ```ts
 // features/locations/location-queries.ts — mutation helper
-import { requireAuth } from "@/features/auth/auth-helpers";
-import { createSupabaseServerClient } from "@/shared/lib/supabase-server";
+import { requireAuth } from '@/features/auth/auth-helpers';
+import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 
-export async function saveLocation(name: string, lat: number, lng: number) {
+export async function saveLocation(
+  name: string,
+  lat: number,
+  lng: number,
+  photoUrl?: string | null,
+  photoPublicId?: string | null,
+  habitats?: string[],
+): Promise<void> {
   const user = await requireAuth();
   const supabase = await createSupabaseServerClient();
 
-  const { error } = await supabase
-    .from("saved_locations")
-    .insert({ user_id: user.id, name, lat, lng });
+  const { error } = await supabase.from('saved_locations').insert({
+    user_id: user.id,
+    name,
+    lat,
+    lng,
+    photo_url: photoUrl ?? null,
+    photo_public_id: photoPublicId ?? null,
+    habitats: habitats ?? [],
+  });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(`saveLocation: ${error.message}`);
+  }
 }
 ```
 
 ## What Not to Do
 
 ```ts
-// WRONG — using FormData for non-file actions
-export async function saveLocationAction(formData: FormData) { ... }
+// WRONG — using FormData for an action that has no file input
+export async function renameLocationAction(formData: FormData) { ... }
 
 // WRONG — no Zod validation
 export async function saveLocationAction(input: SaveLocationInput) {

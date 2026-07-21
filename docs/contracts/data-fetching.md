@@ -20,32 +20,30 @@ ALL database queries MUST go through helper functions defined in feature query f
 - **NEVER** write raw SQL inline in components or anywhere outside query files
 - If a query does not have a helper function yet, create one in the appropriate `*-queries.ts` file first, then call it
 
-### 3. Users Can Only Access Their Own Data
+### 3. Scope Queries According to Data Ownership
 
-Every query helper in `/data` MUST be scoped to the currently authenticated user.
+Not all BirdDex data is user-owned.
 
-- **ALWAYS** filter queries by the logged-in user's ID
-- **NEVER** return data that belongs to another user
-- **NEVER** accept a `userId` as an untrusted parameter from the client — always derive the user ID from the server-side session
-- Before returning any record, verify it belongs to the current user. If it does not, return `null` or throw an authorization error — never return it
+- Global catalog data, such as `birds`, may be read without filtering by `user_id`
+- User-owned data, such as observations, collected birds, and user locations, MUST be scoped to the currently authenticated user
+- NEVER accept a `userId` from the client as the source of truth
+- For user-owned data, derive the user ID from the server-side session with `requireAuth()`
+- Before returning a user-owned record, verify that it belongs to the current user
 
-This is a security requirement. A breach here exposes other users' private data.
+Use the database model and the relevant feature documentation to determine whether data is global or user-owned.
 
 ## Pattern to Follow
 
 ```ts
-// features/birds/bird-queries.ts — correct pattern
-import { requireAuth } from "@/features/auth/auth-helpers";
-import { createSupabaseServerClient } from "@/shared/lib/supabase-server";
+// features/birds/bird-queries.ts — global catalog data
+import { supabase } from '@/shared/lib/supabase';
 
-export async function getUserBirds() {
-  const user = await requireAuth();
-  const supabase = await createSupabaseServerClient();
+export async function getBirds() {
+  const { data, error } = await supabase.from('birds').select('*').order('id');
 
-  const { data } = await supabase
-    .from("birds")
-    .select("*")
-    .eq("user_id", user.id);
+  if (error) {
+    throw new Error(`getBirds: ${error.message}`);
+  }
 
   return data ?? [];
 }
@@ -53,10 +51,10 @@ export async function getUserBirds() {
 
 ```tsx
 // app/birds/page.tsx — correct pattern (Server Component)
-import { getUserBirds } from "@/features/birds/bird-queries";
+import { getBirds } from '@/features/birds/bird-queries';
 
 export default async function BirdsPage() {
-  const birds = await getUserBirds();
+  const birds = await getBirds();
   return <BirdList birds={birds} />;
 }
 ```
@@ -67,10 +65,13 @@ export default async function BirdsPage() {
 // WRONG — raw SQL
 const { data } = await supabase.rpc("raw_query", { sql: "SELECT * FROM birds" });
 
-// WRONG — no user scoping
-export async function getBirds() {
+// WRONG — user-owned data is fetched without requireAuth() or user_id filtering
+export async function getObservations() {
   const supabase = await createSupabaseServerClient();
-  const { data } = await supabase.from("birds").select("*"); // returns ALL users' birds
+  const { data } = await supabase
+    .from('observations')
+    .select('*');
+
   return data;
 }
 

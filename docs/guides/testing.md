@@ -61,7 +61,7 @@ Use for UI behavior:
 Example location:
 
 ```txt
-features/birds/components/BirdSearch.test.tsx
+features/birds/components/BirdChipPicker/BirdChipPicker.test.tsx
 ```
 
 ### Integration-style component tests
@@ -96,8 +96,8 @@ shared/lib/bird-search.test.ts
 Good:
 
 ```txt
-features/observations/components/QuickAddObservationModal.tsx
-features/observations/components/QuickAddObservationModal.test.tsx
+features/observations/components/QuickAddObservation/QuickAddObservationModal.tsx
+features/observations/components/QuickAddObservation/QuickAddObservationModal.test.tsx
 ```
 
 ## React Testing Library rules
@@ -115,13 +115,13 @@ Prefer accessible queries in this order:
 Good:
 
 ```ts
-screen.getByRole("button", { name: /add observation/i })
+screen.getByRole('button', { name: /add observation/i });
 ```
 
 Avoid:
 
 ```ts
-container.querySelector(".submit-button")
+container.querySelector('.submit-button');
 ```
 
 Use `queryBy...` only when checking that something is not present.
@@ -129,13 +129,13 @@ Use `queryBy...` only when checking that something is not present.
 Good:
 
 ```ts
-expect(screen.queryByText(/no birds found/i)).not.toBeInTheDocument()
+expect(screen.queryByText(/no birds found/i)).not.toBeInTheDocument();
 ```
 
 Avoid:
 
 ```ts
-expect(screen.queryByText(/no birds found/i)).toBeInTheDocument()
+expect(screen.queryByText(/no birds found/i)).toBeInTheDocument();
 ```
 
 Use `findBy...` for async UI changes.
@@ -143,7 +143,7 @@ Use `findBy...` for async UI changes.
 Good:
 
 ```ts
-expect(await screen.findByText(/observation added/i)).toBeInTheDocument()
+expect(await screen.findByText(/observation added/i)).toBeInTheDocument();
 ```
 
 ## User interactions
@@ -153,10 +153,10 @@ Use `@testing-library/user-event` for user actions.
 Good:
 
 ```ts
-const user = userEvent.setup()
+const user = userEvent.setup();
 
-await user.type(screen.getByRole("searchbox"), "owl")
-await user.click(screen.getByRole("button", { name: /save/i }))
+await user.type(screen.getByRole('searchbox'), 'owl');
+await user.click(screen.getByRole('button', { name: /save/i }));
 ```
 
 Avoid `fireEvent` unless `user-event` cannot express the interaction.
@@ -193,7 +193,7 @@ For mutation/action tests, mock:
 
 Always test failure paths for mutations that touch external services — a mutation test suite that only covers the happy path is incomplete, not done.
 
-Required BirdDex cases wherever a mutation touches Cloudinary or Supabase (see `docs/cloudinary-lifecycle.md`):
+Required BirdDex cases wherever a mutation touches Cloudinary or Supabase (see `docs/contracts/cloudinary-lifecycle.md`):
 
 - upload succeeds but DB insert/update fails → new asset is cleaned up, old asset untouched
 - DB write succeeds → old Cloudinary asset is deleted only after the DB write commits
@@ -258,19 +258,9 @@ Test that location UI:
 
 ## Test setup expectations
 
-The project test setup should include:
+The project should use a single shared Vitest setup file (`vitest.setup.ts` at the repo root).
 
-```ts
-import "@testing-library/jest-dom/vitest"
-```
-
-Use a shared setup file such as:
-
-```txt
-test/setup.ts
-```
-
-Vitest config should point to that setup file and use a DOM-like environment for React component tests.
+Vitest config must point to that file and use a DOM-like environment for React component tests.
 
 ## Snapshot tests
 
@@ -305,6 +295,7 @@ Ask:
 3. Is this testing behavior or implementation?
 4. Does this need mocks?
 5. Is there a simpler pure helper test instead?
+6. Could this behavior already be covered by an existing test?
 
 If you can't name a specific bug the test would catch, don't write it.
 
@@ -313,7 +304,7 @@ If you can't name a specific bug the test would catch, don't write it.
 Check:
 
 - `vitest.config.*`
-- `test/setup.ts`
+- `vitest.setup.ts`
 - package versions
 - existing test patterns
 - path aliases
