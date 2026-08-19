@@ -71,9 +71,9 @@ Not every component follows this pattern, but it is the preferred convention for
 
 ## Database schema
 
-Database schema changes live under `scripts/`.
+Database schema changes live under `supabase/migrations/` as timestamped SQL files, applied via the Supabase CLI. See `docs/guides/database-migrations.md` for the workflow.
 
-Schema migration scripts are the source of truth for database structure.
+Migration files are the source of truth for database structure. One-off data scripts (seeding, backfills) stay in `scripts/`.
 
 ## Architectural rules
 
