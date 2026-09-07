@@ -1,12 +1,12 @@
-# BirdDex App Guide
+# birds.in.ua App Guide
 
-How to use every feature in BirdDex — a collectible field guide to birds.
+How to use every feature in birds.in.ua — a collectible field guide to birds.
 
 ## Getting Started
 
 ### Signing In
 
-Tap **Log in** in the top-right corner. BirdDex uses Google sign-in — tap "Continue with Google" and pick your Google account. That's it, no passwords.
+Tap **Log in** in the top-right corner. birds.in.ua uses Google sign-in — tap "Continue with Google" and pick your Google account. That's it, no passwords.
 
 Once signed in you unlock personal features: observations, collection tracking, saved locations, photos, and personalized Ask Robin answers.
 
@@ -206,7 +206,7 @@ When you first open Ask Robin, you'll see starter questions tailored to you:
 - Be specific: "I saw a small brown bird with a red chest near a lake" works better than "what bird did I see?"
 - Ask follow-ups: "What does its song sound like?" or "Where does it nest?"
 - Ask about your collection: "Which rare birds haven't I found yet?" or "What should I look for this month?"
-- The guide works for any bird, even those not in the BirdDex catalog yet
+- The guide works for any bird, even those not in the birds.in.ua catalog yet
 
 ---
 

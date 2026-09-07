@@ -32,7 +32,7 @@ const DRAFT_BIRD_TOOL: OpenAI.ChatCompletionTool = {
   type: 'function',
   function: {
     name: 'draft_bird_card',
-    description: 'Draft a BirdDex catalog card for a real bird species identified from the user query.',
+    description: 'Draft a birds.in.ua catalog card for a real bird species identified from the user query.',
     strict: true,
     parameters: {
       type: 'object',
@@ -90,7 +90,7 @@ const DRAFT_BIRD_TOOL: OpenAI.ChatCompletionTool = {
   },
 };
 
-const SYSTEM_PROMPT = `You identify real bird species from a short user query and draft a BirdDex catalog card by calling draft_bird_card exactly once.
+const SYSTEM_PROMPT = `You identify real bird species from a short user query and draft a birds.in.ua catalog card by calling draft_bird_card exactly once.
 
 Rules:
 - Only draft species that are real, identifiable birds. If the query is too vague, nonsensical, or not a bird, do not call the tool — instead reply with plain text explaining you could not identify a bird.

@@ -11,7 +11,7 @@ export const ROBIN_TOOLS: OpenAI.ChatCompletionTool[] = [
     function: {
       name: 'search_birds',
       description:
-        'Search the BirdDex catalog. Returns matching birds with key info (name, rarity, biomes, food, behaviour, wingspan). Use when the user asks about birds matching certain criteria.',
+        'Search the birds.in.ua catalog. Returns matching birds with key info (name, rarity, biomes, food, behaviour, wingspan). Use when the user asks about birds matching certain criteria.',
       parameters: {
         type: 'object',
         properties: {

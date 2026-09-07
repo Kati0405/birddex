@@ -14,9 +14,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const bird = await getBirdById(Number(id));
-  if (!bird) return { title: 'Bird not found — BirdDex' };
+  if (!bird) return { title: 'Bird not found — birds.in.ua' };
   return {
-    title: `${bird.name_eng} — BirdDex`,
+    title: `${bird.name_eng} — birds.in.ua`,
     description: bird.field_note ?? `${bird.name_eng} (${bird.name_latin}) — ${bird.rarity} species.`,
   };
 }

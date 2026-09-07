@@ -4,7 +4,7 @@ import { buildUserContext } from '@/features/bird-guide/bird-guide-context';
 import AskRobinFull from '@/features/bird-guide/components/AskRobinFull/AskRobinFull';
 
 export const metadata: Metadata = {
-  title: 'BirdDex — Ask Robin',
+  title: 'birds.in.ua — Ask Robin',
   description: 'Ask Robin anything about birds. Logged-in users get answers based on their own observations.',
 };
 

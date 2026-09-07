@@ -6,7 +6,7 @@ import { getObservedBirdIds, getCollectionCardDataByBirdIds } from '@/features/o
 import { getSavedLocations } from '@/features/locations/location-queries';
 
 export const metadata: Metadata = {
-  title: 'BirdDex — Birds',
+  title: 'birds.in.ua — Birds',
   description: 'A collectible field guide to birds, each with a personality.',
 };
 

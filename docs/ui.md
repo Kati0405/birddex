@@ -1,4 +1,4 @@
-# UI Guidelines — BirdDex
+# UI Guidelines — birds.in.ua
 
 All UI is built exclusively with **shadcn/ui** components. Do not create custom presentational components. If a shadcn component doesn't exist yet, add it with `npx shadcn@latest add <name>`.
 
@@ -21,7 +21,7 @@ npx shadcn@latest add <component-name>
 
 ## Theme
 
-The BirdDex theme is a **light earthy / parchment palette** mapped to shadcn CSS variables in `app/globals.css`. There is no dark mode — the site is always light.
+The birds.in.ua theme is a **light earthy / parchment palette** mapped to shadcn CSS variables in `app/globals.css`. There is no dark mode — the site is always light.
 
 | shadcn token | Value | Role |
 |---|---|---|
@@ -51,7 +51,7 @@ Rarity colors are one-off and not part of the shadcn token system. They are defi
 
 | Rarity | Tailwind token | Hex |
 |--------|----------------|-----|
-| Common | `rarity-common` | `#eaecf7` |
+| Common | `rarity-common` | `#808080` |
 | Uncommon | `rarity-uncommon` | `#198b58` |
 | Rare | `rarity-rare` | `#306fd5` |
 | Epic | `rarity-epic` | `#8d33ab` |

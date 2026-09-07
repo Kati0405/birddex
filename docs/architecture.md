@@ -2,7 +2,7 @@
 
 ## System overview
 
-BirdDex is a collectible-card-style bird catalog app built on **Next.js 16 (App Router)** with **React 19** and **TypeScript**. **Supabase** provides Postgres storage, Auth (Google OAuth), and row-level security; **Cloudinary** stores all media (bird images/sounds, location photos, observation photos). Styling is Tailwind CSS v4 utility classes directly in JSX.
+birds.in.ua is a collectible-card-style bird catalog app built on **Next.js 16 (App Router)** with **React 19** and **TypeScript**. **Supabase** provides Postgres storage, Auth (Google OAuth), and row-level security; **Cloudinary** stores all media (bird images/sounds, location photos, observation photos). Styling is Tailwind CSS v4 utility classes directly in JSX.
 
 ## Directory responsibilities
 

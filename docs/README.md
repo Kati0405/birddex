@@ -1,4 +1,4 @@
-# BirdDex Documentation
+# birds.in.ua Documentation
 
 ## Before coding
 

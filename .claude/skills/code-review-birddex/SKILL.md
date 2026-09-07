@@ -1,9 +1,9 @@
 ---
 name: code-review-birddex
-description: Senior Staff Engineer code review for the BirdDex project. Use this skill whenever the user asks to review code, check a PR, audit a file, or look for bugs/issues — especially for Next.js, React, TypeScript, Tailwind, Supabase, or Server Actions code. Also trigger when the user says "review this", "check this code", "any issues?", "is this correct?", "what's wrong with this?", or pastes code expecting a technical review. For BirdDex, use on any new feature, Server Action, data fetching change, auth logic, bird catalog component, or observation flow. Prefer this skill over ad-hoc review — it finds issues that matter in production, not style lint.
+description: Senior Staff Engineer code review for the birds.in.ua project. Use this skill whenever the user asks to review code, check a PR, audit a file, or look for bugs/issues — especially for Next.js, React, TypeScript, Tailwind, Supabase, or Server Actions code. Also trigger when the user says "review this", "check this code", "any issues?", "is this correct?", "what's wrong with this?", or pastes code expecting a technical review. For birds.in.ua, use on any new feature, Server Action, data fetching change, auth logic, bird catalog component, or observation flow. Prefer this skill over ad-hoc review — it finds issues that matter in production, not style lint.
 ---
 
-# BirdDex Code Review
+# birds.in.ua Code Review
 
 You are a **Senior Staff Engineer** doing a production-focused code review. Your job is to find real issues — bugs that will surface in prod, security holes, performance problems, architectural mistakes. Not to bikeshed style.
 
@@ -95,7 +95,7 @@ Look for:
 - Modals/dialogs without focus trap or `aria-modal`
 - Color as the only differentiator (e.g. rarity indicated only by frame color with no text)
 
-For BirdDex specifically: sound buttons, rarity badges, and habitat/food icons all need accessible labels since they're icon-only.
+For birds.in.ua specifically: sound buttons, rarity badges, and habitat/food icons all need accessible labels since they're icon-only.
 
 ---
 
@@ -108,10 +108,10 @@ Look for:
 - Design system violations: spacing, colors, or font sizes not from the design tokens
 - Rarity colors defined inline instead of using the canonical mapping from CLAUDE.md
 
-For BirdDex, the rarity color mapping is fixed — any deviation from the spec is a bug:
+For birds.in.ua, the rarity color mapping is fixed — any deviation from the spec is a bug:
 | Rarity    | Hex       |
 |-----------|-----------|
-| Common    | `#eaecf7` |
+| Common    | `#808080` |
 | Uncommon  | `#198b58` |
 | Rare      | `#306fd5` |
 | Epic      | `#8d33ab` |
@@ -128,7 +128,7 @@ Look for:
 - Tight coupling between UI and data shape (component breaks if the DB schema changes)
 - Missing abstractions that would be pulled out naturally (same fetch pattern copy-pasted in 3 routes)
 
-For BirdDex architecture: follow the feature-first organization enforced by `architecture-guardian`. Data access belongs in `lib/`, mutations in `actions.ts` per route, UI in components.
+For birds.in.ua architecture: follow the feature-first organization enforced by `architecture-guardian`. Data access belongs in `lib/`, mutations in `actions.ts` per route, UI in components.
 
 ---
 
@@ -179,6 +179,6 @@ A bad candidate: "Rename `x` to `index` for clarity."
 
 - No filler. If a file is fine, say nothing about it.
 - Concrete fixes beat descriptions of problems. Show code when it's clearer.
-- When something in the BirdDex CLAUDE.md rules is violated (card fields, rarity colors, data values, tone), call it out as a spec violation, not just a style issue.
+- When something in the birds.in.ua CLAUDE.md rules is violated (card fields, rarity colors, data values, tone), call it out as a spec violation, not just a style issue.
 - Auth bugs in this project are always 🔴 Critical — `requireAdmin()` missing from a Server Action that mutates catalog data is a security hole.
 - Don't invent problems. If you're uncertain something is a bug, say so.

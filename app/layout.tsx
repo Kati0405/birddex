@@ -32,7 +32,7 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "BirdDex",
+  title: "birds.in.ua",
   description: "A field guide to birds, each with a personality.",
 };
 

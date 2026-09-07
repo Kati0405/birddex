@@ -26,7 +26,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
 
-  --color-rarity-common: #eaecf7;
+  --color-rarity-common: #808080;
   --color-rarity-uncommon: #198b58;
   --color-rarity-rare: #306fd5;
   --color-rarity-epic: #8d33ab;

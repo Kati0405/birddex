@@ -40,7 +40,7 @@ export async function updateBirdImageAction(input: UpdateBirdImageInput) {
 
   // Fetch the image ourselves first — Cloudinary pulling directly from Wikimedia gets 429
   const imgRes = await fetch(selectedImage.imageUrl, {
-    headers: { 'User-Agent': 'BirdDex/1.0 (https://birddex.app)' },
+    headers: { 'User-Agent': 'birds.in.ua/1.0 (https://birds.in.ua)' },
   });
   if (!imgRes.ok) {
     return { error: `Failed to fetch image from Wikimedia (${imgRes.status})` };
@@ -141,7 +141,7 @@ export async function updateBirdSoundUrlAction(input: UpdateBirdSoundUrlInput) {
   const { birdId, soundUrl } = parsed.data;
 
   const soundRes = await fetch(soundUrl, {
-    headers: { 'User-Agent': 'BirdDex/1.0 (https://birddex.app)' },
+    headers: { 'User-Agent': 'birds.in.ua/1.0 (https://birds.in.ua)' },
   });
   if (!soundRes.ok) {
     return { error: `Failed to fetch sound from source (${soundRes.status})` };

@@ -1,6 +1,6 @@
 # Cloudinary Asset Lifecycle
 
-BirdDex stores media in Cloudinary for four asset types: bird images, bird sounds, location photos, and observation photos. This doc is the contract for how those assets are created, replaced, and deleted. Read this before touching any upload/replace/delete flow.
+birds.in.ua stores media in Cloudinary for four asset types: bird images, bird sounds, location photos, and observation photos. This doc is the contract for how those assets are created, replaced, and deleted. Read this before touching any upload/replace/delete flow.
 
 ## 1. Core rule
 

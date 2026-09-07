@@ -16,8 +16,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const location = await getSavedLocationById(Number(id)).catch(() => null);
-  if (!location) return { title: 'Location not found — BirdDex' };
-  return { title: `${location.name} — BirdDex` };
+  if (!location) return { title: 'Location not found — birds.in.ua' };
+  return { title: `${location.name} — birds.in.ua` };
 }
 
 export default async function LocationPage({

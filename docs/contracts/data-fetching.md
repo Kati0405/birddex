@@ -22,7 +22,7 @@ ALL database queries MUST go through helper functions defined in feature query f
 
 ### 3. Scope Queries According to Data Ownership
 
-Not all BirdDex data is user-owned.
+Not all birds.in.ua data is user-owned.
 
 - Global catalog data, such as `birds`, may be read without filtering by `user_id`
 - User-owned data, such as observations, collected birds, and user locations, MUST be scoped to the currently authenticated user

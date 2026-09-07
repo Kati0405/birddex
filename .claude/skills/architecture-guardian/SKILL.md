@@ -1,7 +1,7 @@
 ---
 name: architecture-guardian
 description: >
-  Enforces clean, feature-first architecture in the BirdDex project. Use this skill
+  Enforces clean, feature-first architecture in the birds.in.ua project. Use this skill
   whenever the user asks to create a new file, add a component, refactor code, or
   discusses folder structure. Also trigger when you're about to place a file somewhere
   and want to verify it's the right location. If the codebase is drifting toward
@@ -116,7 +116,7 @@ If you notice any of these patterns, say so before writing more code:
 
 ---
 
-## Applying this to BirdDex specifically
+## Applying this to birds.in.ua specifically
 
 The current structure is transitioning. As new code gets added:
 

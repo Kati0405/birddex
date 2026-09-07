@@ -21,7 +21,7 @@ const MAX_BYTES = 9 * 1024 * 1024; // 9 MB — stay under Cloudinary's 10 MB fre
 
 async function uploadFromUrl(imageUrl) {
   const res = await fetch(imageUrl, {
-    headers: { 'User-Agent': 'BirdDex/1.0 (https://birddex.app)' },
+    headers: { 'User-Agent': 'birds.in.ua/1.0 (https://birds.in.ua)' },
   });
   if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${imageUrl}`);
   let buffer = Buffer.from(await res.arrayBuffer());

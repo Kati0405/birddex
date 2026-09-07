@@ -1,12 +1,17 @@
+import Image from 'next/image';
 import { signInWithGoogleAction } from '../actions';
 
 export default function LoginPage() {
   return (
     <div className="w-full max-w-sm rounded-xl p-8 space-y-6 bg-card border border-border">
-      <div className="text-center space-y-1">
-        <h1 className="text-2xl font-black font-heading text-foreground">
-          BirdDex
-        </h1>
+      <div className="text-center space-y-3">
+        <Image
+          src="/logo/birds-in-ua-square.svg"
+          alt="birds.in.ua"
+          width={96}
+          height={96}
+          className="mx-auto"
+        />
         <p className="text-sm italic font-heading text-muted-foreground">
           Your field journal awaits
         </p>

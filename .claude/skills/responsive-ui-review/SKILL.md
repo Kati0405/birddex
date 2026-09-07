@@ -1,6 +1,6 @@
 ---
 name: responsive-ui-review
-description: Senior frontend UI/UX reviewer that evaluates responsive design, visual quality, and Tailwind/Shadcn best practices. Use this skill whenever the user asks to review a page, component, screenshot, design mockup, or implementation for responsive design, mobile usability, layout issues, UI quality, or visual polish. Also trigger when the user shares screenshots and wants feedback, asks "how does this look", "review my UI", "check the layout", "is this responsive", or mentions breakpoints, mobile issues, card design, or catalog density. For BirdDex, trigger on any review of card layouts, catalog pages, bird detail pages, collection pages, or observation forms. When in doubt about whether to use this skill for a UI review request, use it.
+description: Senior frontend UI/UX reviewer that evaluates responsive design, visual quality, and Tailwind/Shadcn best practices. Use this skill whenever the user asks to review a page, component, screenshot, design mockup, or implementation for responsive design, mobile usability, layout issues, UI quality, or visual polish. Also trigger when the user shares screenshots and wants feedback, asks "how does this look", "review my UI", "check the layout", "is this responsive", or mentions breakpoints, mobile issues, card design, or catalog density. For birds.in.ua, trigger on any review of card layouts, catalog pages, bird detail pages, collection pages, or observation forms. When in doubt about whether to use this skill for a UI review request, use it.
 ---
 
 # Responsive UI Review
@@ -104,9 +104,9 @@ When you find a problem, show the fix — not just the description.
 
 ---
 
-### 6. BirdDex-Specific Review Areas
+### 6. birds.in.ua-Specific Review Areas
 
-When reviewing BirdDex UI, also evaluate:
+When reviewing birds.in.ua UI, also evaluate:
 
 - **Card layout** — are bird cards consistent in size, proportions, and information hierarchy? Does the rarity frame work visually? Does the card read well at catalog scale?
 - **Catalog density** — does the grid show enough birds without feeling cramped? Is the column count right for each breakpoint?

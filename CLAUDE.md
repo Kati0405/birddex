@@ -155,11 +155,11 @@ Before editing anything related to Cloudinary, uploads, images, sounds, observat
 
 ---
 
-# BirdDex Claude Code Rules
+# birds.in.ua Claude Code Rules
 
 ## Project goal
 
-BirdDex is a bird catalog / collectible-card style app.  
+birds.in.ua is a bird catalog / collectible-card style app.  
 The visual style should feel like a mix of Hearthstone card framing and Wingspan board game calm nature aesthetics, but cleaner and more minimalistic.
 
 ## Core card fields
@@ -209,7 +209,7 @@ Rarity controls the frame color. Use this exact mapping — no other colors:
 
 | Rarity    | Color  | Hex       |
 | --------- | ------ | --------- |
-| Common    | grey   | `#eaecf7` |
+| Common    | grey   | `#808080` |
 | Uncommon  | green  | `#198b58` |
 | Rare      | blue   | `#306fd5` |
 | Epic      | purple | `#8d33ab` |

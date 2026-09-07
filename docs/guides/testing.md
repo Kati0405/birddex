@@ -193,7 +193,7 @@ For mutation/action tests, mock:
 
 Always test failure paths for mutations that touch external services — a mutation test suite that only covers the happy path is incomplete, not done.
 
-Required BirdDex cases wherever a mutation touches Cloudinary or Supabase (see `docs/contracts/cloudinary-lifecycle.md`):
+Required birds.in.ua cases wherever a mutation touches Cloudinary or Supabase (see `docs/contracts/cloudinary-lifecycle.md`):
 
 - upload succeeds but DB insert/update fails → new asset is cleaned up, old asset untouched
 - DB write succeeds → old Cloudinary asset is deleted only after the DB write commits
@@ -202,7 +202,7 @@ Required BirdDex cases wherever a mutation touches Cloudinary or Supabase (see `
 - Cloudinary cleanup failure does not corrupt DB state or crash the mutation
 - client-supplied `public_id` / `photoUrl` / `resource_type` is never trusted as authority — asset identity always comes from the database
 
-## BirdDex-specific test targets
+## birds.in.ua-specific test targets
 
 Prioritize tests for these areas:
 

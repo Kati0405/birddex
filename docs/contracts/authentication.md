@@ -1,6 +1,6 @@
 # Authentication
 
-BirdDex uses **Supabase Auth** with Google OAuth. There are no passwords — all sign-in goes through Google.
+birds.in.ua uses **Supabase Auth** with Google OAuth. There are no passwords — all sign-in goes through Google.
 
 ---
 
