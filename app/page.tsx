@@ -8,7 +8,7 @@ import LandingBackdrop from '@/features/landing/components/LandingBackdrop';
 import { getObservedBirdIds, getObservationCount, getAllUserObservations } from '@/features/observations/observation-queries';
 import { RARITIES } from '@/entities/bird-domain';
 import { getSavedLocations } from '@/features/locations/location-queries';
-import { pickUncollectedBirds, pickBirdOfTheDay } from '@/features/dashboard/dashboard-birds';
+import { pickUncollectedBirds, pickRareUncollectedBird, pickBirdOfTheDay } from '@/features/dashboard/dashboard-birds';
 import DashboardPage from '@/features/dashboard/components/DashboardPage/DashboardPage';
 
 export default async function Home() {
@@ -69,7 +69,8 @@ export default async function Home() {
       rarestFind={rarestFind?.observation ?? null}
       latestObservation={recentObservations[0] ?? null}
       birdOfTheDay={pickBirdOfTheDay(birds)}
-      uncollectedBirds={pickUncollectedBirds(birds, observedIds, 4)}
+      uncollectedBirds={pickUncollectedBirds(birds, observedIds, 8)}
+      rareUncollectedBird={pickRareUncollectedBird(birds, observedIds)}
       recentObservations={recentObservations.slice(0, 4)}
     />
   );

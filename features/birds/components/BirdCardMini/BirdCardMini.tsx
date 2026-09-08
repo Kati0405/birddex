@@ -62,38 +62,40 @@ export default function BirdCardMini({ bird, hideAttribution }: Props) {
         <div className='px-3 py-3 shrink-0 flex items-center justify-between gap-1'>
           {habitat ? (
             <div
-              className='inline-flex items-center gap-1 min-w-0 rounded-md pl-1.5 pr-2 py-1'
-              style={{ background: `${frameColor}18` }}
+              className='inline-flex items-center justify-center w-6 h-6'
+              style={{
+                background: `${frameColor}18`,
+                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+              }}
+              title={`Habitat: ${habitat}`}
             >
               <Image
                 src={biomeImage[habitat]}
-                alt=''
+                alt={`Habitat: ${habitat}`}
                 width={12}
                 height={12}
                 className='object-contain shrink-0'
               />
-              <span className='text-[10px] text-card-foreground capitalize truncate'>
-                {habitat}
-              </span>
             </div>
           ) : (
             <span />
           )}
           {food && (
             <div
-              className='inline-flex items-center gap-1 min-w-0 rounded-md pl-1.5 pr-2 py-1'
-              style={{ background: `${frameColor}18` }}
+              className='inline-flex items-center justify-center w-6 h-6'
+              style={{
+                background: `${frameColor}18`,
+                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+              }}
+              title={`Food: ${food}`}
             >
               <Image
                 src={foodImage[food]}
-                alt=''
+                alt={`Food: ${food}`}
                 width={12}
                 height={12}
                 className='object-contain shrink-0'
               />
-              <span className='text-[10px] text-card-foreground capitalize truncate'>
-                {food}
-              </span>
             </div>
           )}
         </div>

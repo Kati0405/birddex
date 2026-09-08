@@ -27,5 +27,5 @@ export async function signInWithGoogleAction(): Promise<void> {
 export async function logoutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
-  redirect('/login');
+  redirect('/');
 }

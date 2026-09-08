@@ -104,7 +104,7 @@ export default function CollectionProgress({
                   <Binoculars size={16} className='opacity-60' aria-hidden />
                   Observations
                 </dt>
-                <dd className='font-mono text-base font-semibold text-card-foreground'>
+                <dd className='font-mono text-base text-card-foreground'>
                   {observationCount}
                 </dd>
               </div>
@@ -115,7 +115,9 @@ export default function CollectionProgress({
                   <Camera size={16} className='opacity-60' aria-hidden />
                   Photos taken
                 </dt>
-                <dd className='font-mono text-base font-semibold text-card-foreground'>{photoCount}</dd>
+                <dd className='font-mono text-base text-card-foreground'>
+                  {photoCount}
+                </dd>
               </div>
             )}
             {savedLocationCount > 0 && (
@@ -124,7 +126,7 @@ export default function CollectionProgress({
                   <MapPin size={16} className='opacity-60' aria-hidden />
                   Favorite locations
                 </dt>
-                <dd className='font-mono text-base font-semibold text-card-foreground'>
+                <dd className='font-mono text-base text-card-foreground'>
                   {savedLocationCount}
                 </dd>
               </div>

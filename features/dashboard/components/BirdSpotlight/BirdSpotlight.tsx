@@ -46,7 +46,7 @@ export default function BirdSpotlight({ bird }: { bird: Bird }) {
           </div>
         </div>
 
-        <div className='flex-1 min-w-0 overflow-auto flex flex-col gap-2.5'>
+        <div className='flex-1 min-w-0 overflow-auto no-scrollbar flex flex-col gap-2.5'>
           {bird.field_marks?.length > 0 && (
             <div>
               <p className='text-[9px] uppercase tracking-[0.18em] font-mono mb-1' style={{ color: `${frameColor}bb` }}>

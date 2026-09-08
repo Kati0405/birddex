@@ -138,7 +138,7 @@ User clicks "Continue with Google"
   → redirect to Google consent screen
   → Google redirects to /auth/callback?code=...
   → app/auth/callback/route.ts exchanges code for session
-  → redirect to /
+  → redirect to / (dashboard for logged-in users)
 ```
 
 ---
@@ -168,7 +168,7 @@ User clicks "Continue with Google"
 |-------|------|
 | `/birds/*/edit` | Admin only — non-admin redirects to `/`, unauthenticated to `/login` |
 | `/admin/*` | Admin only — same as above |
-| `/login`, `/signup` | Authenticated users are redirected to `/` |
+| `/login`, `/signup` | Authenticated users are redirected to `/` (renders dashboard) |
 
 Server actions (`updateBirdImageAction`, `updateBirdMetadataAction`) also call `requireAdmin()` independently — the proxy is not the only line of defense.
 

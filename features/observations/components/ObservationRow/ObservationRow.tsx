@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { Eye, Music, Camera, Bird, MapPin } from 'lucide-react';
+import { Eye, Music, Camera, Bird, MapPin, Calendar, ChevronRight } from 'lucide-react';
 import ObservationQualityStars from '@/features/observations/components/ObservationQualityStars/ObservationQualityStars';
 import type { ObservationQuality } from '@/features/observations/observation-queries';
 
@@ -26,8 +26,8 @@ interface ObservationRowProps {
 
 export default function ObservationRow({ observation: o, actions }: ObservationRowProps) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors group first:rounded-t-xl last:rounded-b-xl">
-      <Link href={`/birds/${o.birdId}?obs=${o.id}&flipped=1`} className="flex items-center gap-3 min-w-0 flex-1">
+    <div className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors first:rounded-t-xl last:rounded-b-xl">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         {(o.photoThumbUrl || o.birdImageUrl) ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -41,27 +41,32 @@ export default function ObservationRow({ observation: o, actions }: ObservationR
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-card-foreground truncate group-hover:text-primary transition-colors">
+          <p className="text-sm font-medium text-card-foreground truncate">
             {o.birdName}
           </p>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-1 text-[11px] text-muted-foreground w-24 shrink-0">
+              <Calendar className="h-3 w-3 shrink-0" aria-hidden="true" />
               {format(new Date(o.observedAt), 'd MMM yyyy')}
             </span>
-            <span className="flex items-center gap-1 text-muted-foreground/50">
+            <span className="flex items-center gap-1 text-muted-foreground/50 w-12 shrink-0">
               {o.seen && <Eye className="h-3 w-3" />}
               {o.heard && <Music className="h-3 w-3" />}
               {o.photographed && <Camera className="h-3 w-3" />}
             </span>
-            {o.quality != null && (
-              <ObservationQualityStars rating={o.quality} size="list" className="text-amber-500/70" />
-            )}
-            {o.locationName && (
-              <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground/50 truncate">
-                <MapPin className="h-3 w-3 shrink-0" />
-                <span className="truncate">{o.locationName}</span>
-              </span>
-            )}
+            <span className="w-16 shrink-0">
+              {o.quality != null && (
+                <ObservationQualityStars rating={o.quality} size="list" className="text-amber-500/70" />
+              )}
+            </span>
+            <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground/50 truncate flex-1 min-w-0">
+              {o.locationName && (
+                <>
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{o.locationName}</span>
+                </>
+              )}
+            </span>
           </div>
           {o.notes && (
             <p className="text-[11px] text-muted-foreground/50 truncate mt-0.5">
@@ -69,8 +74,15 @@ export default function ObservationRow({ observation: o, actions }: ObservationR
             </p>
           )}
         </div>
-      </Link>
+      </div>
       {actions}
+      <Link
+        href={`/birds/${o.birdId}?obs=${o.id}&flipped=1`}
+        aria-label={`View ${o.birdName} observation`}
+        className="group shrink-0 p-1 -m-1 rounded-md hover:bg-muted/50 transition-colors"
+      >
+        <ChevronRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors" aria-hidden="true" />
+      </Link>
     </div>
   );
 }

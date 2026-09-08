@@ -21,6 +21,7 @@ interface Props {
   latestObservation: UserObservation | null;
   birdOfTheDay: Bird | null;
   uncollectedBirds: Bird[];
+  rareUncollectedBird: Bird | null;
   recentObservations: UserObservation[];
 }
 
@@ -36,6 +37,7 @@ export default function DashboardPage({
   latestObservation,
   birdOfTheDay,
   uncollectedBirds,
+  rareUncollectedBird,
   recentObservations,
 }: Props) {
   return (
@@ -79,7 +81,11 @@ export default function DashboardPage({
               </div>
             )}
             <div className='order-3 lg:col-span-2'>
-              <ContinueCollection birds={uncollectedBirds} savedLocations={savedLocations} />
+              <ContinueCollection
+                birds={uncollectedBirds}
+                rareBird={rareUncollectedBird}
+                savedLocations={savedLocations}
+              />
             </div>
           </div>
         </div>

@@ -29,7 +29,7 @@ Signed-out visitors land on the marketing homepage. Once you're signed in, the h
 - A short greeting and an **Add observation** button — the fastest way to log a new sighting
 - **Your birding** — a progress ring showing species observed out of the total catalog, plus your total observation count, photos taken, and favorite (saved) locations, with small "Latest find" and "Rarest find" mini cards (thumbnail, name, date logged, and location if known) side by side when you have any
 - **Bird of the day** — a spotlighted catalog bird that changes daily, with sound playback if a recording exists
-- **Continue your collection** — a handful of species you haven't observed yet, easiest rarities first
+- **Continue your collection** — unobserved species to chase, in two groups: "Easy to spot" (a few easiest-rarity picks) and "Worth the search" (one Epic or Legendary pick), shown side by side
 - **Recent observations** — your latest logged sightings
 - **Ask Robin** — a shortcut into the AI chat assistant
 
