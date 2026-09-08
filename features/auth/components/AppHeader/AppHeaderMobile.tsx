@@ -10,12 +10,10 @@ import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 type Props = {
   isAuthenticated: boolean;
   isAdmin?: boolean;
-  seenCount?: number;
-  totalBirds?: number;
   userEmail?: string;
 };
 
-export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, totalBirds, userEmail }: Props) {
+export default function AppHeaderMobile({ isAuthenticated, isAdmin, userEmail }: Props) {
   const [open, setOpen] = useState(false);
   const currentPath = usePathname();
 
@@ -64,12 +62,6 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
             <MobileNavLink href="/ask-robin" label="Ask Robin" active={currentPath === '/ask-robin'} onClick={() => setOpen(false)} />
             {isAdmin && (
               <MobileNavLink href="/admin/add-bird" label="Add Bird" active={currentPath === '/admin/add-bird'} onClick={() => setOpen(false)} adminBadge />
-            )}
-
-            {isAuthenticated && seenCount !== undefined && totalBirds !== undefined && (
-              <div className="mt-4 px-4 py-3 bg-secondary rounded-lg font-mono text-[11px] text-primary tracking-wide">
-                Seen {seenCount} / {totalBirds}
-              </div>
             )}
 
             <div className="mt-auto pt-6 border-t border-border">

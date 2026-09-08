@@ -6,6 +6,8 @@ Navigation: top header has Birds (catalog), Observations (all logged observation
 
 Signing in: tap "Log in" top-right, then "Continue with Google". Unlocks observations, collection, locations, photos, and personalized Ask Robin answers.
 
+Homepage (/): signed-out visitors see the marketing homepage; signed-in users see a personal dashboard instead, with a greeting, an "Add observation" button, a collection progress ring (species observed / total catalog, plus total observations, photos taken, and favorite locations, with "Latest find" and "Rarest find" mini cards side by side), a "Bird of the day" spotlight, a "Continue your collection" section of unobserved species, a "Recent observations" list, and an Ask Robin promo.
+
 Bird Catalog (/birds): browse all bird cards in a grid. Toolbar has search (by English or Latin name), a "Filters" button, a "Reset" button (appears once a filter is active), and for signed-in users an All/Seen/Not seen switcher for collection status. Filters cover rarity, biome, food, behaviour, observation status (all/observed/unobserved), and observation type (seen/heard/photographed). You can also toggle rarity/food/habitat/behaviour filters by clicking those elements directly on a card front. Active filters show as removable chips below the toolbar; badge on "Filters" shows active count; "Reset" clears everything.
 
 Bird cards show: photo, name, rarity frame, food & habitat icons, field note. Signed-in users see a checkmark on observed birds and a binoculars icon to log observations. Admins see a "⋮" (three dots) menu next to the bird's name with Edit and Delete actions; Delete opens a confirmation modal, and is blocked with a message in that modal if the bird has logged observations.
@@ -22,7 +24,7 @@ Photo Gallery (/photos): all observation photos in one gallery.
 
 Ask Robin (/ask-robin): this AI chat. Type a question or tap a suggested question. Streams answers in real time. Keeps conversation context (up to 20 messages). Tap trash icon to clear conversation.
 
-Observation counter: header shows "X / Y" -- species observed vs. total catalog.
+Observation progress: "X / Y" species observed vs. total catalog is shown in the "Your collection" card on the homepage dashboard.
 
 Logging out: desktop -- "Log out" next to avatar. Mobile -- open menu, tap Log out.
 

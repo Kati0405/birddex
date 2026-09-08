@@ -13,7 +13,7 @@ export default function SoundButton({ soundUrl }: Props) {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const circleBase = 'relative group flex items-center justify-center rounded-full transition-all';
+  const circleBase = 'relative group/sound flex items-center justify-center rounded-full transition-all';
   const size = { width: 26, height: 26 };
   const imgSize = 13;
 
@@ -24,7 +24,7 @@ export default function SoundButton({ soundUrl }: Props) {
         style={{ ...size, background: 'rgba(42,24,8,0.08)', border: '1px solid rgba(42,24,8,0.15)' }}
       >
         <Image src={soundWaveImg} alt="" width={imgSize} height={imgSize} className="brightness-0 opacity-20 select-none" aria-hidden />
-        <span className="pointer-events-none absolute top-full mt-1.5 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-foreground/80 text-background text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20">
+        <span className="pointer-events-none absolute top-full mt-1.5 right-0 opacity-0 group-hover/sound:opacity-100 transition-opacity duration-150 bg-foreground/80 text-background text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20">
           No recording
         </span>
       </div>
@@ -48,7 +48,7 @@ export default function SoundButton({ soundUrl }: Props) {
   };
 
   return (
-    <div className="relative group">
+    <div className="relative group/sound">
       <button
         onClick={toggle}
         className={`${circleBase} hover:opacity-80 active:scale-90`}
@@ -71,7 +71,7 @@ export default function SoundButton({ soundUrl }: Props) {
           />
         )}
       </button>
-      <span className="pointer-events-none absolute top-full mt-1.5 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-foreground/80 text-background text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20">
+      <span className="pointer-events-none absolute top-full mt-1.5 right-0 opacity-0 group-hover/sound:opacity-100 transition-opacity duration-150 bg-foreground/80 text-background text-[8px] tracking-wide uppercase px-1.5 py-0.5 rounded-sm whitespace-nowrap z-20">
         {playing ? 'Stop' : 'Play call'}
       </span>
     </div>

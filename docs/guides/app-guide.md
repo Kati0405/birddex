@@ -22,7 +22,18 @@ The top header has links to all sections:
 
 On mobile, use the hamburger menu to access these same sections.
 
-The header also shows your observation progress as a counter (e.g. "12 / 45") — how many species you've observed out of the total catalog.
+### Homepage
+
+Signed-out visitors land on the marketing homepage. Once you're signed in, the homepage (`/`) becomes your personal dashboard instead:
+
+- A short greeting and an **Add observation** button — the fastest way to log a new sighting
+- **Your birding** — a progress ring showing species observed out of the total catalog, plus your total observation count, photos taken, and favorite (saved) locations, with small "Latest find" and "Rarest find" mini cards (thumbnail, name, date logged, and location if known) side by side when you have any
+- **Bird of the day** — a spotlighted catalog bird that changes daily, with sound playback if a recording exists
+- **Continue your collection** — a handful of species you haven't observed yet, easiest rarities first
+- **Recent observations** — your latest logged sightings
+- **Ask Robin** — a shortcut into the AI chat assistant
+
+New accounts with no observations yet still see the full layout, with friendly empty states in place of the collection stats and recent observations.
 
 ---
 
@@ -212,9 +223,9 @@ When you first open Ask Robin, you'll see starter questions tailored to you:
 
 ## Account
 
-### Observation Counter
+### Observation Progress
 
-When signed in, the header shows your progress: how many species you've observed vs. the total in the catalog.
+Your progress — how many species you've observed vs. the total in the catalog — appears in the "Your collection" card on the homepage dashboard.
 
 ### Logging Out
 

@@ -16,9 +16,10 @@ interface Props {
   savedLocations?: SavedLocation[];
   initialLocation?: InitialLocation;
   variant?: 'header' | 'inline';
+  className?: string;
 }
 
-export default function QuickAddObservationButton({ savedLocations = [], initialLocation, variant = 'header' }: Props) {
+export default function QuickAddObservationButton({ savedLocations = [], initialLocation, variant = 'header', className = '' }: Props) {
   const [open, setOpen] = useState(false);
 
   if (variant === 'inline') {
@@ -27,7 +28,7 @@ export default function QuickAddObservationButton({ savedLocations = [], initial
         <button
           type='button'
           onClick={() => setOpen(true)}
-          className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer'
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer ${className}`}
         >
           <Plus className='h-3.5 w-3.5' />
           Add observation

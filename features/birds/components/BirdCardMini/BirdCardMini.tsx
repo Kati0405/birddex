@@ -6,9 +6,10 @@ import BirdImage from '@/features/birds/components/BirdImage/BirdImage';
 
 interface Props {
   bird: Bird;
+  hideAttribution?: boolean;
 }
 
-export default function BirdCardMini({ bird }: Props) {
+export default function BirdCardMini({ bird, hideAttribution }: Props) {
   const frameColor = RARITY_COLOR[bird.rarity];
   const habitat = bird.biomes[0];
   const food = bird.food[0];
@@ -53,6 +54,7 @@ export default function BirdCardMini({ bird }: Props) {
         imageUrl={bird.image_url}
         selectedImage={bird.selected_image}
         className='mx-1 rounded flex-1 min-h-0'
+        hideAttribution={hideAttribution}
       />
 
       {/* Habitat & food */}
