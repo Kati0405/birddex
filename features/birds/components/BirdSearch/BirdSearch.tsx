@@ -27,7 +27,7 @@ import BirdSearchBar from '@/features/birds/components/BirdSearchBar/BirdSearchB
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { CollectionCardData } from '@/features/observations/observation-queries';
 import { SlidersHorizontal, X, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/primitives/button';
 import FilterRow from './FilterRow';
 import ObservationStatusSwitcher from './ObservationStatusSwitcher';
 import FilterChips, { type FilterChip } from './FilterChips';

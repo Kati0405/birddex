@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Trash2, MapPin, Plus, ChevronUp, MapPinned, Images, X, Eye, Pencil } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/primitives/button';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import {

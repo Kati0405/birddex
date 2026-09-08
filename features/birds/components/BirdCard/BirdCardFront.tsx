@@ -102,9 +102,9 @@ export default function BirdCardFront({
             </span>
           </RarityTag>
           <div className='flex items-center gap-1.5'>
-            <h2 className='text-2xl sm:text-sm font-semibold leading-tight truncate text-card-foreground'>
+            <h3 className='text-2xl sm:text-sm font-semibold leading-tight truncate text-card-foreground'>
               {bird.name_eng}
-            </h2>
+            </h3>
             <div className='shrink-0' onClick={(e) => e.stopPropagation()}>
               <SoundButton soundUrl={bird.sound_url} />
             </div>

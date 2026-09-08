@@ -18,11 +18,7 @@ export default function AppHeaderNav({ isAuthenticated, isAdmin }: Props) {
       <NavLink
         href='/birds'
         label='Birds'
-        active={
-          pathname === '/birds' ||
-          pathname === '/' ||
-          pathname === '/collection'
-        }
+        active={pathname === '/birds' || pathname === '/collection'}
       />
       {isAuthenticated && (
         <NavLink

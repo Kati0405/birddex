@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/shared/ui/primitives/input';
 
 type BirdSearchBarProps = {
   query: string;

@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Pause } from 'lucide-react';
-import soundWaveImg from '@/components/icons/ui/sound-wave.png';
+import soundWaveImg from '@/entities/bird-icons/ui/sound-wave.png';
 
 interface Props {
   soundUrl?: string;

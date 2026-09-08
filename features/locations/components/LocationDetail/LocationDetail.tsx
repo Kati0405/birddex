@@ -16,7 +16,7 @@ import {
   X,
   Plus,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/primitives/button';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import { biomeImage } from '@/entities/bird-domain';

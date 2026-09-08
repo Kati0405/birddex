@@ -5,13 +5,14 @@ import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
 import { cn } from '@/shared/lib/cn';
 import { isCloudinaryUrl, cloudinaryPublicId } from '@/shared/lib/cloudinary-utils';
-import defaultBirdImg from '@/components/icons/ui/bird.png';
+import defaultBirdImg from '@/entities/bird-icons/ui/bird.png';
 import type { WikimediaImage } from '@/entities/bird-domain';
 
 interface Props {
   imageUrl?: string;
   selectedImage?: WikimediaImage;
   className?: string;
+  hideAttribution?: boolean;
 }
 
 function Silhouette() {
@@ -25,7 +26,12 @@ function Silhouette() {
   );
 }
 
-export default function BirdImage({ imageUrl, selectedImage, className }: Props) {
+export default function BirdImage({
+  imageUrl,
+  selectedImage,
+  className,
+  hideAttribution,
+}: Props) {
   const src = selectedImage?.imageUrl ?? imageUrl ?? null;
   const [errored, setErrored] = useState(false);
 
@@ -60,9 +66,11 @@ export default function BirdImage({ imageUrl, selectedImage, className }: Props)
         />
       )}
 
-      <div className="absolute bottom-0 left-0 right-0 h-2/5 z-10 bg-linear-to-t from-card/80 to-transparent" />
+      {!hideAttribution && (
+        <div className="absolute bottom-0 left-0 right-0 h-2/5 z-10 bg-linear-to-t from-card/80 to-transparent" />
+      )}
 
-      {selectedImage && !errored && (
+      {selectedImage && !errored && !hideAttribution && (
         <a
           href={selectedImage.sourceUrl}
           target="_blank"

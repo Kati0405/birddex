@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/shared/ui/primitives/badge';
 import type { Rarity } from '@/entities/bird-domain';
 
 export default function RarityBadge({ rarity }: { rarity: Rarity }) {

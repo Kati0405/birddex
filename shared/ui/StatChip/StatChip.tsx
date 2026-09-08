@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/shared/ui/primitives/badge';
 
 export default function StatChip({ icon, label }: { icon: string; label: string }) {
   return (

@@ -96,7 +96,7 @@ export default function AskRobinChat() {
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
         aria-label="Open Ask Robin"
       >
-        <Bird size={24} />
+        <Bird size={24} className="-scale-x-100" />
         {hasConversation && (
           <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-[#f9a01f] border-2 border-primary-foreground" />
         )}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Bird, Plus, Pencil, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/primitives/button';
 import { RARITY_COLOR, type Rarity } from '@/entities/bird-domain';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
 import AddObservationModal from '@/features/observations/components/AddObservationModal/AddObservationModal';

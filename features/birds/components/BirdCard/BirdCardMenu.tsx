@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/primitives/popover';
 import { deleteBirdAction } from '@/features/birds/actions/delete-bird-mutation';
 import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';

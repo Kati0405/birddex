@@ -7,10 +7,10 @@ import ObservationMonthsChart from '@/shared/ui/ObservationMonthsChart/Observati
 import TipsToFind from '@/shared/ui/TipsToFind/TipsToFind';
 import FieldMarks from '@/shared/ui/FieldMarks/FieldMarks';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
-import dawnImg from '@/components/icons/day/dawn.png';
-import dayImg from '@/components/icons/day/day.png';
-import duskImg from '@/components/icons/day/dusk.png';
-import nightImg from '@/components/icons/day/night.png';
+import dawnImg from '@/entities/bird-icons/day/dawn.png';
+import dayImg from '@/entities/bird-icons/day/day.png';
+import duskImg from '@/entities/bird-icons/day/dusk.png';
+import nightImg from '@/entities/bird-icons/day/night.png';
 import type { StaticImageData } from 'next/image';
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { CollectionCardData } from '@/features/observations/observation-queries';

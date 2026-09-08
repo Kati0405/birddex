@@ -51,7 +51,7 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, seenCount, t
               ×
             </button>
 
-            <MobileNavLink href="/birds" label="Birds" active={currentPath === '/birds' || currentPath === '/' || currentPath === '/collection'} onClick={() => setOpen(false)} />
+            <MobileNavLink href="/birds" label="Birds" active={currentPath === '/birds' || currentPath === '/collection'} onClick={() => setOpen(false)} />
             {isAuthenticated && (
               <MobileNavLink href="/observations" label="My Observations" active={currentPath === '/observations'} onClick={() => setOpen(false)} />
             )}

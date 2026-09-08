@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import binocularsImg from '@/components/icons/ui/binoculars.png';
-import checkMarkImg from '@/components/icons/ui/check-mark.png';
+import binocularsImg from '@/entities/bird-icons/ui/binoculars.png';
+import checkMarkImg from '@/entities/bird-icons/ui/check-mark.png';
 import AddObservationModal from '@/features/observations/components/AddObservationModal/AddObservationModal';
 import type { SavedLocation } from '@/features/locations/location-queries';
 
