@@ -9,7 +9,7 @@ export default function RecentObservations({
   observations: UserObservation[];
 }) {
   return (
-    <div className='h-full rounded-xl border border-border bg-card flex flex-col'>
+    <div className='h-full min-w-0 rounded-xl border border-border bg-card flex flex-col'>
       <div className='px-4 sm:px-5 pt-4 sm:pt-5 pb-1'>
         <div className='flex items-center justify-between gap-4'>
           <h2 className='font-heading text-lg font-bold text-card-foreground'>

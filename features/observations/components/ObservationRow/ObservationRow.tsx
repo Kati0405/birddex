@@ -44,7 +44,7 @@ export default function ObservationRow({ observation: o, actions }: ObservationR
           <p className="text-sm font-medium text-card-foreground truncate">
             {o.birdName}
           </p>
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="flex items-center gap-2 mt-0.5 min-w-0">
             <span className="flex items-center gap-1 text-[11px] text-muted-foreground w-24 shrink-0">
               <Calendar className="h-3 w-3 shrink-0" aria-hidden="true" />
               {format(new Date(o.observedAt), 'd MMM yyyy')}

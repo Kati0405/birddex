@@ -10,7 +10,7 @@ const SAMPLE_QUESTIONS = [
 
 export default function AskRobinPromo() {
   return (
-    <div className='relative h-full rounded-xl border border-border bg-card p-5 sm:p-6 flex flex-col justify-between overflow-hidden'>
+    <div className='relative h-full min-w-0 rounded-xl border border-border bg-card p-5 sm:p-6 flex flex-col justify-between overflow-hidden'>
       <Image
         src='/hero/ask-robin.png'
         alt=''
