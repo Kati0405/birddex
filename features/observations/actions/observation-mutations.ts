@@ -106,6 +106,7 @@ export async function addObservationAction(
 
   revalidatePath('/');
   revalidatePath('/collection');
+  revalidatePath('/observations');
   return { success: true, photoUrl };
 }
 
@@ -175,6 +176,7 @@ export async function updateObservationAction(
   }
 
   revalidatePath('/collection');
+  revalidatePath('/observations');
   return { success: true, photoUrl };
 }
 
@@ -205,5 +207,6 @@ export async function deleteObservationAction(
 
   revalidatePath('/');
   revalidatePath('/collection');
+  revalidatePath('/observations');
   return { success: true };
 }

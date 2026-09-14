@@ -39,14 +39,11 @@ export default function BirdCardMini({ bird, hideAttribution }: Props) {
         </span>
       </div>
 
-      {/* Names */}
-      <div className='px-3 pb-1.5 shrink-0 min-h-[1.75rem]'>
-        <h3 className='font-heading text-xs leading-tight text-card-foreground line-clamp-2 font-bold'>
+      {/* Name */}
+      <div className='px-3 pb-1.5 shrink-0'>
+        <h3 className='font-heading text-[11px] leading-tight text-card-foreground line-clamp-2 font-bold'>
           {bird.name_eng}
         </h3>
-        <p className='text-[11px] italic truncate text-muted-foreground opacity-60'>
-          {bird.name_latin}
-        </p>
       </div>
 
       {/* Photo */}
@@ -57,32 +54,12 @@ export default function BirdCardMini({ bird, hideAttribution }: Props) {
         hideAttribution={hideAttribution}
       />
 
-      {/* Habitat & food */}
+      {/* Food & habitat */}
       {(habitat || food) && (
-        <div className='px-3 py-3 shrink-0 flex items-center justify-between gap-1'>
-          {habitat ? (
+        <div className='px-3 py-1.5 shrink-0 flex items-center justify-between gap-1'>
+          {food ? (
             <div
-              className='inline-flex items-center justify-center w-6 h-6'
-              style={{
-                background: `${frameColor}18`,
-                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-              }}
-              title={`Habitat: ${habitat}`}
-            >
-              <Image
-                src={biomeImage[habitat]}
-                alt={`Habitat: ${habitat}`}
-                width={12}
-                height={12}
-                className='object-contain shrink-0'
-              />
-            </div>
-          ) : (
-            <span />
-          )}
-          {food && (
-            <div
-              className='inline-flex items-center justify-center w-6 h-6'
+              className='inline-flex items-center justify-center w-5 h-5'
               style={{
                 background: `${frameColor}18`,
                 clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
@@ -92,8 +69,28 @@ export default function BirdCardMini({ bird, hideAttribution }: Props) {
               <Image
                 src={foodImage[food]}
                 alt={`Food: ${food}`}
-                width={12}
-                height={12}
+                width={10}
+                height={10}
+                className='object-contain shrink-0'
+              />
+            </div>
+          ) : (
+            <span />
+          )}
+          {habitat && (
+            <div
+              className='inline-flex items-center justify-center w-5 h-5'
+              style={{
+                background: `${frameColor}18`,
+                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+              }}
+              title={`Habitat: ${habitat}`}
+            >
+              <Image
+                src={biomeImage[habitat]}
+                alt={`Habitat: ${habitat}`}
+                width={10}
+                height={10}
                 className='object-contain shrink-0'
               />
             </div>

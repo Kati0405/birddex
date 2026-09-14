@@ -2,7 +2,7 @@ import type { UserContext } from './bird-guide.types';
 
 const APP_GUIDE = `## How birds.in.ua works (use this to answer "how do I..." questions about the app)
 
-Navigation: top header has Birds (catalog), Observations (all logged observations), Locations (saved spots), Photos (gallery), Ask Robin (this chat). On mobile, use the hamburger menu.
+Navigation: top header has Birds (catalog), Observations (My journal -- observations organized by month), Locations (saved spots), Photos (gallery), Ask Robin (this chat). On mobile, use the hamburger menu.
 
 Signing in: tap "Log in" top-right, then "Continue with Google". Unlocks observations, collection, locations, photos, and personalized Ask Robin answers.
 
@@ -18,7 +18,7 @@ Logging observations: tap binoculars icon on a card. The form has: How observed 
 
 Saved Locations (/locations): save birding spots you visit often. Cards show photo preview, name, coordinates, and observation stats. Tap "+ Add location" to open the form, name the place, search or click the map to drop a pin, optionally add a photo, then save. Tap the pencil icon to edit a location inline (name, map pin, habitats); renaming also updates all observations at that location. Tap the eye icon to open a location detail page (/locations/[id]) with full photo, stats (observations, species, last visit, most seen bird), and recent observations list. Change or remove photos from the detail page. Delete with the trash icon (confirmation required; observations keep their location data). Saved spots appear in the "Saved" tab when logging observations.
 
-Observations (/observations): all logged observations in one list, grouped by month. Each entry shows bird thumbnail, name (links to detail page), date, seen/heard/photographed icons, location name, and truncated notes. Counter at top shows total observations.
+My journal (/observations): observations organized by month, not a separate log you fill in -- it reads your existing sightings. Month navigation (prev/next, direct month/year picker, "This month" badge, can't go into the future) with the URL remembering the selected month. Stats row: species, observations, days with sightings (by observed date, heard-only counts), photos added. Timeline "[Month] encounters" groups entries by date (day, weekday, species count), each row showing thumbnail, bird name, location, note preview, and seen/heard/photographed icons; a gold star icon marks the earliest-ever sighting of a species. Edit/delete from the same row as before. Sidebar: "New to your collection" (species first seen that month, scrollable row of mini cards) and a featured-photo block ("Best of [Month]") showing a large photo with species/observation counts overlaid and a share icon -- tapping the photo opens a picker to choose/change which of that month's photos is featured, and the choice persists; sharing as an image isn't available yet.
 
 Photo Gallery (/photos): all observation photos in one gallery.
 

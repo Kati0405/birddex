@@ -80,3 +80,14 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+@media (max-width: 639px) {
+  .no-scrollbar-mobile {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar-mobile::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -1,21 +1,38 @@
 import { requireAuth } from '@/features/auth/auth-helpers';
-import { getAllUserObservations } from '@/features/observations/observation-queries';
-import ObservationList from '@/features/observations/components/ObservationList/ObservationList';
+import { getSavedLocations } from '@/features/locations/location-queries';
+import {
+  getJournalMonthData,
+  getJournalPhotoOfMonth,
+  getJournalPhotoOptions,
+  parseMonthKey,
+  currentMonthKey,
+  clampToCurrentMonth,
+} from '@/features/observations/journal-queries';
+import JournalPage from '@/features/observations/components/JournalPage/JournalPage';
 
-export default async function ObservationsPage() {
-  await requireAuth();
-  const observations = await getAllUserObservations();
+interface Props {
+  searchParams: Promise<{ month?: string }>;
+}
+
+export default async function ObservationsPage({ searchParams }: Props) {
+  const user = await requireAuth();
+  const { month } = await searchParams;
+
+  const monthKey = clampToCurrentMonth(parseMonthKey(month) ?? currentMonthKey());
+
+  const [savedLocations, data, photoOfMonth] = await Promise.all([
+    getSavedLocations(user.id),
+    getJournalMonthData(monthKey),
+    getJournalPhotoOfMonth(user.id, monthKey),
+  ]);
 
   return (
-    <main className='min-h-screen bg-background'>
-      <div className='px-0 md:px-6 py-5'>
-        <p className='mb-4 text-[10px] text-muted-foreground tracking-widest uppercase font-mono'>
-          {observations.length === 0
-            ? 'No observations yet'
-            : `${observations.length} ${observations.length === 1 ? 'observation' : 'observations'}`}
-        </p>
-        <ObservationList observations={observations} />
-      </div>
-    </main>
+    <JournalPage
+      monthKey={monthKey}
+      savedLocations={savedLocations}
+      data={data}
+      photoOfMonth={photoOfMonth}
+      photoOptions={getJournalPhotoOptions(data)}
+    />
   );
 }

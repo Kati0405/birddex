@@ -15,7 +15,7 @@ Once signed in you unlock personal features: observations, collection tracking, 
 The top header has links to all sections:
 
 - **Birds** — the main catalog of all bird cards
-- **Observations** — all your logged observations in one place (signed-in only)
+- **Observations** — "My journal," your logged observations organized by month (signed-in only)
 - **Locations** — your saved birding spots (signed-in only)
 - **Photos** — gallery of your observation photos (signed-in only)
 - **Ask Robin** — AI chat assistant for bird questions
@@ -129,18 +129,38 @@ Tap **Save** to record the observation. You can edit or delete observations late
 
 ---
 
-## Observations Page
+## My Journal
 
-The Observations page (`/observations`) shows all your logged observations in one place, grouped by month. Each entry shows:
+The Observations page (`/observations`) is called "My journal" — it automatically organizes your existing observations by month. You don't create separate journal entries; it reads your logged sightings directly.
 
-- Bird photo thumbnail (or placeholder)
-- Bird name (linked to its detail page)
-- Date of observation
-- How observed icons (seen, heard, photographed)
-- Location name (if recorded)
-- Notes preview (truncated)
+### Month navigation
 
-The counter at the top shows your total number of observations. If you have no observations yet, a friendly empty state guides you to the bird catalog to log your first sighting.
+- Defaults to the current month. Use the arrows to move to the previous or next month — you can't navigate into the future.
+- Tap the month/year label to open a picker and jump directly to any month or year.
+- A "This month" badge appears when you're viewing the current month.
+- The selected month stays in the page URL, so refreshing or coming back from an observation's detail page keeps you on the same month.
+
+### Monthly statistics
+
+A compact row shows, for the selected month:
+
+- **Species** — distinct bird species observed
+- **Observations** — individual observation records
+- **Days with sightings** — distinct dates you logged something, including heard-only records
+- **Photos added** — how many of the month's observations have a photo attached
+
+### Timeline
+
+The "[Month] encounters" list groups your observations by date, newest first. Each date shows the day, weekday, and how many species you saw that day. Each entry shows a thumbnail (your photo if you took one, otherwise the catalog image), the bird's name, location (if recorded), a note preview, and seen/heard/photographed icons — multiple can apply at once. A small gold star icon marks the observation that was your very first sighting of that species, ever (based on the earliest observation date, not when you added the bird to your collection). Tap an entry to open its bird detail page. Edit and delete actions work the same as before. Long months load older entries incrementally as you scroll.
+
+### Monthly highlights sidebar
+
+- **New to your collection** — a horizontally scrollable row of compact cards for species whose first-ever sighting falls in the selected month, with the date.
+- **Best of [Month]** — a large featured photo card with the month's species/observation counts overlaid. Tap the photo to choose or change which of that month's photos is featured — your choice is remembered. A share icon lets you share the month (image export isn't available yet).
+
+On mobile, sections stack vertically with the timeline appearing before the featured-photo section, so you don't have to scroll past extra content to see your sightings. The date column next to each day's entries is hidden on small screens — the day and date are shown inline with the weekday instead.
+
+If a month has no observations, you'll see an empty state with a shortcut to add one — you can log a sighting for any past date, not just today.
 
 ---
 

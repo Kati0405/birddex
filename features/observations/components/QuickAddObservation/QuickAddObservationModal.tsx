@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { Bird, Search, X } from 'lucide-react';
 import { RARITY_COLOR } from '@/entities/bird-domain';
 import { getBirdsForSearch, type BirdSearchResult } from '@/features/birds/actions/bird-search';
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function QuickAddObservationModal({ savedLocations = [], initialLocation, onClose }: Props) {
+  const router = useRouter();
   const [birds, setBirds] = useState<BirdSearchResult[]>([]);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<BirdSearchResult | null>(null);
@@ -73,7 +75,10 @@ export default function QuickAddObservationModal({ savedLocations = [], initialL
         savedLocations={locSavedLocations}
         initialSelectedLocationId={initialLocation?.savedLocationId}
         onClose={onClose}
-        onSaved={() => onClose()}
+        onSaved={() => {
+          router.refresh();
+          onClose();
+        }}
       />
     );
   }
