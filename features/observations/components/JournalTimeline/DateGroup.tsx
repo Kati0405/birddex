@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import { Pencil, Trash2 } from 'lucide-react';
 import ObservationRow from '@/features/observations/components/ObservationRow/ObservationRow';
+import ShareObservationButton from '@/features/observations/components/ShareObservationButton/ShareObservationButton';
+import { RARITY_COLOR, type Rarity } from '@/entities/bird-domain';
 import type { JournalObservation } from '@/features/observations/journal-queries';
 
 interface Props {
@@ -38,6 +40,12 @@ export default function DateGroup({ date, observations, onEdit, onDelete }: Prop
                 observation={o}
                 actions={
                   <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity'>
+                    <ShareObservationButton
+                      observationId={o.id}
+                      birdName={o.birdName}
+                      frameColor={RARITY_COLOR[o.birdRarity as Rarity] ?? RARITY_COLOR.Common}
+                      className='flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors'
+                    />
                     <button
                       type='button'
                       onClick={() => onEdit(o)}

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import LocationMapModal from '@/features/observations/components/LocationMapPopover/LocationMapPopover';
 import ObservationQualityStars from '@/features/observations/components/ObservationQualityStars/ObservationQualityStars';
+import ShareObservationButton from '@/features/observations/components/ShareObservationButton/ShareObservationButton';
 import {
   isCloudinaryUrl,
   cloudinaryPublicId,
@@ -557,8 +558,21 @@ export default function BirdCardBackObservation({
               )}
             </div>
 
-            {/* Edit / Delete */}
+            {/* Share / Edit / Delete */}
             <div className='flex items-center justify-end gap-2 sm:gap-1.5 shrink-0 mt-1.5 sm:mt-1'>
+              <ShareObservationButton
+                observationId={obs.id}
+                birdName={bird.name_eng}
+                frameColor={frameColor}
+                className='flex items-center justify-center w-9 h-9 sm:w-5 sm:h-5 rounded-md transition-colors text-muted-foreground/60 hover:text-[var(--share-color)] hover:bg-[var(--share-bg)]'
+                iconClassName='h-4 w-4 sm:h-2.5 sm:w-2.5'
+                style={
+                  {
+                    '--share-color': `${frameColor}dd`,
+                    '--share-bg': `${frameColor}12`,
+                  } as React.CSSProperties
+                }
+              />
               <button
                 type='button'
                 onClick={openEdit}

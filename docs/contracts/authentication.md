@@ -106,6 +106,7 @@ Users can set an optional `nickname` on their own `profiles` row (`features/prof
 - Nullable — `null` means "use my real name". Managed at `/account` via `NicknameForm`.
 - The existing "Own profile update" RLS policy already permits users to change any column except `role` (it re-checks `role` is unchanged), so no policy change was needed to allow self-service nickname edits.
 - Resolve a user's display name with `getDisplayName(user, nickname)` in `features/profile/profile-queries.ts` — never read `user_metadata.full_name` directly in new UI.
+- Public observation shares (`docs/specs/observation-sharing.md`) also use nickname as the only permitted photo/observer credit shown to anonymous visitors. That surface is public, so it must **not** use `getDisplayName`'s fallback chain (which falls back to `user_metadata.full_name`/email) — it reads `profiles.nickname` directly and shows nothing if the user hasn't set one.
 
 ## Promoting a User to Admin
 

@@ -32,6 +32,17 @@ Not all birds.in.ua data is user-owned.
 
 Use the database model and the relevant feature documentation to determine whether data is global or user-owned.
 
+### Exception: public observation shares
+
+`features/observations/public-share-queries.ts::getPublicObservationShareData(shareSlug)` is the **one deliberate exception** to "user-owned data must be scoped by the currently authenticated user." It reads an observation on behalf of an anonymous visitor who holds an unlisted share link (`/share/observation/[shareSlug]`), so there is no `requireAuth()` user to scope by.
+
+Rules specific to this function, on top of everything above:
+
+- It uses `supabaseAdmin` (service-role, bypasses RLS) rather than the cookie-bound server client — this is intentional, not a missing-RLS-policy workaround. `observations` deliberately has **no** anonymous-read RLS policy (adding one would let any anonymous client enumerate every shared observation via the Supabase REST API, not just the one a visitor has a link to).
+- It selects an explicit, narrow column list and returns only the `ObservationShareData` DTO — never the raw row, never `notes`, never `lat`/`lng`, never a raw `user_id`.
+- It is called only from the public share page and its two `ImageResponse` routes (`app/share/observation/[shareSlug]/`) — never from a Client Component, never exposed as a Server Action.
+- See `docs/specs/observation-sharing.md` for the full design rationale, including why `observations.location_name` is never read here.
+
 ## Pattern to Follow
 
 ```ts

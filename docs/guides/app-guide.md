@@ -125,7 +125,28 @@ The observation form lets you record:
 5. **Notes** — free-text field for what happened (handwriting-style font, up to 2000 characters)
 6. **Photo** — appears when "Photographed" is toggled on; upload a photo of your sighting (auto-resized for you)
 
-Tap **Save** to record the observation. You can edit or delete observations later from the card's back side.
+Tap **Save** to record the observation. You can edit, delete, or share observations later from the card's back side (flip a bird you've observed) or from the My Journal timeline.
+
+---
+
+## Sharing an Observation
+
+Any logged observation can be shared with a **Share** icon, found next to Edit and Delete on the bird card's observation back side and in the My Journal timeline (hover or tap an entry to reveal it).
+
+Tapping Share:
+
+1. Generates a private, unguessable link the first time you share that particular observation — sharing it again later reuses the same link.
+2. Prepares a shareable image (bird photo, common and scientific name, date, approximate location, rarity, a "First time" badge if it was your first-ever sighting of that species, and photo credit).
+3. On phones and other devices that support it, opens your device's native share sheet with the image and link ready to send.
+4. If native sharing isn't available, offers **Copy link** and **Download image** instead.
+
+The shared page and image only ever show what's meant to be public:
+
+- Bird photo, common and scientific name, date, rarity, and a city/region-level location (never your exact coordinates or a saved location's private name)
+- Your nickname as photo credit, if you've set one — otherwise no personal name is shown
+- No notes, and no other private details from your journal
+
+The shared page always reflects the observation's current state — if you later change the photo or date, the shared link updates too. If you delete the observation, the shared link stops working. There's currently no way to "unshare" a link on its own while keeping the observation.
 
 ---
 
@@ -151,12 +172,12 @@ A compact row shows, for the selected month:
 
 ### Timeline
 
-The "[Month] encounters" list groups your observations by date, newest first. Each date shows the day, weekday, and how many species you saw that day. Each entry shows a thumbnail (your photo if you took one, otherwise the catalog image), the bird's name, location (if recorded), a note preview, and seen/heard/photographed icons — multiple can apply at once. A small gold star icon marks the observation that was your very first sighting of that species, ever (based on the earliest observation date, not when you added the bird to your collection). Tap an entry to open its bird detail page. Edit and delete actions work the same as before. Long months load older entries incrementally as you scroll.
+The "[Month] encounters" list groups your observations by date, newest first. Each date shows the day, weekday, and how many species you saw that day. Each entry shows a thumbnail (your photo if you took one, otherwise the catalog image), the bird's name, location (if recorded), a note preview, and seen/heard/photographed icons — multiple can apply at once. A small gold star icon marks the observation that first added that species to your collection — this is fixed at the moment you first log a species and never moves, even if you later add an older, backdated sighting of the same bird. Hovering (or focusing, on touch) an entry reveals **Share**, **Edit**, and **Delete** icons. Tap an entry to open its bird detail page. Long months load older entries incrementally as you scroll.
 
 ### Monthly highlights sidebar
 
 - **New to your collection** — a horizontally scrollable row of compact cards for species whose first-ever sighting falls in the selected month, with the date.
-- **Best of [Month]** — a large featured photo card with the month's species/observation counts overlaid. Tap the photo to choose or change which of that month's photos is featured — your choice is remembered. A share icon lets you share the month (image export isn't available yet).
+- **Best of [Month]** — a large featured photo card with the month's species/observation counts overlaid. Tap the photo to choose or change which of that month's photos is featured — your choice is remembered. A share icon on this card is a separate, not-yet-available feature for sharing the whole month (distinct from sharing a single observation, described above).
 
 On mobile, sections stack vertically with the timeline appearing before the featured-photo section, so you don't have to scroll past extra content to see your sightings. The date column next to each day's entries is hidden on small screens — the day and date are shown inline with the weekday instead.
 

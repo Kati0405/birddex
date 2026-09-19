@@ -15,7 +15,6 @@ import {
   parseMonthKey,
   currentMonthKey,
   clampToCurrentMonth,
-  getFirstEncounterObservationIds,
   getJournalPhotoOptions,
   type JournalMonthData,
   type JournalObservation,
@@ -71,58 +70,6 @@ describe('clampToCurrentMonth', () => {
 
   it('clamps a future year to the current month', () => {
     expect(clampToCurrentMonth({ year: 2027, month: 1 })).toEqual(currentMonthKey());
-  });
-});
-
-describe('getFirstEncounterObservationIds', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  function mockObservationRows(rows: { id: string; bird_id: number; observed_at: string }[]) {
-    from.mockReturnValue({
-      select: () => ({
-        eq: () => ({
-          order: () => ({
-            order: () => ({
-              order: () => Promise.resolve({ data: rows, error: null }),
-            }),
-          }),
-        }),
-      }),
-    });
-  }
-
-  it('picks the earliest observed_at per species', async () => {
-    mockObservationRows([
-      { id: 'a', bird_id: 1, observed_at: '2026-01-05T00:00:00Z' },
-      { id: 'b', bird_id: 1, observed_at: '2026-01-01T00:00:00Z' },
-      { id: 'c', bird_id: 2, observed_at: '2026-02-01T00:00:00Z' },
-    ]);
-
-    const ids = await getFirstEncounterObservationIds('user-1');
-
-    expect(ids).toEqual(new Set(['b', 'c']));
-  });
-
-  it('breaks ties on the same date by the lowest observation id, deterministically', async () => {
-    mockObservationRows([
-      { id: 'zzzz', bird_id: 1, observed_at: '2026-01-01T00:00:00Z' },
-      { id: 'aaaa', bird_id: 1, observed_at: '2026-01-01T00:00:00Z' },
-      { id: 'mmmm', bird_id: 1, observed_at: '2026-01-01T00:00:00Z' },
-    ]);
-
-    const ids = await getFirstEncounterObservationIds('user-1');
-
-    expect(ids).toEqual(new Set(['aaaa']));
-  });
-
-  it('returns an empty set when there are no observations', async () => {
-    mockObservationRows([]);
-
-    const ids = await getFirstEncounterObservationIds('user-1');
-
-    expect(ids.size).toBe(0);
   });
 });
 

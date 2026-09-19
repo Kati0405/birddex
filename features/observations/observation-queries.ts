@@ -23,23 +23,57 @@ export interface ObservationData {
 export async function addObservation(data: ObservationData): Promise<void> {
   const user = await requireAuth();
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from('observations').insert({
-    user_id: user.id,
-    bird_id: data.birdId,
-    observed_at: data.observedAt.toISOString(),
-    lat: data.lat,
-    lng: data.lng,
-    location_name: data.locationName,
-    seen: data.seen,
-    heard: data.heard,
-    photographed: data.photographed,
-    quality: data.quality,
-    notes: data.notes,
-    photo_url: data.photoUrl,
-    cloudinary_public_id: data.photoPublicId,
-    cloudinary_resource_type: data.photoResourceType,
-  });
+  const { data: inserted, error } = await supabase
+    .from('observations')
+    .insert({
+      user_id: user.id,
+      bird_id: data.birdId,
+      observed_at: data.observedAt.toISOString(),
+      lat: data.lat,
+      lng: data.lng,
+      location_name: data.locationName,
+      seen: data.seen,
+      heard: data.heard,
+      photographed: data.photographed,
+      quality: data.quality,
+      notes: data.notes,
+      photo_url: data.photoUrl,
+      cloudinary_public_id: data.photoPublicId,
+      cloudinary_resource_type: data.photoResourceType,
+    })
+    .select('id')
+    .single();
   if (error) throw new Error(`addObservation: ${error.message}`);
+
+  await recordFirstObservationIfNeeded(supabase, user.id, data.birdId, (inserted as { id: string }).id);
+}
+
+/**
+ * Marks this observation as the species' first-ever if the user has never
+ * collected it before. Set once, at insert time — never recalculated from
+ * observed_at, so backdating an earlier sighting later can't move it, and
+ * deleting the referenced observation just clears the pointer (ON DELETE SET
+ * NULL) rather than promoting a different observation to "first."
+ */
+async function recordFirstObservationIfNeeded(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
+  birdId: number,
+  observationId: string,
+): Promise<void> {
+  const { data: existing } = await supabase
+    .from('collected_birds')
+    .select('bird_id')
+    .eq('user_id', userId)
+    .eq('bird_id', birdId)
+    .maybeSingle();
+
+  if (existing) return;
+
+  const { error } = await supabase
+    .from('collected_birds')
+    .upsert({ user_id: userId, bird_id: birdId, first_observation_id: observationId });
+  if (error) throw new Error(`recordFirstObservationIfNeeded: ${error.message}`);
 }
 
 export interface ObservationOwnerRecord {
@@ -204,6 +238,36 @@ export async function getObservedBirdIds(userId: string): Promise<number[]> {
     .eq('user_id', userId);
   const ids = (data ?? []).map((r) => r.bird_id as number);
   return [...new Set(ids)];
+}
+
+export interface ObservationShareSlugRecord {
+  id: string;
+  shareSlug: string | null;
+}
+
+export async function getObservationShareSlug(id: string, userId: string): Promise<ObservationShareSlugRecord | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('observations')
+    .select('id, share_slug')
+    .eq('id', id)
+    .eq('user_id', userId)
+    .single();
+  if (error || !data) return null;
+  return {
+    id: data.id as string,
+    shareSlug: (data.share_slug as string) ?? null,
+  };
+}
+
+export async function setObservationShareSlug(id: string, userId: string, shareSlug: string): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('observations')
+    .update({ share_slug: shareSlug })
+    .eq('id', id)
+    .eq('user_id', userId);
+  if (error) throw new Error(`setObservationShareSlug(${id}): ${error.message}`);
 }
 
 export async function getObservationCount(userId: string): Promise<number> {

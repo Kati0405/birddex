@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/shared/lib/supabase-server';
 import { requireAuth } from '@/features/auth/auth-helpers';
 import { isCloudinaryUrl, cloudinaryThumbnail } from '@/shared/lib/cloudinary-utils';
 import type { ObservationQuality } from '@/features/observations/observation-queries';
+import { getFirstObservationIds } from '@/features/collection/collection-queries';
 import { monthKeyToString, type MonthKey } from '@/features/observations/journal-month';
 import type { Bird, Biome, Food } from '@/entities/bird-domain';
 
@@ -83,42 +84,6 @@ async function birdInfoByIds(
   return byId;
 }
 
-/**
- * The earliest-dated observation id per species across the user's full history.
- * Ties on the same observed_at date are broken by lowest observation id, so the
- * result is deterministic regardless of query order.
- */
-export async function getFirstEncounterObservationIds(userId: string): Promise<Set<string>> {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from('observations')
-    .select('id, bird_id, observed_at')
-    .eq('user_id', userId)
-    .order('bird_id', { ascending: true })
-    .order('observed_at', { ascending: true })
-    .order('id', { ascending: true });
-  if (error) throw new Error(`getFirstEncounterObservationIds: ${error.message}`);
-
-  const firstByBird = new Map<number, { id: string; observedAt: string }>();
-  for (const row of data ?? []) {
-    const birdId = row.bird_id as number;
-    const existing = firstByBird.get(birdId);
-    const observedAt = row.observed_at as string;
-    const id = row.id as string;
-    if (!existing) {
-      firstByBird.set(birdId, { id, observedAt });
-      continue;
-    }
-    if (
-      observedAt < existing.observedAt ||
-      (observedAt === existing.observedAt && id < existing.id)
-    ) {
-      firstByBird.set(birdId, { id, observedAt });
-    }
-  }
-  return new Set([...firstByBird.values()].map((v) => v.id));
-}
-
 export interface JournalNewSpecies {
   birdId: number;
   birdName: string;
@@ -142,7 +107,7 @@ export async function getJournalMonthData(monthKey: MonthKey): Promise<JournalMo
   const supabase = await createSupabaseServerClient();
   const { start, end } = monthRange(monthKey);
 
-  const [{ data: monthRows, error: monthError }, firstEncounterIds] = await Promise.all([
+  const [{ data: monthRows, error: monthError }, firstObservationIds] = await Promise.all([
     supabase
       .from('observations')
       .select('id, bird_id, observed_at, seen, heard, photographed, quality, notes, photo_url, lat, lng, location_name')
@@ -150,7 +115,7 @@ export async function getJournalMonthData(monthKey: MonthKey): Promise<JournalMo
       .gte('observed_at', start.toISOString())
       .lt('observed_at', end.toISOString())
       .order('observed_at', { ascending: false }),
-    getFirstEncounterObservationIds(user.id),
+    getFirstObservationIds(user.id),
   ]);
   if (monthError) throw new Error(`getJournalMonthData: ${monthError.message}`);
 
@@ -187,7 +152,7 @@ export async function getJournalMonthData(monthKey: MonthKey): Promise<JournalMo
       lat: (row.lat as number) ?? null,
       lng: (row.lng as number) ?? null,
       locationName: (row.location_name as string) ?? null,
-      isFirstEncounter: firstEncounterIds.has(row.id as string),
+      isFirstEncounter: firstObservationIds.has(row.id as string),
     };
   });
 

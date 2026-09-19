@@ -61,3 +61,21 @@ export async function getCollectedBirdIds(userId: string): Promise<number[]> {
     .eq('user_id', userId);
   return (data ?? []).map((row) => row.bird_id as number);
 }
+
+/**
+ * The stable "first observation ever logged" id per species, as recorded at
+ * insert time (see recordFirstObservationIfNeeded in observation-queries.ts).
+ * Unlike a MIN(observed_at) computation, this never moves when an earlier
+ * sighting is backdated later, and disappears (rather than transferring)
+ * when the referenced observation is deleted.
+ */
+export async function getFirstObservationIds(userId: string): Promise<Set<string>> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('collected_birds')
+    .select('first_observation_id')
+    .eq('user_id', userId)
+    .not('first_observation_id', 'is', null);
+  if (error) throw new Error(`getFirstObservationIds: ${error.message}`);
+  return new Set((data ?? []).map((row) => row.first_observation_id as string));
+}
