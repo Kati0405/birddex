@@ -4,16 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/shared/lib/cn';
-import { logoutAction } from '@/app/(auth)/actions';
 import AdminBadge from '@/shared/ui/AdminBadge/AdminBadge';
 
 type Props = {
   isAuthenticated: boolean;
   isAdmin?: boolean;
-  userEmail?: string;
 };
 
-export default function AppHeaderMobile({ isAuthenticated, isAdmin, userEmail }: Props) {
+export default function AppHeaderMobile({ isAuthenticated, isAdmin }: Props) {
   const [open, setOpen] = useState(false);
   const currentPath = usePathname();
 
@@ -41,7 +39,7 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, userEmail }:
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm"
           />
-          <nav className="fixed top-0 right-0 bottom-0 w-[min(280px,80vw)] z-50 bg-card border-l border-border flex flex-col pt-12 px-8 pb-8 gap-1 shadow-2xl">
+          <nav className="fixed top-0 left-0 bottom-0 w-[min(280px,80vw)] z-50 bg-card border-r border-border flex flex-col pt-12 px-8 pb-8 gap-1 shadow-2xl">
             <button
               onClick={() => setOpen(false)}
               className="absolute top-4 right-4 bg-transparent border-0 cursor-pointer text-muted-foreground text-xl leading-none p-1"
@@ -64,25 +62,8 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, userEmail }:
               <MobileNavLink href="/admin/add-bird" label="Add Bird" active={currentPath === '/admin/add-bird'} onClick={() => setOpen(false)} adminBadge />
             )}
 
-            <div className="mt-auto pt-6 border-t border-border">
-              {isAuthenticated ? (
-                <>
-                  {userEmail && (
-                    <div className="font-mono text-[10px] text-muted-foreground mb-3 truncate flex items-center gap-1.5">
-                      <span className="truncate">{userEmail}</span>
-                      {isAdmin && <AdminBadge variant="pill" />}
-                    </div>
-                  )}
-                  <form action={logoutAction}>
-                    <button
-                      type="submit"
-                      className="font-mono text-[10px] tracking-[0.15em] uppercase text-muted-foreground bg-transparent border-0 cursor-pointer p-0 hover:text-foreground transition-colors"
-                    >
-                      Log out
-                    </button>
-                  </form>
-                </>
-              ) : (
+            {!isAuthenticated && (
+              <div className="mt-auto pt-6 border-t border-border">
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
@@ -90,8 +71,8 @@ export default function AppHeaderMobile({ isAuthenticated, isAdmin, userEmail }:
                 >
                   Log in
                 </Link>
-              )}
-            </div>
+              </div>
+            )}
           </nav>
         </>
       )}

@@ -26,7 +26,9 @@ Ask Robin (/ask-robin): this AI chat. Type a question or tap a suggested questio
 
 Observation progress: "X / Y" species observed vs. total catalog is shown in the "Your collection" card on the homepage dashboard.
 
-Logging out: desktop -- "Log out" next to avatar. Mobile -- open menu, tap Log out.
+Setting a nickname (/account, click your name in the header): optional nickname (3-20 letters/numbers/underscores, unique) that replaces your real name wherever your identity is shown (photo authorship, friend lists). Leave blank to keep using your real name.
+
+Logging out: go to /account (click your name in the header, or on mobile open the menu and tap your name), then tap Log out.
 
 Admin: Adding a bird (/admin/add-bird, linked from header with admin badge): type a bird name, tap "Draft with AI" to auto-fill all card fields via AI, review/edit the form, tap Save to create the catalog entry.`;
 

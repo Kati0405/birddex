@@ -247,10 +247,13 @@ When you first open Ask Robin, you'll see starter questions tailored to you:
 
 Your progress — how many species you've observed vs. the total in the catalog — appears in the "Your collection" card on the homepage dashboard.
 
+### Setting a Nickname
+
+Visit **/account** (click your name in the header) to set a nickname. If set, it replaces your real name everywhere your identity is shown — photo authorship, friend lists, etc. Leave it blank to keep showing your real name. Nicknames must be 3-20 characters: letters, numbers, or underscores, and must be unique.
+
 ### Logging Out
 
-On desktop: tap **Log out** next to your avatar in the header.
-On mobile: open the menu and tap Log out.
+Go to **/account** (click your name in the header, or on mobile open the menu and tap your name) and tap **Log out**.
 
 ---
 

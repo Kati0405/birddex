@@ -14,7 +14,7 @@ export default function AppHeaderNav({ isAuthenticated, isAdmin }: Props) {
   const pathname = usePathname();
 
   return (
-    <nav className='hidden sm:flex items-center gap-1 flex-1'>
+    <nav className='hidden md:flex items-center gap-1 flex-1'>
       <NavLink
         href='/birds'
         label='Birds'

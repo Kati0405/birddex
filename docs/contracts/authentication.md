@@ -25,8 +25,18 @@ Run these migrations in the Supabase SQL Editor before the app works end-to-end.
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   role text not null default 'user' check (role in ('admin', 'user')),
+  nickname text,
   created_at timestamptz not null default now()
 );
+
+alter table public.profiles
+  add constraint profiles_nickname_format check (
+    nickname is null or nickname ~ '^[a-zA-Z0-9_]{3,20}$'
+  );
+
+create unique index profiles_nickname_lower_key
+  on public.profiles (lower(nickname))
+  where nickname is not null;
 
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer as $$
@@ -86,6 +96,16 @@ on conflict (id) do nothing;
 ```
 
 ---
+
+## Nicknames
+
+Users can set an optional `nickname` on their own `profiles` row (`features/profile/`). When set, it replaces their real name (from Google `user_metadata.full_name`) everywhere a user's identity is displayed — currently the header user menu; future friend-list/photo-authorship UI should resolve display names the same way.
+
+- 3-20 chars, letters/numbers/underscore only (`profiles_nickname_format` check), enforced with Zod in `setNicknameAction` and again at the DB level.
+- Case-insensitively unique (`profiles_nickname_lower_key` partial unique index on `lower(nickname)`).
+- Nullable — `null` means "use my real name". Managed at `/account` via `NicknameForm`.
+- The existing "Own profile update" RLS policy already permits users to change any column except `role` (it re-checks `role` is unchanged), so no policy change was needed to allow self-service nickname edits.
+- Resolve a user's display name with `getDisplayName(user, nickname)` in `features/profile/profile-queries.ts` — never read `user_metadata.full_name` directly in new UI.
 
 ## Promoting a User to Admin
 

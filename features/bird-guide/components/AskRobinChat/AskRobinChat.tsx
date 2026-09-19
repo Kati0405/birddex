@@ -26,7 +26,7 @@ export default function AskRobinChat() {
   const modal = open ? (
     <div className="fixed inset-0 z-50" onClick={() => setOpen(false)}>
       <div
-        className="absolute bottom-24 right-6 w-[380px] max-h-[560px] flex flex-col rounded-2xl border border-border bg-background shadow-2xl overflow-hidden"
+        className="absolute bottom-24 right-4 sm:right-[clamp(1rem,4vw,3rem)] w-[380px] max-w-[calc(100vw-2rem)] max-h-[560px] flex flex-col rounded-2xl border border-border bg-background shadow-2xl overflow-hidden"
         style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.18)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -93,7 +93,7 @@ export default function AskRobinChat() {
     <>
       <button
         onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+        className="fixed bottom-6 right-4 sm:right-[clamp(1rem,4vw,3rem)] z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
         aria-label="Open Ask Robin"
       >
         <Bird size={24} className="-scale-x-100" />

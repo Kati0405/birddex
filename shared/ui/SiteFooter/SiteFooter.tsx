@@ -27,7 +27,7 @@ export default async function SiteFooter() {
 
   return (
     <footer className='bg-card border-t border-border'>
-      <div className='max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)] py-5 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-8'>
+      <div className='max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)] py-5 flex flex-col lg:flex-row flex-wrap items-center justify-center lg:justify-between gap-5 lg:gap-8'>
         <Link
           href='/'
           aria-label='birds.in.ua'
@@ -50,7 +50,7 @@ export default async function SiteFooter() {
 
         <nav
           aria-label='Footer'
-          className='flex items-center gap-6 font-mono text-xs uppercase tracking-[0.1em]'
+          className='flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-mono text-xs uppercase tracking-[0.1em]'
         >
           <FooterLink href='/birds' label='Birds' />
           <FooterLink href='/ask-robin' label='Ask Robin' />
@@ -62,7 +62,7 @@ export default async function SiteFooter() {
           )}
         </nav>
 
-        <div className='flex items-center gap-5 shrink-0'>
+        <div className='flex flex-wrap items-center justify-center gap-x-5 gap-y-2'>
           <div className='flex items-center gap-4'>
             {SOCIAL_LINKS.map(({ href, label, src }) => (
               <a
@@ -78,7 +78,7 @@ export default async function SiteFooter() {
             ))}
           </div>
           <span className='hidden md:block w-px h-8 bg-border shrink-0' />
-          <p className='font-mono text-[11px] text-muted-foreground tracking-[0.05em] whitespace-nowrap'>
+          <p className='font-mono text-[11px] text-muted-foreground tracking-[0.05em] text-center'>
             {`© ${new Date().getFullYear()} birds.in.ua`}&nbsp;&nbsp; All rights
             reserved.
           </p>
