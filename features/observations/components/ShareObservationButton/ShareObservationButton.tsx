@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Share2, Check, Link as LinkIcon, Download, Loader2 } from 'lucide-react';
 import { createObservationShareLinkAction } from '@/features/observations/actions/share-mutations';
 
@@ -40,6 +41,30 @@ export default function ShareObservationButton({
   iconClassName = 'h-3.5 w-3.5',
 }: ShareObservationButtonProps) {
   const [state, setState] = useState<ShareState>({ status: 'idle' });
+  const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const popoverOpen = state.status === 'error' || state.status === 'fallback' || state.status === 'copied';
+
+  function openPopoverAt(next: ShareState) {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPopoverPos({ top: rect.bottom + window.scrollY + 4, left: rect.right + window.scrollX });
+    }
+    setState(next);
+  }
+
+  useEffect(() => {
+    if (!popoverOpen) return;
+    function handlePointerDown(e: PointerEvent) {
+      const target = e.target as Node;
+      if (buttonRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      setState({ status: 'idle' });
+    }
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [popoverOpen]);
 
   async function handleShare(e: React.MouseEvent) {
     e.stopPropagation();
@@ -47,7 +72,7 @@ export default function ShareObservationButton({
 
     const result = await createObservationShareLinkAction({ observationId });
     if ('error' in result) {
-      setState({ status: 'error', message: result.error });
+      openPopoverAt({ status: 'error', message: result.error });
       return;
     }
 
@@ -59,7 +84,7 @@ export default function ShareObservationButton({
       if (!res.ok) throw new Error('Failed to generate share image');
       imageBlob = await res.blob();
     } catch {
-      setState({ status: 'error', message: 'Could not generate the share image. You can still copy the link.' });
+      openPopoverAt({ status: 'error', message: 'Could not generate the share image. You can still copy the link.' });
       return;
     }
 
@@ -74,18 +99,18 @@ export default function ShareObservationButton({
         if (err instanceof DOMException && err.name === 'AbortError') {
           setState({ status: 'idle' });
         } else {
-          setState({ status: 'fallback', shareUrl, imageBlob });
+          openPopoverAt({ status: 'fallback', shareUrl, imageBlob });
         }
       }
       return;
     }
 
-    setState({ status: 'fallback', shareUrl, imageBlob });
+    openPopoverAt({ status: 'fallback', shareUrl, imageBlob });
   }
 
   async function copyLink(shareUrl: string, imageBlob: Blob) {
     await navigator.clipboard.writeText(shareUrl);
-    setState({ status: 'copied', shareUrl, imageBlob });
+    openPopoverAt({ status: 'copied', shareUrl, imageBlob });
   }
 
   function downloadImage(imageBlob: Blob) {
@@ -98,8 +123,9 @@ export default function ShareObservationButton({
   }
 
   return (
-    <div className='relative inline-flex'>
+    <>
       <button
+        ref={buttonRef}
         type='button'
         onClick={handleShare}
         disabled={state.status === 'loading'}
@@ -115,39 +141,47 @@ export default function ShareObservationButton({
         )}
       </button>
 
-      {state.status === 'error' && (
+      {popoverOpen && popoverPos && createPortal(
         <div
-          role='alert'
-          className='absolute top-full right-0 mt-1 z-10 w-48 rounded-md px-2.5 py-2 text-[10px] font-mono bg-destructive/10 border border-destructive/30 text-destructive'
+          ref={panelRef}
+          className='fixed z-[200]'
+          style={{ top: popoverPos.top, left: popoverPos.left, transform: 'translateX(-100%)' }}
+          onClick={(e) => e.stopPropagation()}
         >
-          {state.message}
-        </div>
-      )}
+          {state.status === 'error' && (
+            <div
+              role='alert'
+              className='w-48 rounded-md px-2.5 py-2 text-[10px] font-mono bg-destructive/10 border border-destructive/30 text-destructive shadow-md'
+            >
+              {state.message}
+            </div>
+          )}
 
-      {(state.status === 'fallback' || state.status === 'copied') && (
-        <div
-          className='absolute top-full right-0 mt-1 z-10 flex flex-col gap-1 rounded-md p-1.5 bg-card border border-border shadow-md'
-        >
-          <button
-            type='button'
-            onClick={(e) => { e.stopPropagation(); copyLink(state.shareUrl, state.imageBlob); }}
-            className='flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap hover:bg-muted/50 transition-colors'
-            style={{ color: frameColor }}
-          >
-            {state.status === 'copied' ? <Check className='h-3 w-3' /> : <LinkIcon className='h-3 w-3' />}
-            {state.status === 'copied' ? 'Copied!' : 'Copy link'}
-          </button>
-          <button
-            type='button'
-            onClick={(e) => { e.stopPropagation(); downloadImage(state.imageBlob); }}
-            className='flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap hover:bg-muted/50 transition-colors'
-            style={{ color: frameColor }}
-          >
-            <Download className='h-3 w-3' />
-            Download image
-          </button>
-        </div>
+          {(state.status === 'fallback' || state.status === 'copied') && (
+            <div className='flex flex-col gap-1 rounded-md p-1.5 bg-card border border-border shadow-md'>
+              <button
+                type='button'
+                onClick={() => copyLink(state.shareUrl, state.imageBlob)}
+                className='flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap hover:bg-muted/50 transition-colors'
+                style={{ color: frameColor }}
+              >
+                {state.status === 'copied' ? <Check className='h-3 w-3' /> : <LinkIcon className='h-3 w-3' />}
+                {state.status === 'copied' ? 'Copied!' : 'Copy link'}
+              </button>
+              <button
+                type='button'
+                onClick={() => downloadImage(state.imageBlob)}
+                className='flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap hover:bg-muted/50 transition-colors'
+                style={{ color: frameColor }}
+              >
+                <Download className='h-3 w-3' />
+                Download image
+              </button>
+            </div>
+          )}
+        </div>,
+        document.body,
       )}
-    </div>
+    </>
   );
 }
