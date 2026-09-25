@@ -4,6 +4,7 @@ import BirdSearch from '@/features/birds/components/BirdSearch/BirdSearch';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
 import { getObservedBirdIds, getCollectionCardDataByBirdIds } from '@/features/observations/observation-queries';
 import { getSavedLocations } from '@/features/locations/location-queries';
+import PageBackdrop from '@/shared/ui/PageBackdrop';
 
 export const metadata: Metadata = {
   title: 'birds.in.ua — Birds',
@@ -21,7 +22,7 @@ export default async function BirdsPage() {
     : {};
 
   return (
-    <main className="min-h-screen" style={{ background: 'var(--background)' }}>
+    <PageBackdrop>
       <BirdSearch
         birds={birds}
         isAdmin={role === 'admin'}
@@ -30,6 +31,6 @@ export default async function BirdsPage() {
         savedLocations={savedLocations}
         collectionDataByBirdId={collectionDataByBirdId}
       />
-    </main>
+    </PageBackdrop>
   );
 }

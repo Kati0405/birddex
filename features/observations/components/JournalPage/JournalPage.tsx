@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import JournalHeader from '@/features/observations/components/JournalHeader/JournalHeader';
 import MonthNav from '@/features/observations/components/MonthNav/MonthNav';
 import JournalStats from '@/features/observations/components/JournalStats/JournalStats';
@@ -8,6 +7,7 @@ import MonthPhotoHighlight from '@/features/observations/components/JournalSideb
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { JournalMonthData, JournalPhotoOption, JournalPhotoOfMonth } from '@/features/observations/journal-queries';
 import { monthKeyToString, MONTH_NAMES, type MonthKey } from '@/features/observations/journal-month';
+import PageBackdrop from '@/shared/ui/PageBackdrop';
 
 interface Props {
   monthKey: MonthKey;
@@ -21,17 +21,8 @@ export default function JournalPage({ monthKey, savedLocations, data, photoOfMon
   const monthLabel = MONTH_NAMES[monthKey.month - 1];
 
   return (
-    <main className='relative min-h-screen bg-card overflow-hidden'>
-      <Image
-        src='/hero/background_lower.png'
-        alt=''
-        width={1916}
-        height={380}
-        className='absolute inset-x-0 bottom-0 w-full h-auto object-cover pointer-events-none select-none'
-        aria-hidden='true'
-      />
-
-      <div className='relative max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)] py-6 flex flex-col gap-5'>
+    <PageBackdrop showUpper={false}>
+      <div className='max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)] py-6 flex flex-col gap-5'>
         <JournalHeader savedLocations={savedLocations} />
         <MonthNav selected={monthKey} />
         <JournalStats stats={data.stats} />
@@ -64,6 +55,6 @@ export default function JournalPage({ monthKey, savedLocations, data, photoOfMon
           </div>
         </div>
       </div>
-    </main>
+    </PageBackdrop>
   );
 }

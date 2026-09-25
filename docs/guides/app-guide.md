@@ -89,7 +89,7 @@ The catalog loads 20 birds at a time. Scroll down and more birds load automatica
 
 ## Bird Detail Page
 
-Tap any bird card to open its full detail page (`/birds/[id]`). Here you'll see:
+Tap any bird card to open its full detail page (`/birds/[id]`). A **Back to catalog** link sits above the card so you can return to where you came from. Here you'll see:
 
 - **Large photo** of the bird
 - **Name** (English and Latin) and **rarity** badge
@@ -111,6 +111,7 @@ If you're signed in, you'll see a **"+ Collect"** button at the bottom of the de
 
 Observations are how you record when and where you spotted a bird. You can log an observation from:
 
+- The **floating binoculars button** in the bottom-right corner, available on any page when signed in — opens a bird search so you can log a sighting from anywhere
 - The **binoculars icon** on any bird card in the catalog
 - The detail page of a bird
 

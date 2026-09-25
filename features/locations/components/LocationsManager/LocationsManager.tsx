@@ -7,6 +7,7 @@ import { Trash2, MapPin, Plus, ChevronUp, MapPinned, Images, X, Eye, Pencil } fr
 import { Button } from '@/shared/ui/primitives/button';
 import ConfirmDeleteModal from '@/shared/ui/ConfirmDeleteModal/ConfirmDeleteModal';
 import HexIcon from '@/shared/ui/HexIcon/HexIcon';
+import PageHero from '@/shared/ui/PageHero';
 import {
   saveLocationAction,
   deleteLocationAction,
@@ -285,35 +286,35 @@ export default function LocationsManager({ initial, stats }: Props) {
 
   return (
     <div className='flex flex-col gap-6'>
-      {/* Header */}
-      <div className='flex items-start justify-between gap-4'>
-        <div>
-          <h1 className='text-xl font-semibold font-heading text-foreground'>My Locations</h1>
-          <p className='text-xs mt-1 text-muted-foreground'>
-            Save your usual birdwatching spots and reuse them when logging observations.
-          </p>
-        </div>
-        {locations.length > 0 && (
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => setFormOpen((o) => !o)}
-            className='shrink-0'
-          >
-            {formOpen ? (
-              <>
-                <ChevronUp className='h-3.5 w-3.5' />
-                <span className='hidden sm:inline'>Close</span>
-              </>
-            ) : (
-              <>
-                <Plus className='h-3.5 w-3.5' />
-                <span className='hidden sm:inline'>Add location</span>
-              </>
-            )}
-          </Button>
-        )}
-      </div>
+      <PageHero
+        title='My locations'
+        subtitle='Your usual birdwatching spots.'
+        tagline='Save a place, log it faster'
+        bgImage='/hero/black_stork_watercolor.png'
+        birdImage=''
+        textAlign='center'
+        action={
+          locations.length > 0 && (
+            <button
+              type='button'
+              onClick={() => setFormOpen((o) => !o)}
+              className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer'
+            >
+              {formOpen ? (
+                <>
+                  <ChevronUp className='h-3.5 w-3.5' />
+                  Close
+                </>
+              ) : (
+                <>
+                  <Plus className='h-3.5 w-3.5' />
+                  Add location
+                </>
+              )}
+            </button>
+          )
+        }
+      />
 
       {/* Add location form */}
       {formOpen && (

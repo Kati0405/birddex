@@ -22,9 +22,8 @@ export default function AskRobinFull({ userContext }: Props) {
     <div className="flex flex-col flex-1 min-h-0 max-w-2xl mx-auto w-full px-4">
       <div className="py-6 shrink-0 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Ask Robin</h1>
           {userContext && (
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground">
               Answering based on your {userContext.observedCount} observed species.
             </p>
           )}
@@ -62,7 +61,7 @@ export default function AskRobinFull({ userContext }: Props) {
         {error && <p className="text-xs text-destructive text-center">{error}</p>}
       </div>
 
-      <div className="shrink-0 border-t border-border">
+      <div className="shrink-0">
         <AskRobinChatInput
           value={input}
           onChange={setInput}

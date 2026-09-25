@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import type { Bird } from '@/entities/bird-domain';
 import type { SavedLocation } from '@/features/locations/location-queries';
 import type { UserObservation } from '@/features/observations/observation-queries';
@@ -8,6 +7,7 @@ import BirdSpotlight from '@/features/dashboard/components/BirdSpotlight/BirdSpo
 import ContinueCollection from '@/features/dashboard/components/ContinueCollection/ContinueCollection';
 import RecentObservations from '@/features/dashboard/components/RecentObservations/RecentObservations';
 import AskRobinPromo from '@/features/dashboard/components/AskRobinPromo/AskRobinPromo';
+import PageBackdrop from '@/shared/ui/PageBackdrop';
 
 interface Props {
   userName: string;
@@ -41,25 +41,8 @@ export default function DashboardPage({
   recentObservations,
 }: Props) {
   return (
-    <main className='relative min-h-screen bg-card overflow-hidden'>
-      <Image
-        src='/hero/background_upper.png'
-        alt=''
-        width={1916}
-        height={411}
-        className='absolute inset-x-0 top-0 w-full h-auto object-cover pointer-events-none select-none'
-        aria-hidden='true'
-      />
-      <Image
-        src='/hero/background_lower.png'
-        alt=''
-        width={1916}
-        height={380}
-        className='absolute inset-x-0 bottom-0 w-full h-auto object-cover pointer-events-none select-none'
-        aria-hidden='true'
-      />
-
-      <div className='relative max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)] py-8 sm:py-10 flex flex-col gap-8 sm:gap-10'>
+    <PageBackdrop>
+      <div className='max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)] py-8 sm:py-10 flex flex-col gap-8 sm:gap-10'>
         <div className='flex flex-col gap-6 sm:gap-8'>
           <DashboardGreeting name={userName} savedLocations={savedLocations} />
 
@@ -95,6 +78,6 @@ export default function DashboardPage({
           <AskRobinPromo />
         </div>
       </div>
-    </main>
+    </PageBackdrop>
   );
 }

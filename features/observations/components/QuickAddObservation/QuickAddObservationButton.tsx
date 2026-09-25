@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Binoculars } from 'lucide-react';
 import QuickAddObservationModal from './QuickAddObservationModal';
 import type { SavedLocation } from '@/features/locations/location-queries';
 
@@ -15,12 +15,34 @@ interface InitialLocation {
 interface Props {
   savedLocations?: SavedLocation[];
   initialLocation?: InitialLocation;
-  variant?: 'header' | 'inline';
+  variant?: 'header' | 'inline' | 'floating';
   className?: string;
 }
 
 export default function QuickAddObservationButton({ savedLocations = [], initialLocation, variant = 'header', className = '' }: Props) {
   const [open, setOpen] = useState(false);
+
+  if (variant === 'floating') {
+    return (
+      <>
+        <button
+          type='button'
+          onClick={() => setOpen(true)}
+          className='fixed bottom-6 right-4 sm:right-[clamp(1rem,4vw,3rem)] z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform'
+          aria-label='Add observation'
+        >
+          <Binoculars size={24} />
+        </button>
+        {open && (
+          <QuickAddObservationModal
+            savedLocations={savedLocations}
+            initialLocation={initialLocation}
+            onClose={() => setOpen(false)}
+          />
+        )}
+      </>
+    );
+  }
 
   if (variant === 'inline') {
     return (

@@ -19,7 +19,7 @@ export default function ObservationStatusSwitcher({ value, onChange, className }
     <div
       role='radiogroup'
       aria-label='Collection status'
-      className={cn('inline-flex rounded-full border border-border bg-secondary/60 p-0.5 shrink-0', className)}
+      className={cn('inline-flex h-10 items-center rounded-lg border border-border bg-secondary/60 p-1 shrink-0', className)}
     >
       {OPTIONS.map((opt) => (
         <button
@@ -29,7 +29,7 @@ export default function ObservationStatusSwitcher({ value, onChange, className }
           aria-checked={value === opt.value}
           onClick={() => onChange(opt.value)}
           className={cn(
-            'rounded-full px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap',
+            'rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap',
             value === opt.value
               ? 'bg-primary text-primary-foreground shadow-sm'
               : 'text-muted-foreground hover:text-foreground',

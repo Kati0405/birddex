@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { getBirdById } from '@/features/birds/bird-queries';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
 import { getObservedBirdIds, getCollectionCardDataByBirdIds } from '@/features/observations/observation-queries';
 import { getSavedLocations } from '@/features/locations/location-queries';
 import BirdCard from '@/features/birds/components/BirdCard/BirdCard';
+import BackLink from '@/shared/ui/BackLink';
+import PageBackdrop from '@/shared/ui/PageBackdrop';
 
 export async function generateMetadata({
   params,
@@ -49,8 +50,9 @@ export default async function BirdPage({
     : undefined;
 
   return (
-    <main className='min-h-screen bg-background px-4 py-12 sm:px-8'>
+    <PageBackdrop className='px-4 py-12 sm:px-8'>
       <div className='mx-auto max-w-sm'>
+        <BackLink fallbackHref='/birds' label='Back to catalog' className='mb-4' />
         <div className='aspect-[3/4]'>
           <BirdCard
             bird={bird}
@@ -64,6 +66,6 @@ export default async function BirdPage({
           />
         </div>
       </div>
-    </main>
+    </PageBackdrop>
   );
 }

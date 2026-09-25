@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Playfair_Display, DM_Mono, Lato, Caveat } from 'next/font/google';
 import AppHeader from '@/features/auth/components/AppHeader/AppHeader';
-import AskRobinChat from '@/features/bird-guide/components/AskRobinChat';
 import AskRobinChatProvider from '@/features/bird-guide/components/AskRobinChatProvider/AskRobinChatProvider';
+import QuickAddObservationButton from '@/features/observations/components/QuickAddObservation/QuickAddObservationButton';
 import SiteFooter from '@/shared/ui/SiteFooter';
 import { getUser } from '@/features/auth/auth-helpers';
 import './globals.css';
@@ -53,7 +53,7 @@ export default async function RootLayout({
         <AppHeader />
         <AskRobinChatProvider isAuthenticated={!!user}>
           {children}
-          <AskRobinChat />
+          {user && <QuickAddObservationButton variant='floating' />}
         </AskRobinChatProvider>
         <SiteFooter />
       </body>

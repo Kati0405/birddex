@@ -3,6 +3,7 @@ import { getNickname } from '@/features/profile/profile-queries';
 import NicknameForm from '@/features/profile/components/NicknameForm/NicknameForm';
 import { logoutAction } from '@/app/(auth)/actions';
 import { Button } from '@/shared/ui/primitives/button';
+import PageBackdrop from '@/shared/ui/PageBackdrop';
 
 export default async function AccountPage() {
   const user = await requireAuth();
@@ -10,7 +11,7 @@ export default async function AccountPage() {
   const fullName = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? 'Unknown';
 
   return (
-    <main className='min-h-screen bg-background'>
+    <PageBackdrop>
       <div className='max-w-screen-sm mx-auto px-6 py-8 space-y-6'>
         <h1 className='font-heading text-2xl'>Account</h1>
         <NicknameForm currentNickname={nickname} fullName={fullName} />
@@ -21,6 +22,6 @@ export default async function AccountPage() {
           </Button>
         </form>
       </div>
-    </main>
+    </PageBackdrop>
   );
 }

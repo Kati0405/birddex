@@ -14,7 +14,11 @@ export default function BirdSpotlight({ bird }: { bird: Bird }) {
   return (
     <Link
       href={`/birds/${bird.id}`}
-      className='relative h-full rounded-xl border border-border bg-card overflow-hidden flex flex-col no-underline group'
+      className='relative h-full rounded-xl bg-card overflow-hidden flex flex-col no-underline group'
+      style={{
+        border: `2px solid ${frameColor}70`,
+        boxShadow: `0 4px 20px ${frameColor}20`,
+      }}
     >
       <Image
         src='/hero/robin-transparent.png'

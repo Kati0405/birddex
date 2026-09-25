@@ -416,10 +416,10 @@ export default function BirdSearch({
         hasActiveFilters ? `Filters, ${activeCount} active` : 'Filters'
       }
       className={cn(
-        'relative flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium border transition-colors shrink-0',
+        'relative flex h-10 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium border transition-colors shrink-0',
         hasActiveFilters
           ? 'border-primary/40 bg-primary/10 text-primary'
-          : 'border-border bg-background text-foreground hover:bg-muted/40',
+          : 'border-border bg-background text-foreground hover:bg-muted/50',
       )}
     >
       <SlidersHorizontal size={15} />
@@ -439,7 +439,7 @@ export default function BirdSearch({
       size='sm'
       onClick={handleReset}
       aria-label='Reset filters'
-      className='gap-1 text-muted-foreground hover:text-foreground'
+      className='h-10 gap-1 text-muted-foreground hover:text-foreground'
     >
       <RotateCcw size={13} />
       <span className='hidden sm:inline'>Reset</span>

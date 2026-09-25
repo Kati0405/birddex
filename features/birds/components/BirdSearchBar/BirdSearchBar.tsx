@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Search } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import { Input } from '@/shared/ui/primitives/input';
 
@@ -30,16 +31,21 @@ export default function BirdSearchBar({
   desktopToolbarStyle = false,
 }: BirdSearchBarProps) {
   const input = (className: string) => (
-    <Input
-      type='text'
-      placeholder={placeholder}
-      value={query}
-      onChange={(e) => onQueryChange(e.target.value)}
-      className={cn(
-        'bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/60 rounded-full',
-        className,
-      )}
-    />
+    <div className={cn('relative', className)}>
+      <Search
+        size={16}
+        strokeWidth={2}
+        className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground'
+        aria-hidden='true'
+      />
+      <Input
+        type='text'
+        placeholder={placeholder}
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+        className='h-10 w-full rounded-lg border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/50'
+      />
+    </div>
   );
 
   return (
@@ -57,19 +63,21 @@ export default function BirdSearchBar({
         {mobileExtraRow}
       </div>
 
-      <div
-        className={cn(
-          'hidden md:flex flex-col gap-3',
-          desktopToolbarStyle
-            ? 'mb-5 rounded-xl border border-border bg-card px-4 py-3'
-            : 'mb-4',
-        )}
-      >
-        <div className='flex items-center gap-2'>
-          {input('max-w-xs')}
-          {desktopExtraControls}
+      <div className='hidden md:block max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)]'>
+        <div
+          className={cn(
+            'flex flex-col gap-3',
+            desktopToolbarStyle
+              ? 'mb-5 rounded-xl border border-border bg-card px-4 py-3 shadow-sm shadow-black/[0.03]'
+              : 'mb-4',
+          )}
+        >
+          <div className='flex items-center gap-2.5'>
+            {input('w-full max-w-xs')}
+            {desktopExtraControls}
+          </div>
+          {desktopExtraRow}
         </div>
-        {desktopExtraRow}
       </div>
     </>
   );
