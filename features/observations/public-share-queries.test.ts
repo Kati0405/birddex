@@ -151,6 +151,7 @@ describe('getPublicObservationShareData', () => {
         url: 'https://res.cloudinary.com/demo/image/upload/v1/birddex/observations/photo.jpg',
         source: 'observation',
         credit: 'birdwatcher42',
+        creditUrl: null,
       },
       observedAt: '2026-05-01T10:00:00Z',
       location: { displayName: 'Lviv, Lviv Oblast' },
@@ -198,7 +199,8 @@ describe('getPublicObservationShareData', () => {
     expect(result?.photo).toEqual({
       url: 'https://upload.wikimedia.org/robin.jpg',
       source: 'bird-default',
-      credit: '© Jane Doe · CC BY-SA',
+      credit: 'Jane Doe / Wikimedia Commons',
+      creditUrl: 'https://commons.wikimedia.org/robin',
     });
   });
 
@@ -215,6 +217,7 @@ describe('getPublicObservationShareData', () => {
       url: 'https://res.cloudinary.com/demo/image/upload/v1/birds/robin.jpg',
       source: 'bird-default',
       credit: null,
+      creditUrl: null,
     });
   });
 
@@ -239,7 +242,7 @@ describe('getPublicObservationShareData', () => {
 
     const result = await getPublicObservationShareData(SHARE_SLUG);
 
-    expect(result?.photo).toEqual({ url: '', source: 'bird-default', credit: null });
+    expect(result?.photo).toEqual({ url: '', source: 'bird-default', credit: null, creditUrl: null });
   });
 
   it('does not expose the Google account name/email as photo credit when the observer has no nickname set', async () => {

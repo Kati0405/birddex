@@ -7,7 +7,7 @@ export const revalidate = 3600;
 const SIZE = { width: 1080, height: 1350 };
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ shareSlug: string }> },
 ) {
   const { shareSlug } = await params;
@@ -17,5 +17,7 @@ export async function GET(
     return new Response('Not found', { status: 404 });
   }
 
-  return new ImageResponse(<ShareCard data={data} size='4:5' />, SIZE);
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
+
+  return new ImageResponse(<ShareCard data={data} size='4:5' origin={origin} />, SIZE);
 }

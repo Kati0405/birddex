@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { headers } from 'next/headers';
 import { getPublicObservationShareData } from '@/features/observations/public-share-queries';
 import ShareCard from '@/features/observations/components/ShareCard/ShareCard';
 
@@ -9,7 +10,8 @@ export const revalidate = 3600;
 
 export default async function Image({ params }: { params: Promise<{ shareSlug: string }> }) {
   const { shareSlug } = await params;
-  const data = await getPublicObservationShareData(shareSlug);
+  const [data, headerStore] = await Promise.all([getPublicObservationShareData(shareSlug), headers()]);
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? headerStore.get('origin') ?? 'http://localhost:3000';
 
   if (!data) {
     return new ImageResponse(
@@ -33,5 +35,5 @@ export default async function Image({ params }: { params: Promise<{ shareSlug: s
     );
   }
 
-  return new ImageResponse(<ShareCard data={data} size='og' />, size);
+  return new ImageResponse(<ShareCard data={data} size='og' origin={origin} />, size);
 }

@@ -13,6 +13,7 @@ export interface ObservationShareData {
     url: string;
     source: 'observation' | 'bird-default';
     credit: string | null;
+    creditUrl: string | null;
   };
 
   observedAt: string;
@@ -77,12 +78,16 @@ async function urlResolves(url: string): Promise<boolean> {
 function birdDefaultPhoto(bird: {
   selected_image: WikimediaImage | null;
   image_url: string | null;
-}): { url: string; credit: string | null } | null {
+}): { url: string; credit: string | null; creditUrl: string | null } | null {
   if (bird.selected_image) {
-    return { url: bird.selected_image.imageUrl, credit: `© ${bird.selected_image.author} · ${bird.selected_image.license}` };
+    return {
+      url: bird.selected_image.imageUrl,
+      credit: `${bird.selected_image.author} / Wikimedia Commons`,
+      creditUrl: bird.selected_image.sourceUrl,
+    };
   }
   if (bird.image_url) {
-    return { url: bird.image_url, credit: null };
+    return { url: bird.image_url, credit: null, creditUrl: null };
   }
   return null;
 }
@@ -127,6 +132,7 @@ export async function getPublicObservationShareData(shareSlug: string): Promise<
       url: observationPhotoUrl,
       source: 'observation',
       credit: (profile?.nickname as string | null) ?? null,
+      creditUrl: null,
     };
   } else {
     const fallback = birdDefaultPhoto({
@@ -134,8 +140,8 @@ export async function getPublicObservationShareData(shareSlug: string): Promise<
       image_url: (bird.image_url as string) ?? null,
     });
     photo = fallback
-      ? { url: fallback.url, source: 'bird-default', credit: fallback.credit }
-      : { url: '', source: 'bird-default', credit: null };
+      ? { url: fallback.url, source: 'bird-default', credit: fallback.credit, creditUrl: fallback.creditUrl }
+      : { url: '', source: 'bird-default', credit: null, creditUrl: null };
   }
 
   return {

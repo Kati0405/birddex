@@ -137,6 +137,9 @@ Go to **Authentication → URL Configuration** and add:
 
 - `http://localhost:3000/auth/callback` (development)
 - `https://your-production-domain.com/auth/callback` (production)
+- `https://*.vercel.app/auth/callback` (Vercel preview deployments — each branch/PR gets its own `https://<project>-<hash>-<team>.vercel.app` URL; without a wildcard entry here, Google sign-in on a preview deployment fails or silently leaves the session unauthenticated, which looks like every auth-gated feature — Share, nicknames, observations, etc. — is simply "missing" on that preview, not broken)
+
+Also add the same URLs (without `/auth/callback`) to **Authentication → URL Configuration → Redirect URLs**' allowed origins if your Supabase project version separates the two, and confirm the wildcard pattern Supabase expects (`https://*.vercel.app/**` in newer dashboard versions) — check the field's own placeholder/help text, since the exact glob syntax has changed across Supabase dashboard versions.
 
 ### Get Google OAuth credentials
 
