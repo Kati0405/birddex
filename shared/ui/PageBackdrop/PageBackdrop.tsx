@@ -17,7 +17,7 @@ export default function PageBackdrop({
           alt=''
           width={1916}
           height={411}
-          className='absolute inset-x-0 top-0 w-full h-auto object-cover pointer-events-none select-none'
+          className='absolute inset-x-0 top-0 w-full h-auto object-cover pointer-events-none select-none [overflow-anchor:none]'
           aria-hidden='true'
         />
       )}
@@ -26,7 +26,7 @@ export default function PageBackdrop({
         alt=''
         width={1916}
         height={380}
-        className='absolute inset-x-0 bottom-0 w-full h-auto object-cover pointer-events-none select-none'
+        className='absolute inset-x-0 bottom-0 w-full h-auto object-cover pointer-events-none select-none [overflow-anchor:none]'
         aria-hidden='true'
       />
       <div className='relative'>{children}</div>

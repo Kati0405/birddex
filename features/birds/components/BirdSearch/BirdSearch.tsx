@@ -415,17 +415,17 @@ export default function BirdSearch({
       aria-label={
         hasActiveFilters ? `Filters, ${activeCount} active` : 'Filters'
       }
+      title='Filters'
       className={cn(
-        'relative flex h-10 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium border transition-colors shrink-0',
+        'relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors shrink-0',
         hasActiveFilters
-          ? 'border-primary/40 bg-primary/10 text-primary'
-          : 'border-border bg-background text-foreground hover:bg-muted/50',
+          ? 'text-primary'
+          : 'text-muted-foreground hover:text-foreground',
       )}
     >
-      <SlidersHorizontal size={15} />
-      Filters
+      <SlidersHorizontal size={18} />
       {hasActiveFilters && (
-        <span className='ml-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground'>
+        <span className='absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground'>
           {activeCount}
         </span>
       )}
@@ -439,10 +439,10 @@ export default function BirdSearch({
       size='sm'
       onClick={handleReset}
       aria-label='Reset filters'
-      className='h-10 gap-1 text-muted-foreground hover:text-foreground'
+      title='Reset filters'
+      className='h-10 w-10 cursor-pointer p-0 text-muted-foreground hover:bg-transparent hover:text-foreground dark:hover:bg-transparent focus-visible:ring-0 focus-visible:border-transparent'
     >
-      <RotateCcw size={13} />
-      <span className='hidden sm:inline'>Reset</span>
+      <RotateCcw size={16} />
     </Button>
   );
 
@@ -461,7 +461,6 @@ export default function BirdSearch({
         }}
         placeholder='Search birds...'
         topOffsetClassName='top-[62px]'
-        desktopToolbarStyle
         mobileExtraControls={
           <>
             {filtersButton}
@@ -497,11 +496,7 @@ export default function BirdSearch({
           </>
         }
         desktopExtraRow={
-          filterChips.length > 0 && (
-            <div className='pt-2.5 border-t border-border'>
-              <FilterChips chips={filterChips} />
-            </div>
-          )
+          filterChips.length > 0 && <FilterChips chips={filterChips} />
         }
       />
 
@@ -758,16 +753,24 @@ export default function BirdSearch({
               </FilterSection>
             </div>
 
-            {hasActiveFilters && (
-              <div className='px-5 py-4 border-t border-border'>
-                <button
-                  onClick={handleReset}
-                  className='w-full rounded-md px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground'
-                >
-                  Reset Filters
-                </button>
-              </div>
-            )}
+            <div className='flex gap-2 px-5 py-4 border-t border-border'>
+              <Button
+                type='button'
+                variant='ghost'
+                onClick={handleReset}
+                disabled={!hasActiveFilters}
+                className='flex-1 cursor-pointer rounded-md disabled:cursor-not-allowed'
+              >
+                Reset
+              </Button>
+              <Button
+                type='button'
+                onClick={() => setFiltersOpen(false)}
+                className='flex-1 cursor-pointer rounded-md'
+              >
+                Apply
+              </Button>
+            </div>
           </div>
         </div>
       )}

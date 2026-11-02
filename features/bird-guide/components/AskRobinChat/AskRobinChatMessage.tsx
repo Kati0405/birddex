@@ -20,7 +20,7 @@ const markdownComponents: Components = {
   h2: ({ children }) => <p className="font-semibold mb-1">{children}</p>,
   h3: ({ children }) => <p className="font-semibold mb-1">{children}</p>,
   code: ({ children }) => (
-    <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{children}</code>
+    <code className="bg-muted px-1 py-0.5 rounded-none text-xs font-mono">{children}</code>
   ),
 };
 

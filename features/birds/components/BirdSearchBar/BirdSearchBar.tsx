@@ -15,8 +15,6 @@ type BirdSearchBarProps = {
   /** Content rendered below the desktop toolbar row, e.g. filter chips. */
   desktopExtraRow?: ReactNode;
   topOffsetClassName: string;
-  /** Wraps the desktop bar in the card/border toolbar style. Defaults to false. */
-  desktopToolbarStyle?: boolean;
 };
 
 export default function BirdSearchBar({
@@ -28,7 +26,6 @@ export default function BirdSearchBar({
   desktopExtraControls,
   desktopExtraRow,
   topOffsetClassName,
-  desktopToolbarStyle = false,
 }: BirdSearchBarProps) {
   const input = (className: string) => (
     <div className={cn('relative', className)}>
@@ -43,7 +40,7 @@ export default function BirdSearchBar({
         placeholder={placeholder}
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
-        className='h-10 w-full rounded-lg border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/50'
+        className='h-10 w-full rounded-lg border-transparent bg-muted/40 pl-9 pr-3 text-sm text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-primary/40'
       />
     </div>
   );
@@ -64,14 +61,7 @@ export default function BirdSearchBar({
       </div>
 
       <div className='hidden md:block max-w-[1280px] mx-auto px-4 sm:px-[clamp(1rem,4vw,3rem)]'>
-        <div
-          className={cn(
-            'flex flex-col gap-3',
-            desktopToolbarStyle
-              ? 'mb-5 rounded-xl border border-border bg-card px-4 py-3 shadow-sm shadow-black/[0.03]'
-              : 'mb-4',
-          )}
-        >
+        <div className='mb-4 flex flex-col gap-3'>
           <div className='flex items-center gap-2.5'>
             {input('w-full max-w-xs')}
             {desktopExtraControls}

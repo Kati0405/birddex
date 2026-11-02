@@ -12,6 +12,8 @@ Bird Catalog (/birds): browse all bird cards in a grid. Toolbar has search (by E
 
 Bird cards show: photo, name, rarity frame, food & habitat icons, field note. Signed-in users see a checkmark on observed birds and a binoculars icon to log observations. Admins see a "⋮" (three dots) menu next to the bird's name with Edit and Delete actions; Delete opens a confirmation modal, and is blocked with a message in that modal if the bird has logged observations.
 
+Flipping cards: tap a card or the small flip button in its bottom-right corner to see the back.
+
 Bird detail page (/birds/[id]): tap a card to see full info -- large photo, sound button, food & habitat icons, field note, behaviour tags, best-months chart, wingspan. Signed-in users see a "+ Collect" button to add/remove from collection.
 
 Logging observations: tap binoculars icon on a card, or the floating binoculars button (bottom-right, on any page when signed in) to search for a bird and log a sighting from anywhere. The form has: How observed (seen/heard/photographed toggles), Date (calendar picker, no future dates), Location (pick from saved locations or tap on map), Observation quality (1-5 star rating: brief glance / partial view / good view / great view / excellent encounter), Notes (free text up to 2000 chars), Photo (appears when "Photographed" is on; auto-resized). Tap Save. You can edit or delete observations later from the card's back side.

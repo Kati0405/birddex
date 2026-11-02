@@ -19,7 +19,12 @@ interface Props {
   className?: string;
 }
 
-export default function QuickAddObservationButton({ savedLocations = [], initialLocation, variant = 'header', className = '' }: Props) {
+export default function QuickAddObservationButton({
+  savedLocations = [],
+  initialLocation,
+  variant = 'header',
+  className = '',
+}: Props) {
   const [open, setOpen] = useState(false);
 
   if (variant === 'floating') {
@@ -27,8 +32,9 @@ export default function QuickAddObservationButton({ savedLocations = [], initial
       <>
         <button
           type='button'
+          title='Add observation'
           onClick={() => setOpen(true)}
-          className='fixed bottom-6 right-4 sm:right-[clamp(1rem,4vw,3rem)] z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform'
+          className='fixed bottom-6 right-4 sm:right-[clamp(1rem,4vw,3rem)] z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform cursor-pointer'
           aria-label='Add observation'
         >
           <Binoculars size={24} />

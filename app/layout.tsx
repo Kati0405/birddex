@@ -5,6 +5,7 @@ import AskRobinChatProvider from '@/features/bird-guide/components/AskRobinChatP
 import QuickAddObservationButton from '@/features/observations/components/QuickAddObservation/QuickAddObservationButton';
 import SiteFooter from '@/shared/ui/SiteFooter';
 import { getUser } from '@/features/auth/auth-helpers';
+import { getSavedLocations } from '@/features/locations/location-queries';
 import './globals.css';
 
 const playfair = Playfair_Display({
@@ -43,6 +44,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getUser();
+  const savedLocations = user ? await getSavedLocations(user.id) : [];
 
   return (
     <html
@@ -53,7 +55,7 @@ export default async function RootLayout({
         <AppHeader />
         <AskRobinChatProvider isAuthenticated={!!user}>
           {children}
-          {user && <QuickAddObservationButton variant='floating' />}
+          {user && <QuickAddObservationButton variant='floating' savedLocations={savedLocations} />}
         </AskRobinChatProvider>
         <SiteFooter />
       </body>

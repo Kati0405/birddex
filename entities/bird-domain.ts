@@ -6,6 +6,10 @@ import rodentImg    from '@/entities/bird-icons/food/rodent.png';
 import berryImg     from '@/entities/bird-icons/food/berry.png';
 import omnivoreImg  from '@/entities/bird-icons/food/omnivore.png';
 import scavangerImg from '@/entities/bird-icons/food/scavanger.png';
+import molluscsImg    from '@/entities/bird-icons/food/molluscs.png';
+import crustaceansImg from '@/entities/bird-icons/food/crustaceans.png';
+import reptilesImg    from '@/entities/bird-icons/food/reptiles.png';
+import birdsImg       from '@/entities/bird-icons/food/birds.png';
 import forestImg    from '@/entities/bird-icons/biomes/forest.png';
 import wetlandImg   from '@/entities/bird-icons/biomes/wetland.png';
 import cityscapeImg from '@/entities/bird-icons/biomes/cityscape.png';
@@ -43,7 +47,7 @@ export interface BestTimeOfDay {
   night: boolean;
 }
 
-export type Food = 'insects' | 'seeds' | 'fish' | 'rodents' | 'berries' | 'omnivore' | 'scavenger';
+export type Food = 'insects' | 'seeds' | 'fish' | 'rodents' | 'berries' | 'omnivore' | 'scavenger' | 'molluscs' | 'crustaceans' | 'reptiles' | 'birds';
 
 export type Biome = 'forest' | 'wetlands' | 'city' | 'fields' | 'rivers' | 'mountains' | 'coast' | 'gardens';
 
@@ -70,6 +74,9 @@ export interface WikimediaImage {
   sourceUrl: string;
 }
 
+export type BirdImageCredit = Pick<WikimediaImage, 'imageUrl' | 'thumbnailUrl' | 'author'> &
+  Partial<Pick<WikimediaImage, 'license' | 'sourceUrl'>>;
+
 export interface Bird {
   id: number;
   name_eng: string;
@@ -92,7 +99,7 @@ export interface Bird {
   difficulty?: Difficulty;
   best_time_of_day?: BestTimeOfDay;
   signature_behavior?: string;
-  selected_image?: WikimediaImage;
+  selected_image?: BirdImageCredit;
 }
 
 // ── Rarity ───────────────────────────────────────────────────────────────────
@@ -139,26 +146,34 @@ export const rarityGlow: Record<Rarity, string> = {
 
 // ── Food ─────────────────────────────────────────────────────────────────────
 
-export const FOODS: Food[] = ['insects', 'seeds', 'fish', 'rodents', 'berries', 'omnivore', 'scavenger'];
+export const FOODS: Food[] = ['insects', 'seeds', 'fish', 'rodents', 'berries', 'omnivore', 'scavenger', 'molluscs', 'crustaceans', 'reptiles', 'birds'];
 
 export const foodImage: Record<Food, StaticImageData> = {
-  insects:   insectImg,
-  seeds:     seedImg,
-  fish:      fishImg,
-  rodents:   rodentImg,
-  berries:   berryImg,
-  omnivore:  omnivoreImg,
-  scavenger: scavangerImg,
+  insects:     insectImg,
+  seeds:       seedImg,
+  fish:        fishImg,
+  rodents:     rodentImg,
+  berries:     berryImg,
+  omnivore:    omnivoreImg,
+  scavenger:   scavangerImg,
+  molluscs:    molluscsImg,
+  crustaceans: crustaceansImg,
+  reptiles:    reptilesImg,
+  birds:       birdsImg,
 };
 
 export const foodIcon: Record<Food, string> = {
-  insects:   '🪲',
-  seeds:     '🌰',
-  fish:      '🐟',
-  rodents:   '🐭',
-  berries:   '🫐',
-  omnivore:  '🍽️',
-  scavenger: '🦴',
+  insects:     '🪲',
+  seeds:       '🌰',
+  fish:        '🐟',
+  rodents:     '🐭',
+  berries:     '🫐',
+  omnivore:    '🍽️',
+  scavenger:   '🦴',
+  molluscs:    '🐌',
+  crustaceans: '🦀',
+  reptiles:    '🦎',
+  birds:       '🐦',
 };
 
 export const FOOD_FALLBACK_ICON = '🍴';

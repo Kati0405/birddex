@@ -31,7 +31,7 @@ export const ROBIN_TOOLS: OpenAI.ChatCompletionTool[] = [
           },
           food: {
             type: 'string',
-            enum: ['insects', 'seeds', 'fish', 'rodents', 'berries', 'omnivore', 'scavenger'],
+            enum: ['insects', 'seeds', 'fish', 'rodents', 'berries', 'omnivore', 'scavenger', 'molluscs', 'crustaceans', 'reptiles', 'birds'],
             description: 'Filter by food type',
           },
           behaviour: {

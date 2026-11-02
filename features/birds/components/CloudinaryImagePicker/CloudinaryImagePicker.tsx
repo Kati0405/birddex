@@ -12,6 +12,8 @@ export default function CloudinaryImagePicker({ birdId }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [author, setAuthor] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -28,6 +30,8 @@ export default function CloudinaryImagePicker({ birdId }: Props) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('birdId', String(birdId));
+    formData.append('author', author);
+    formData.append('sourceUrl', sourceUrl);
 
     startTransition(async () => {
       const result = await uploadBirdImageAction(formData);
@@ -63,6 +67,24 @@ export default function CloudinaryImagePicker({ birdId }: Props) {
           className="hidden"
           onChange={handleFileChange}
         />
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <input
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            placeholder="Photo author (optional)"
+            maxLength={200}
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <input
+            type="url"
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="Link to the photo (optional)"
+            maxLength={500}
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 

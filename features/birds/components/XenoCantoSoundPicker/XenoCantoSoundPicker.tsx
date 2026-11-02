@@ -59,7 +59,7 @@ export default function XenoCantoSoundPicker({ birdId, results, currentSoundUrl 
                 <img
                   src={r.sonogramUrl}
                   alt={`Sonogram of ${r.type} recording`}
-                  className="h-10 w-16 shrink-0 rounded object-cover"
+                  className="h-10 w-16 shrink-0 rounded-none object-cover"
                 />
               )}
 

@@ -34,9 +34,10 @@ vi.mock('next/navigation', () => ({
 
 import { uploadBirdImageAction } from './cloudinary-upload';
 
-function makeFormData(birdId: number, fileContent = 'fake-image-bytes') {
+function makeFormData(birdId: number, fileContent = 'fake-image-bytes', extra: Record<string, string> = {}) {
   const formData = new FormData();
   formData.set('birdId', String(birdId));
+  Object.entries(extra).forEach(([k, v]) => formData.set(k, v));
   formData.set('file', new File([fileContent], 'photo.jpg', { type: 'image/jpeg' }));
   return formData;
 }
@@ -109,5 +110,42 @@ describe('uploadBirdImageAction', () => {
     expect(deleteCloudinaryAsset).toHaveBeenCalledTimes(1);
     expect(deleteCloudinaryAsset).toHaveBeenCalledWith('birddex/old-public-id', 'image');
     expect(callOrder).toEqual(['db-update', 'delete-old']);
+  });
+
+  describe('attribution', () => {
+    const NEW_URL = 'https://res.cloudinary.com/demo/image/upload/v1/birddex/new-public-id.jpg';
+
+    beforeEach(() => {
+      getBirdById.mockResolvedValue({ id: 1 });
+      uploadCloudinaryBuffer.mockResolvedValue({ secure_url: NEW_URL, public_id: 'birddex/new-public-id' });
+    });
+
+    it('stores author and link with the new image', async () => {
+      const extra = { author: ' Jane Doe ', sourceUrl: 'https://example.com/photo' };
+      await expect(uploadBirdImageAction(makeFormData(1, undefined, extra))).rejects.toThrow('NEXT_REDIRECT');
+
+      expect(updateBirdCloudinaryImage).toHaveBeenCalledWith(1, NEW_URL, 'birddex/new-public-id', {
+        imageUrl: NEW_URL,
+        thumbnailUrl: NEW_URL,
+        author: 'Jane Doe',
+        sourceUrl: 'https://example.com/photo',
+      });
+    });
+
+    it('stores no attribution when the author is empty', async () => {
+      await expect(uploadBirdImageAction(makeFormData(1))).rejects.toThrow('NEXT_REDIRECT');
+
+      expect(updateBirdCloudinaryImage).toHaveBeenCalledWith(1, NEW_URL, 'birddex/new-public-id', null);
+    });
+
+    it.each([
+      ['a link without an author', { sourceUrl: 'https://example.com/photo' }],
+      ['a non-http link', { author: 'Jane', sourceUrl: 'javascript:alert(1)' }],
+    ])('rejects %s before touching Cloudinary', async (_, extra) => {
+      const result = await uploadBirdImageAction(makeFormData(1, undefined, extra));
+
+      expect(result).toEqual({ error: expect.any(String) });
+      expect(uploadCloudinaryBuffer).not.toHaveBeenCalled();
+    });
   });
 });

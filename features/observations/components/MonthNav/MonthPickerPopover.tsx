@@ -27,7 +27,7 @@ export default function MonthPickerPopover({ selected, current, onSelect }: Prop
           type='button'
           onClick={() => setYear((y) => y - 1)}
           aria-label='Previous year'
-          className='flex items-center justify-center h-6 w-6 rounded text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors'
+          className='flex items-center justify-center h-6 w-6 rounded-none text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors'
         >
           <ChevronLeft className='h-3.5 w-3.5' />
         </button>
@@ -37,7 +37,7 @@ export default function MonthPickerPopover({ selected, current, onSelect }: Prop
           onClick={() => !yearIsFuture && setYear((y) => y + 1)}
           disabled={yearIsFuture}
           aria-label='Next year'
-          className='flex items-center justify-center h-6 w-6 rounded text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors disabled:opacity-30 disabled:pointer-events-none'
+          className='flex items-center justify-center h-6 w-6 rounded-none text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors disabled:opacity-30 disabled:pointer-events-none'
         >
           <ChevronRight className='h-3.5 w-3.5' />
         </button>

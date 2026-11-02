@@ -189,6 +189,10 @@ Use these allowed food values:
 - berries
 - omnivore
 - scavenger
+- molluscs
+- crustaceans
+- reptiles
+- birds
 
 Use these allowed behaviour values:
 
@@ -204,6 +208,7 @@ Use these allowed behaviour values:
 - fast flyer
 - berry lover
 - forest ghost
+- feeder visitor
 
 Rarity controls the frame color. Use this exact mapping — no other colors:
 

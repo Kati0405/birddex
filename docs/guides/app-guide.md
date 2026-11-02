@@ -72,7 +72,7 @@ Each card in the grid shows:
 - Food and habitat icons
 - A short humorous field note
 
-If you're signed in, observed birds show a checkmark. You can also tap the binoculars icon on a card to log an observation directly from the catalog.
+If you're signed in, observed birds show a checkmark. You can also tap the binoculars icon on a card to log an observation directly from the catalog. Tap anywhere on a card, or the small flip button in its bottom-right corner (in the card's rarity color), to flip it over.
 
 ### Admin: Editing and Deleting Birds
 

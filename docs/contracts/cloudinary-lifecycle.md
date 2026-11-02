@@ -62,6 +62,8 @@ Expected coverage:
 | Location photo     | `saved_locations` | `photo_url` | `photo_public_id`     | *(not yet present — resource type is hardcoded to `'image'` at every call site; add a `photo_resource_type` column before location photos can be anything other than images)* |
 | Observation photo  | `observations` | `photo_url`   | `cloudinary_public_id` | `cloudinary_resource_type` |
 
+Bird image credit (author name + optional http(s) link) lives in `birds.selected_image` (`WikimediaImage`; `license` and `sourceUrl` optional). Wikimedia picks always set it; admin file uploads set it only when an author is entered, otherwise it is cleared to `null`. `BirdImage` renders it as the photo credit.
+
 Bird sounds are uploaded and deleted with Cloudinary `resource_type: 'video'`, not `'audio'` — Cloudinary has no `'audio'` resource type, and audio files must be treated as `'video'` for upload/delete calls. `sound_resource_type` stores this value; do not assume `'audio'` when writing or reading it.
 
 Use `toCloudinaryResourceType()` (`shared/lib/cloudinary-utils.ts`) to safely coerce a nullable DB-stored `resource_type` string into a valid Cloudinary resource type before any delete/replace call — every call site in `features/birds/actions/*` and `features/observations/actions/observation-mutations.ts` goes through it.

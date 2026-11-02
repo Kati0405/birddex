@@ -18,7 +18,7 @@ const ICON_RULES: Array<{ keywords: string[]; icon: React.ReactNode }> = [
   { keywords: ['stripe', 'streaked', 'barred', 'band', 'collar', 'moustache'], icon: <ScanLine size={10} strokeWidth={1.5} /> },
   { keywords: ['crest', 'tufts', 'tuft'], icon: <Triangle size={10} strokeWidth={1.5} /> },
   { keywords: ['tail', 'rump', 'forked', 'wedge', 'streamer'], icon: <Minus size={10} strokeWidth={1.5} /> },
-  { keywords: ['wing', 'wingspan', 'wings', 'sickle', 'pointed', 'rounded', 'broad'], icon: <Wind size={10} strokeWidth={1.5} /> },
+  { keywords: ['wing', 'wingspan', 'wings', 'sickle', 'pointed', 'rounded-none', 'broad'], icon: <Wind size={10} strokeWidth={1.5} /> },
   { keywords: ['bill', 'beak', 'curved', 'dagger', 'hooked'], icon: <Zap size={10} strokeWidth={1.5} /> },
   { keywords: ['belly', 'breast', 'chest', 'throat', 'back', 'plumage', 'silky', 'glossy', 'iridescent', 'rainbow'], icon: <Feather size={10} strokeWidth={1.5} /> },
   { keywords: ['flight', 'hover', 'hovering', 'soar', 'glide', 'fly', 'flying', 'movement', 'running', 'climb', 'hops', 'bouncing', 'agile'], icon: <MoveRight size={10} strokeWidth={1.5} /> },

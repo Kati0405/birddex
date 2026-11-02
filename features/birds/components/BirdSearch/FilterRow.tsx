@@ -15,7 +15,7 @@ export default function FilterRow({ icon, label, count, active, onClick }: Props
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors',
+        'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors',
         disabled
           ? 'opacity-40 cursor-not-allowed text-muted-foreground'
           : active

@@ -137,13 +137,13 @@ export default function LocationPicker({ value, onChange, frameColor }: Location
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           placeholder='Search address or place…'
-          className='flex-1 rounded px-2 py-1 text-[10px] font-mono bg-background border border-border/50 focus:outline-none focus:border-border placeholder:text-muted-foreground/40'
+          className='flex-1 rounded-none px-2 py-1 text-[10px] font-mono bg-background border border-border/50 focus:outline-none focus:border-border placeholder:text-muted-foreground/40'
         />
         <button
           type='button'
           onClick={handleSearch}
           disabled={searching}
-          className='rounded px-2 py-1 text-[10px] font-mono font-medium transition-colors'
+          className='rounded-none px-2 py-1 text-[10px] font-mono font-medium transition-colors'
           style={{ background: `${frameColor}30`, color: frameColor, border: `1px solid ${frameColor}50` }}
         >
           {searching ? '…' : 'Search'}
@@ -154,7 +154,7 @@ export default function LocationPicker({ value, onChange, frameColor }: Location
           disabled={locating}
           title='Use my current location'
           aria-label='Use my current location'
-          className='rounded px-2 py-1 text-[10px] font-mono font-medium transition-colors border border-border/50 hover:bg-muted/40'
+          className='rounded-none px-2 py-1 text-[10px] font-mono font-medium transition-colors border border-border/50 hover:bg-muted/40'
         >
           {locating ? '…' : '📍 My location'}
         </button>
@@ -170,7 +170,7 @@ export default function LocationPicker({ value, onChange, frameColor }: Location
       </div>
 
       {results.length > 0 && (
-        <ul className='rounded border border-border/40 bg-background overflow-hidden'>
+        <ul className='rounded-none border border-border/40 bg-background overflow-hidden'>
           {results.map((r, i) => (
             <li key={i}>
               <button

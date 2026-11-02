@@ -1,6 +1,6 @@
 import { supabase } from '@/shared/lib/supabase';
 import { supabaseAdmin } from '@/shared/lib/supabase-admin';
-import type { Bird, WikimediaImage, Food, Biome, Behaviour, Rarity } from '@/entities/bird-domain';
+import type { Bird, BirdImageCredit, WikimediaImage, Food, Biome, Behaviour, Rarity } from '@/entities/bird-domain';
 
 export async function getBirds(): Promise<Bird[]> {
   const { data, error } = await supabase.from('birds').select('*').order('id');
@@ -56,12 +56,13 @@ export async function updateBirdCloudinaryImage(
   id: number,
   imageUrl: string,
   publicId: string,
+  attribution: BirdImageCredit | null = null,
 ): Promise<void> {
   const { error } = await supabaseAdmin
     .from('birds')
     .update({
       image_url: imageUrl,
-      selected_image: null,
+      selected_image: attribution,
       image_public_id: publicId,
       image_resource_type: 'image',
     })

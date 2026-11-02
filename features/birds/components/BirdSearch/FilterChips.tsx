@@ -16,10 +16,10 @@ export default function FilterChips({ chips }: { chips: FilterChip[] }) {
           key={chip.key}
           type='button'
           onClick={chip.onRemove}
-          className='group inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 pl-2.5 pr-1.5 py-1 text-xs font-medium text-primary capitalize transition-colors hover:bg-primary/15'
+          className='group inline-flex cursor-pointer items-center gap-1 rounded-full bg-muted pl-2.5 pr-1.5 py-1 text-xs font-medium text-foreground capitalize transition-colors hover:bg-muted/70'
         >
           {chip.label}
-          <X size={12} className='text-primary/60 group-hover:text-primary' aria-hidden='true' />
+          <X size={12} className='text-muted-foreground group-hover:text-foreground' aria-hidden='true' />
           <span className='sr-only'>Remove {chip.label} filter</span>
         </button>
       ))}

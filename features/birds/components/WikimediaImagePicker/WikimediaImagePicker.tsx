@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState, useTransition } from 'react';
-import type { WikimediaImage } from '@/entities/bird-domain';
+import type { BirdImageCredit, WikimediaImage } from '@/entities/bird-domain';
 import { updateBirdImageAction } from '@/features/birds/actions/bird-mutations';
 
 interface WikimediaResult {
@@ -13,7 +13,7 @@ interface WikimediaResult {
 interface Props {
   birdId: number;
   results: WikimediaResult[];
-  currentImage?: WikimediaImage;
+  currentImage?: BirdImageCredit;
 }
 
 export default function WikimediaImagePicker({ birdId, results, currentImage }: Props) {
@@ -40,7 +40,7 @@ export default function WikimediaImagePicker({ birdId, results, currentImage }: 
         <div className="text-sm text-muted-foreground">
           Current:{' '}
           <a href={currentImage.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline">
-            {currentImage.author} · {currentImage.license}
+            {[currentImage.author, currentImage.license].filter(Boolean).join(' · ')}
           </a>
         </div>
       )}

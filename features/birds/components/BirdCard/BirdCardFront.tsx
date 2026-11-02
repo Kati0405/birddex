@@ -7,6 +7,7 @@ import HexIcon from '@/shared/ui/HexIcon/HexIcon';
 import ObservationButton from '@/features/observations/components/ObservationButton/ObservationButton';
 import SoundButton from '@/shared/ui/SoundButton/SoundButton';
 import BirdCardMenu from './BirdCardMenu';
+import FlipCornerButton from './FlipCornerButton';
 import type { SavedLocation } from '@/features/locations/location-queries';
 
 interface Props {
@@ -52,7 +53,7 @@ export default function BirdCardFront({
   return (
     <div
       className={cn(
-        '[grid-area:1/1] h-full [backface-visibility:hidden] rounded-xl flex flex-col overflow-hidden bg-card',
+        '[grid-area:1/1] relative h-full [backface-visibility:hidden] rounded-xl flex flex-col overflow-hidden bg-card',
         !active && 'pointer-events-none',
       )}
       style={{
@@ -265,6 +266,8 @@ export default function BirdCardFront({
           </div>
         </div>
       )}
+
+      <FlipCornerButton frameColor={frameColor} />
     </div>
   );
 }

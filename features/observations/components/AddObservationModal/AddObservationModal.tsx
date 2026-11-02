@@ -244,6 +244,49 @@ export default function AddObservationModal({
             </div>
           </Section>
 
+          {photographed && <Section label='Photo' frameColor={frameColor}>
+            {photoError && (
+              <div className='mb-2 flex items-start gap-1.5 rounded-md px-2.5 py-2 bg-destructive/10 border border-destructive/30 text-destructive text-[10px] font-mono'>
+                <span className='shrink-0 mt-px'>⚠</span>
+                <span>{photoError}</span>
+              </div>
+            )}
+            {photoPreview ? (
+              <div className='relative rounded-md overflow-hidden'>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photoPreview} alt='Observation photo' className='w-full max-h-36 object-cover' />
+                {photoUploading && (
+                  <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+                    <div
+                      className='w-5 h-5 rounded-full border-2 border-t-transparent animate-spin'
+                      style={{ borderColor: `${frameColor} transparent transparent transparent` }}
+                    />
+                  </div>
+                )}
+                {!photoUploading && (
+                  <button
+                    type='button'
+                    onClick={removePhoto}
+                    aria-label='Remove photo'
+                    className='absolute top-1.5 right-1.5 rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button
+                type='button'
+                onClick={() => fileInputRef.current?.click()}
+                className='group flex w-full flex-col items-center justify-center gap-1.5 py-5 rounded-md border-2 border-dashed border-border hover:border-muted-foreground/40 text-[9px] font-mono uppercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-all bg-muted/20 hover:bg-muted/30'
+              >
+                <Images className='h-5 w-5 transition-transform group-hover:scale-110 duration-150' />
+                <span>Add a photo</span>
+              </button>
+            )}
+            <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handlePhotoChange} />
+          </Section>}
+
           <Section label='Date' frameColor={frameColor}>
             <Popover>
               <PopoverTrigger render={
@@ -273,13 +316,13 @@ export default function AddObservationModal({
             frameColor={frameColor}
             trailing={
               savedLocations.length > 0 ? (
-                <div className='flex gap-0.5 p-0.5 rounded border border-border bg-muted/40'>
+                <div className='flex gap-0.5 p-0.5 rounded-none border border-border bg-muted/40'>
                   {(['saved', 'map'] as const).map((mode) => (
                     <button
                       key={mode}
                       type='button'
                       onClick={() => setLocationMode(mode)}
-                      className='flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-mono uppercase tracking-wide transition-all'
+                      className='flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[8px] font-mono uppercase tracking-wide transition-all'
                       style={locationMode === mode
                         ? { background: frameColor, color: 'white' }
                         : { color: 'var(--muted-foreground)' }
@@ -380,49 +423,6 @@ export default function AddObservationModal({
               style={{ fontFamily: 'var(--font-handwritten)' }}
             />
           </Section>
-
-          {photographed && <Section label='Photo' frameColor={frameColor}>
-            {photoError && (
-              <div className='mb-2 flex items-start gap-1.5 rounded-md px-2.5 py-2 bg-destructive/10 border border-destructive/30 text-destructive text-[10px] font-mono'>
-                <span className='shrink-0 mt-px'>⚠</span>
-                <span>{photoError}</span>
-              </div>
-            )}
-            {photoPreview ? (
-              <div className='relative rounded-md overflow-hidden'>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photoPreview} alt='Observation photo' className='w-full max-h-36 object-cover' />
-                {photoUploading && (
-                  <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
-                    <div
-                      className='w-5 h-5 rounded-full border-2 border-t-transparent animate-spin'
-                      style={{ borderColor: `${frameColor} transparent transparent transparent` }}
-                    />
-                  </div>
-                )}
-                {!photoUploading && (
-                  <button
-                    type='button'
-                    onClick={removePhoto}
-                    aria-label='Remove photo'
-                    className='absolute top-1.5 right-1.5 rounded-full p-1 bg-black/50 text-white hover:bg-black/70 transition-colors'
-                  >
-                    <X className='h-3 w-3' />
-                  </button>
-                )}
-              </div>
-            ) : (
-              <button
-                type='button'
-                onClick={() => fileInputRef.current?.click()}
-                className='group flex w-full flex-col items-center justify-center gap-1.5 py-5 rounded-md border-2 border-dashed border-border hover:border-muted-foreground/40 text-[9px] font-mono uppercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-all bg-muted/20 hover:bg-muted/30'
-              >
-                <Images className='h-5 w-5 transition-transform group-hover:scale-110 duration-150' />
-                <span>Add a photo</span>
-              </button>
-            )}
-            <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handlePhotoChange} />
-          </Section>}
 
         </div>
 
