@@ -8,7 +8,7 @@ birds.in.ua uses **Supabase Auth** with Google OAuth. There are no passwords —
 
 | Role    | Can do                                      |
 |---------|---------------------------------------------|
-| `user`  | Browse catalog, mark birds as collected     |
+| `user`  | Browse catalog, mark birds as collected, chat with Ask Robin (10 messages/day) |
 | `admin` | Everything above + edit/add birds to catalog |
 
 Roles are stored in `public.profiles`, not in Supabase `user_metadata` (which users can self-modify).

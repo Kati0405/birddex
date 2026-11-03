@@ -28,7 +28,7 @@ export default function AskRobinChatInput({ value, onChange, onSend, disabled }:
   }
 
   return (
-    <div className="p-3">
+    <div className="py-3">
       <div className="flex items-end gap-2 rounded-2xl border border-border bg-card shadow-sm shadow-black/[0.03] px-3.5 py-2.5 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-colors">
         <textarea
           ref={textareaRef}

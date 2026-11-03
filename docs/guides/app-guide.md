@@ -8,7 +8,7 @@ How to use every feature in birds.in.ua — a collectible field guide to birds.
 
 Tap **Log in** in the top-right corner. birds.in.ua uses Google sign-in — tap "Continue with Google" and pick your Google account. That's it, no passwords.
 
-Once signed in you unlock personal features: observations, collection tracking, saved locations, photos, and personalized Ask Robin answers.
+Once signed in you unlock personal features: observations, collection tracking, saved locations, photos, and the Ask Robin chat.
 
 ### Navigation
 
@@ -89,7 +89,7 @@ The catalog loads 20 birds at a time. Scroll down and more birds load automatica
 
 ## Bird Detail Page
 
-Tap any bird card to open its full detail page (`/birds/[id]`). A **Back to catalog** link sits above the card so you can return to where you came from. Here you'll see:
+Tap any bird card to open its full detail page (`/birds/[id]`). A **Back** link sits above the card so you can return to where you came from. Here you'll see:
 
 - **Large photo** of the bird
 - **Name** (English and Latin) and **rarity** badge
@@ -172,6 +172,7 @@ The Locations page (`/locations`) lets you save birding spots you visit often. T
 Your saved locations are shown as cards with a photo preview (if uploaded), location name, coordinates, and observation stats (how many observations and species you've logged there). If you have no saved locations, a friendly empty state guides you to add your first one.
 
 To add a location:
+
 - Go to the Locations page
 - Tap **+ Add location** (or "Add your first location" if you have none)
 - Enter a name for the place (e.g. "City park", "Backyard feeder")
@@ -181,12 +182,14 @@ To add a location:
 - Tap **Save location** when both the name and pin are set
 
 To view a location:
+
 - Tap the eye icon on any saved location card to open its detail page
 - The detail page (`/locations/[id]`) shows the full photo, coordinates, observation statistics (total observations, species count, last visit date, most seen bird, observation types), and a list of recent observations at that location
 - Each observation links to its bird detail page
 - You can also change or remove the location photo from the detail page
 
 To edit a location:
+
 - Tap the pencil icon on any saved location card
 - An inline edit form opens with the current name, map pin, and habitats pre-filled
 - Change any fields you want, then tap **Save changes**
@@ -194,6 +197,7 @@ To edit a location:
 - Tap **Cancel** to discard changes
 
 To delete a location:
+
 - Tap the trash icon on any saved location card, or use the Delete button on the detail page
 - Confirm the deletion in the confirmation prompt
 - Your observations will keep their location data
@@ -210,27 +214,27 @@ The Photos page (`/photos`) shows all photos you've uploaded with your observati
 
 ## Ask Robin (AI Chat)
 
-The Ask Robin (`/ask-robin`) is an AI-powered birding assistant. It can help with:
+The Ask Robin (`/ask-robin`) is an AI-powered birding assistant. **You need to be signed in to chat with Robin** — signed-out visitors see a "Sign in" prompt instead. Each account can send up to 10 messages per day, and Robin has a shared daily budget across all users; when either runs out, Robin asks you to come back tomorrow. It can help with:
 
 - **Bird identification** — describe what you saw and it'll suggest species, confidence level, and what to check next
 - **Habitat & behaviour** — where to find specific birds, what they eat, how they behave
 - **Seasonal patterns** — best times of year to spot certain species
 - **Observation tips** — practical field craft advice
-- **Your personal data** — if you're signed in, it knows your observation history and can answer questions like "which birds have I only heard?" or "what's my most photographed bird?"
+- **Your personal data** — it knows your observation history and can answer questions like "which birds have I only heard?" or "what's my most photographed bird?"
 
 ### How to Use Ask Robin
 
 1. Go to the Ask Robin page
 2. Type a question in the input field at the bottom, or tap one of the **suggested questions** to get started
 3. The AI streams its answer in real time
-4. Keep chatting — it remembers the conversation context (up to 20 messages)
+4. Keep chatting — it remembers the conversation context (the last 10 messages)
 5. Tap the **Clear** button (trash icon) to start a fresh conversation
 
 ### Suggested Questions
 
 When you first open Ask Robin, you'll see starter questions tailored to you:
 
-- **Not signed in**: general birding questions like "What birds are easiest to spot for beginners?"
+- **Signed in, no observations yet**: general personal questions like "How many birds have I observed so far?"
 - **Signed in with observations**: personalized questions based on your data, like "What's interesting about the [your most photographed bird]?" or "How do I spot a [bird you've only heard]?"
 
 ### Tips for Best Results

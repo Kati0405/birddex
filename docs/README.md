@@ -25,6 +25,10 @@ These documents describe project rules and must stay synchronized with the code.
 
 guides/app-guide.md
 
+## Audits
+
+docs/audits/ — dated launch-readiness snapshots (initial and updated).
+
 ## Feature specifications
 
 docs/specs/

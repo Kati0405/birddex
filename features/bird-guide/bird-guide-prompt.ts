@@ -1,10 +1,11 @@
 import type { UserContext } from './bird-guide.types';
+import { MAX_CONTEXT_SPECIES, MAX_CONTEXT_SIGHTINGS, MAX_CONTEXT_NOTE_CHARS } from './robin-limits';
 
 const APP_GUIDE = `## How birds.in.ua works (use this to answer "how do I..." questions about the app)
 
 Navigation: top header has Birds (catalog), Observations (My journal -- observations organized by month), Locations (saved spots), Photos (gallery), Ask Robin (this chat). On mobile, use the hamburger menu.
 
-Signing in: tap "Log in" top-right, then "Continue with Google". Unlocks observations, collection, locations, photos, and personalized Ask Robin answers.
+Signing in: tap "Log in" top-right, then "Continue with Google". Unlocks observations, collection, locations, photos, and Ask Robin chat (sign-in required).
 
 Homepage (/): signed-out visitors see the marketing homepage; signed-in users see a personal dashboard instead, with a greeting, an "Add observation" button, a collection progress ring (species observed / total catalog, plus total observations, photos taken, and favorite locations, with "Latest find" and "Rarest find" mini cards side by side), a "Bird of the day" spotlight, a "Continue your collection" section of unobserved species split into "Easy to spot" (easiest rarities first) and "Worth the search" (one Epic or Legendary pick), a "Recent observations" list, and an Ask Robin promo.
 
@@ -24,7 +25,7 @@ My journal (/observations): observations organized by month, not a separate log 
 
 Photo Gallery (/photos): all observation photos in one gallery.
 
-Ask Robin (/ask-robin): this AI chat. Type a question or tap a suggested question. Streams answers in real time. Keeps conversation context (up to 20 messages). Tap trash icon to clear conversation.
+Ask Robin (/ask-robin): this AI chat. Requires sign-in; each account gets 10 messages per day (plus a shared daily cap across all users). Type a question or tap a suggested question. Streams answers in real time. Keeps conversation context (last 10 messages). Tap trash icon to clear conversation.
 
 Observation progress: "X / Y" species observed vs. total catalog is shown in the "Your collection" card on the homepage dashboard.
 
@@ -94,7 +95,7 @@ generic filler like "birds are fascinating creatures"
 dramatic overconfidence -- we are birding, not announcing a royal decree
 
 Default answer length:
-Short to medium. Useful in the field, readable on a phone.
+Short. Aim for under 150 words (about 400 tokens), readable on a phone. Go longer only if the user explicitly asks for detail.
 
 ${APP_GUIDE}`;
 
@@ -102,15 +103,19 @@ ${APP_GUIDE}`;
     return base;
   }
 
-  const observationLines = userContext.observations.flatMap((o) => {
-    const sightingLines = o.sightings.map((s) => {
+  const recentSpecies = [...userContext.observations]
+    .sort((a, b) => (b.sightings[0]?.date ?? '').localeCompare(a.sightings[0]?.date ?? ''))
+    .slice(0, MAX_CONTEXT_SPECIES);
+
+  const observationLines = recentSpecies.flatMap((o) => {
+    const sightingLines = o.sightings.slice(0, MAX_CONTEXT_SIGHTINGS).map((s) => {
       const parts = [s.date];
       if (s.seen) parts.push('seen');
       if (s.heard) parts.push('heard');
       if (s.photographed) parts.push('photographed');
       if (s.quality) parts.push(`quality:${s.quality}/5`);
       if (s.locationName) parts.push(`at ${s.locationName}`);
-      if (s.notes) parts.push(`notes:"${s.notes}"`);
+      if (s.notes) parts.push(`notes:"${s.notes.slice(0, MAX_CONTEXT_NOTE_CHARS)}"`);
       return `    · ${parts.join(', ')}`;
     });
     return [`  - ${o.name}:`, ...sightingLines];
@@ -121,7 +126,7 @@ ${APP_GUIDE}`;
     `- Species observed: ${userContext.observedCount}`,
     `- Cards collected: ${userContext.collectedCount}`,
     `- Total birds in catalog: ${userContext.totalBirdsInCatalog}`,
-    `- Observation log:`,
+    `- Observation log (the ${recentSpecies.length} most recently observed species, up to ${MAX_CONTEXT_SIGHTINGS} latest sightings each):`,
     ...observationLines,
   ];
 

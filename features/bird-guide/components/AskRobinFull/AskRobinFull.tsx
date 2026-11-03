@@ -2,6 +2,7 @@
 
 import { useAskRobinChat } from '@/features/bird-guide/components/AskRobinChatProvider/AskRobinChatProvider';
 import { useScrollToBottom } from '@/features/bird-guide/hooks/useScrollToBottom';
+import Link from 'next/link';
 import { Trash2 } from 'lucide-react';
 import type { UserContext } from '@/features/bird-guide/bird-guide.types';
 import AskRobinChatMessage from '@/features/bird-guide/components/AskRobinChat/AskRobinChatMessage';
@@ -13,10 +14,28 @@ interface Props {
 }
 
 export default function AskRobinFull({ userContext }: Props) {
-  const { messages, input, isStreaming, streamingContent, error, setInput, send, suggest, clear } =
+  const { messages, input, isStreaming, streamingContent, error, isAuthenticated, setInput, send, suggest, clear } =
     useAskRobinChat();
 
-  const scrollRef = useScrollToBottom<HTMLDivElement>([messages, streamingContent]);
+  const bottomRef = useScrollToBottom<HTMLDivElement>(
+    [messages, streamingContent, error],
+    messages.length > 0 || isStreaming,
+    messages.at(-1)?.role === 'user',
+  );
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-2xl mx-auto w-full px-4 py-10 text-center space-y-4">
+        <p className="text-sm text-muted-foreground">Sign in to chat with Robin.</p>
+        <Link
+          href="/login"
+          className="inline-block px-4 py-2 rounded-md text-[11px] font-mono uppercase tracking-widest border border-border text-foreground hover:bg-muted/40 transition-colors"
+        >
+          Sign in
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-1 min-h-0 max-w-2xl mx-auto w-full px-4">
@@ -40,13 +59,13 @@ export default function AskRobinFull({ userContext }: Props) {
         )}
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pb-4">
+      <div className="flex-1 space-y-3 pb-4">
         {messages.length === 0 && !isStreaming && (
           <div className="pt-4">
             <p className="text-sm text-muted-foreground mb-4">
               Ask anything about birds — or pick a question to get started:
             </p>
-            <AskRobinSuggestions userContext={userContext} onSuggest={suggest} />
+            <AskRobinSuggestions userContext={userContext} isAuthenticated onSuggest={suggest} />
           </div>
         )}
         {messages.map((msg, i) => (
@@ -69,6 +88,7 @@ export default function AskRobinFull({ userContext }: Props) {
           disabled={isStreaming}
         />
       </div>
+      <div ref={bottomRef} />
     </div>
   );
 }

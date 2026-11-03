@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback } from 'react';
 import { chatAction } from '@/features/bird-guide/actions/chat-action';
+import { MAX_HISTORY_MESSAGES } from '@/features/bird-guide/robin-limits';
 import type { ChatMessage } from '@/features/bird-guide/bird-guide.types';
 
 interface ChatState {
@@ -50,7 +51,7 @@ export default function AskRobinChatProvider({ isAuthenticated, children }: Prop
     setIsStreaming(true);
     setStreamingContent('');
 
-    const result = await chatAction({ messages: nextMessages });
+    const result = await chatAction({ messages: nextMessages.slice(-MAX_HISTORY_MESSAGES) });
 
     if ('error' in result) {
       setError(result.error);
@@ -68,8 +69,12 @@ export default function AskRobinChatProvider({ isAuthenticated, children }: Prop
         accumulated += value;
         setStreamingContent(accumulated);
       }
+    } catch {
+      setError('Robin could not finish that answer. Please try again.');
     } finally {
-      setMessages((prev) => [...prev, { role: 'assistant', content: accumulated }]);
+      if (accumulated) {
+        setMessages((prev) => [...prev, { role: 'assistant', content: accumulated }]);
+      }
       setStreamingContent('');
       setIsStreaming(false);
     }

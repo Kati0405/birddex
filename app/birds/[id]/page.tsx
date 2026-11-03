@@ -2,7 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getBirdById } from '@/features/birds/bird-queries';
 import { getUser, getUserRole } from '@/features/auth/auth-helpers';
-import { getObservedBirdIds, getCollectionCardDataByBirdIds } from '@/features/observations/observation-queries';
+import {
+  getObservedBirdIds,
+  getCollectionCardDataByBirdIds,
+} from '@/features/observations/observation-queries';
 import { getSavedLocations } from '@/features/locations/location-queries';
 import BirdCard from '@/features/birds/components/BirdCard/BirdCard';
 import BackLink from '@/shared/ui/BackLink';
@@ -18,7 +21,9 @@ export async function generateMetadata({
   if (!bird) return { title: 'Bird not found — birds.in.ua' };
   return {
     title: `${bird.name_eng} — birds.in.ua`,
-    description: bird.field_note ?? `${bird.name_eng} (${bird.name_latin}) — ${bird.rarity} species.`,
+    description:
+      bird.field_note ??
+      `${bird.name_eng} (${bird.name_latin}) — ${bird.rarity} species.`,
   };
 }
 
@@ -45,14 +50,15 @@ export default async function BirdPage({
     user ? getSavedLocations(user.id) : Promise.resolve([]),
   ]);
   const isObserved = observedIds.includes(bird.id);
-  const collectionData = user && isObserved
-    ? (await getCollectionCardDataByBirdIds(user.id, [bird.id]))[bird.id]
-    : undefined;
+  const collectionData =
+    user && isObserved
+      ? (await getCollectionCardDataByBirdIds(user.id, [bird.id]))[bird.id]
+      : undefined;
 
   return (
     <PageBackdrop className='px-4 py-12 sm:px-8'>
       <div className='mx-auto max-w-sm'>
-        <BackLink fallbackHref='/birds' label='Back to catalog' className='mb-4' />
+        <BackLink fallbackHref='/birds' label='Back' className='mb-4' />
         <div className='aspect-[3/4]'>
           <BirdCard
             bird={bird}

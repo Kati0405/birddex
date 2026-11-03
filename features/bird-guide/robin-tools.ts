@@ -73,7 +73,7 @@ export const ROBIN_TOOLS: OpenAI.ChatCompletionTool[] = [
     function: {
       name: 'get_user_collection',
       description:
-        'Get the current user\'s observation stats: how many species observed, which birds they haven\'t spotted yet, and their total observation count. Only works for signed-in users.',
+        'Get the current user\'s observation stats: how many species observed, which birds they haven\'t spotted yet, and their total observation count. ',
       parameters: {
         type: 'object',
         properties: {
@@ -177,13 +177,9 @@ async function getBirdDetails(args: { name: string }): Promise<string> {
 }
 
 async function getUserCollection(
-  userId: string | null,
+  userId: string,
   args: { show_unobserved?: boolean },
 ): Promise<string> {
-  if (!userId) {
-    return JSON.stringify({ error: 'User is not signed in. Cannot access collection data.' });
-  }
-
   const [observedIds, allBirds] = await Promise.all([
     getObservedBirdIds(userId),
     getBirds(),
@@ -213,7 +209,7 @@ async function getUserCollection(
 export async function executeToolCall(
   toolName: string,
   args: Record<string, unknown>,
-  userId: string | null,
+  userId: string,
 ): Promise<string> {
   switch (toolName) {
     case 'search_birds':
